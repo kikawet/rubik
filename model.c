@@ -16,19 +16,6 @@ typedef enum
     EFACE_LENGTH
 } EFace;
 
-typedef struct Rotation
-{
-    EFace face; // 0 for none
-    float angle; // degrees
-    float progress; // [0, 1)
-} Rotation;
-
-typedef struct Cube
-{
-    Face faces[EFACE_LENGTH];
-    Rotation rotation;
-} Cube;
-
 typedef enum
 {
     NO_MOVE,
@@ -39,6 +26,20 @@ typedef enum
     B, Bp, B2,
     D, Dp, D2,
 } Move;
+
+typedef struct Rotation
+{
+    EFace face; // 0 for none
+    Move move;
+    float angle; // degrees
+    float progress; // [0, 1)
+} Rotation;
+
+typedef struct Cube
+{
+    Face faces[EFACE_LENGTH];
+    Rotation rotation;
+} Cube;
 
 typedef struct Moves
 {
