@@ -12,7 +12,7 @@ static const Vector3 FACE_CENTERS[EFACE_LENGTH] =
 };
 
 // Color to Raylib color
-Color c2r(EColor color)
+Color c2r(const EColor color)
 {
     switch (color)
     {
@@ -26,14 +26,13 @@ Color c2r(EColor color)
     }
 }
 
-void paintCell(Face* f, uint8_t cell, EColor color)
+void paintCell(Face* f, const uint8_t cell, const EColor color)
 {
     _Static_assert(ECOLOR_LENGTH <= 6, "check width is enough to fit all possible colors in a face");
-    int width = 4; // bits required for a color
+    const int width = 4; // bits required for a color
     int offset = 0;
-    Face mask;
 
-    mask = ~0U << (width + offset) | ~(~0U << offset);
+    Face mask = ~0U << (width + offset) | ~(~0U << offset);
     if (cell & F_U && cell & F_L)
     {
         *f = (*f & mask) | color << offset;
@@ -89,7 +88,7 @@ void paintCell(Face* f, uint8_t cell, EColor color)
     }
 }
 
-void setFaceColor(Face* f, EColor color)
+void setFaceColor(Face* f, const EColor color)
 {
     *f = 0;
 
@@ -105,21 +104,19 @@ void setFaceColor(Face* f, EColor color)
     paintCell(f, F_D | F_R, color);
 }
 
-void DrawTopBottom(Vector3 position, Color top, Color bottom)
+void DrawTopBottom(const Vector3 position, const Color top, const Color bottom)
 {
-    float x = 0.0f;
-    float y = 0.0f;
-    float z = 0.0f;
-    float width = 1.0f;
-    float height = 1.0f;
-    float length = 1.0f;
-
     rlPushMatrix();
     {
+        const float x = 0.0f;
+        const float y = 0.0f;
+        const float z = 0.0f;
+        const float width = 1.0f;
+        const float height = 1.0f;
+        const float length = 1.0f;
+
         // NOTE: Transformation is applied in inverse order (scale -> rotate -> translate)
         rlTranslatef(position.x, position.y, position.z);
-        //rlRotatef(45, 0, 1, 0);
-        //rlScalef(1.0f, 1.0f, 1.0f);   // NOTE: Vertices are directly scaled on definition
 
         rlBegin(RL_TRIANGLES);
         {
@@ -178,21 +175,19 @@ void DrawTopBottom(Vector3 position, Color top, Color bottom)
     rlPopMatrix();
 }
 
-void DrawFrontBack(Vector3 position, Color front, Color back)
+void DrawFrontBack(const Vector3 position, const Color front, const Color back)
 {
-    float x = 0.0f;
-    float y = 0.0f;
-    float z = 0.0f;
-    float width = 1.0f;
-    float height = 1.0f;
-    float length = 1.0f;
-
     rlPushMatrix();
     {
+        const float x = 0.0f;
+        const float y = 0.0f;
+        const float z = 0.0f;
+        const float width = 1.0f;
+        const float height = 1.0f;
+        const float length = 1.0f;
+
         // NOTE: Transformation is applied in inverse order (scale -> rotate -> translate)
         rlTranslatef(position.x, position.y, position.z);
-        //rlRotatef(45, 0, 1, 0);
-        //rlScalef(1.0f, 1.0f, 1.0f);   // NOTE: Vertices are directly scaled on definition
 
         rlBegin(RL_TRIANGLES);
         {
@@ -267,24 +262,22 @@ void DrawFrontBack(Vector3 position, Color front, Color back)
     rlPopMatrix();
 }
 
-void DrawLeftRight(Vector3 position, Color left, Color right)
+void DrawLeftRight(const Vector3 position, const Color left, const Color right)
 {
-    float x = 0.0f;
-    float y = 0.0f;
-    float z = 0.0f;
-    float width = 1.0f;
-    float height = 1.0f;
-    float length = 1.0f;
-
     rlPushMatrix();
     {
         // NOTE: Transformation is applied in inverse order (scale -> rotate -> translate)
         rlTranslatef(position.x, position.y, position.z);
-        //rlRotatef(45, 0, 1, 0);
-        //rlScalef(1.0f, 1.0f, 1.0f);   // NOTE: Vertices are directly scaled on definition
 
         rlBegin(RL_TRIANGLES);
         {
+            const float x = 0.0f;
+            const float y = 0.0f;
+            const float z = 0.0f;
+            const float width = 1.0f;
+            const float height = 1.0f;
+            const float length = 1.0f;
+
             rlColor4ub(left.r, left.g, left.b, left.a);
 
             // Left face
@@ -314,9 +307,9 @@ void DrawLeftRight(Vector3 position, Color left, Color right)
     rlPopMatrix();
 }
 
-void DrawUp(Face* up, Rotation r)
+void DrawUp(const Face* up, const Rotation r)
 {
-    EColor color;
+    EColor color = {0};
     if (r.face == F_U || r.face == F_B || r.face == F_F || r.face == F_L || r.face == F_R )
         rlPushMatrix();
 
@@ -375,9 +368,9 @@ void DrawUp(Face* up, Rotation r)
         rlPopMatrix();
 }
 
-void DrawDown(Face* down, Rotation r)
+void DrawDown(const Face* down, const Rotation r)
 {
-    EColor color;
+    EColor color = {0};
 
     if (r.face == F_D || r.face == F_B || r.face == F_F || r.face == F_L || r.face == F_R )
         rlPushMatrix();
@@ -437,9 +430,9 @@ void DrawDown(Face* down, Rotation r)
         rlPopMatrix();
 }
 
-void DrawFront(Face* front, Rotation r)
+void DrawFront(const Face* front, const Rotation r)
 {
-    EColor color;
+    EColor color = {0};
 
     if (r.face == F_F || r.face == F_U || r.face == F_D || r.face == F_L || r.face == F_R)
         rlPushMatrix();
@@ -505,9 +498,9 @@ void DrawFront(Face* front, Rotation r)
         rlPopMatrix();
 }
 
-void DrawBack(Face* back, Rotation r)
+void DrawBack(const Face* back, const Rotation r)
 {
-    EColor color;
+    EColor color = {0};
 
     if (r.face == F_B || r.face == F_U || r.face == F_D || r.face == F_L || r.face == F_R)
         rlPushMatrix();
@@ -573,9 +566,9 @@ void DrawBack(Face* back, Rotation r)
         rlPopMatrix();
 }
 
-void DrawLeft(Face* left, Rotation r)
+void DrawLeft(const Face* left, const Rotation r)
 {
-    EColor color;
+    EColor color = {0};
 
     if (r.face == F_L || r.face == F_U || r.face == F_D || r.face == F_B || r.face == F_F)
         rlPushMatrix();
@@ -639,9 +632,9 @@ void DrawLeft(Face* left, Rotation r)
         rlPopMatrix();
 }
 
-void DrawRight(Face* right, Rotation r)
+void DrawRight(const Face* right, const Rotation r)
 {
-    EColor color;
+    EColor color = {0};
 
     if (r.face == F_R || r.face == F_U || r.face == F_D || r.face == F_B || r.face == F_F)
         rlPushMatrix();
@@ -706,7 +699,7 @@ void DrawRight(Face* right, Rotation r)
 }
 
 // Will be drawn at 0.0 0.0 0.0
-void DrawRubik(Cube* cube)
+void DrawRubik(const Cube* cube)
 {
     DrawUp(&cube->faces[f2i(F_U)], cube->rotation);
     DrawDown(&cube->faces[f2i(F_D)], cube->rotation);

@@ -25,6 +25,7 @@ typedef enum
     R, Rp, R2,
     B, Bp, B2,
     D, Dp, D2,
+    MOVE_LENGTH
 } Move;
 
 typedef struct Rotation
@@ -66,11 +67,11 @@ int f2i(const EFace f)
     __builtin_unreachable();
 }
 
-EColor getCell(Face* f, uint8_t cell)
+EColor getCell(const Face* f, const uint8_t cell)
 {
-    int width = 4; // bits required for a color
+    const int width = 4; // bits required for a color
+    const int mask = 0xF;
     int offset = 0;
-    int mask = 0xF;
 
     if (cell & F_U && cell & F_L)
     {

@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #include <raylib.h>
+#include <time.h>
 
 #include "model.c"
 #include "draw.c"
@@ -68,13 +69,14 @@ EFace moveToFace(const Move m)
     case Dp:
     case D2:
         return F_D;
+    default: break;
     }
 
     TraceLog(LOG_FATAL, "Invalid move %d", m); // Will abort with exit(EXIT_FAILURE)
     __builtin_unreachable();
 }
 
-void copyCell(Face* dst, const uint8_t cellDst, Face* src, const uint8_t cellSrc)
+void copyCell(Face* dst, const uint8_t cellDst, const Face* src, const uint8_t cellSrc)
 {
     const EColor color = getCell(src, cellSrc);
     paintCell(dst, cellDst, color);
@@ -83,7 +85,7 @@ void copyCell(Face* dst, const uint8_t cellDst, Face* src, const uint8_t cellSrc
 static inline void rotateUpCCW(Cube* cube)
 {
     // Update Up face
-    Face up_before = cube->faces[f2i(F_U)];
+    const Face up_before = cube->faces[f2i(F_U)];
     Face* up = &cube->faces[f2i(F_U)];
     copyCell(up, F_U | F_L, up, F_U | F_R);
     copyCell(up, F_U, up, F_R);
@@ -95,7 +97,7 @@ static inline void rotateUpCCW(Cube* cube)
     copyCell(up, F_L, &up_before, F_U);
 
     // Update adjacent faces
-    Face back_before = cube->faces[f2i(F_B)];
+    const Face back_before = cube->faces[f2i(F_B)];
     Face* back = &cube->faces[f2i(F_B)];
     Face* right = &cube->faces[f2i(F_R)];
     Face* front = &cube->faces[f2i(F_F)];
@@ -128,7 +130,7 @@ void rotateUpCW(Cube* cube)
 static inline void rotateDownCCW(Cube* cube)
 {
     // Update Down face
-    Face down_before = cube->faces[f2i(F_D)];
+    const Face down_before = cube->faces[f2i(F_D)];
     Face* down = &cube->faces[f2i(F_D)];
     copyCell(down, F_U | F_L, down, F_U | F_R);
     copyCell(down, F_U, down, F_R);
@@ -140,7 +142,7 @@ static inline void rotateDownCCW(Cube* cube)
     copyCell(down, F_L, &down_before, F_U);
 
     // Update adjacent faces
-    Face front_before = cube->faces[f2i(F_B)];
+    const Face front_before = cube->faces[f2i(F_B)];
     Face* front = &cube->faces[f2i(F_B)];
     Face* left = &cube->faces[f2i(F_L)];
     Face* back = &cube->faces[f2i(F_F)];
@@ -173,7 +175,7 @@ void rotateDownCW(Cube* cube)
 static inline void rotateFrontCCW(Cube* cube)
 {
     // Update Front face
-    Face front_before = cube->faces[f2i(F_F)];
+    const Face front_before = cube->faces[f2i(F_F)];
     Face* front = &cube->faces[f2i(F_F)];
     copyCell(front, F_U | F_L, front, F_U | F_R);
     copyCell(front, F_U, front, F_R);
@@ -185,7 +187,7 @@ static inline void rotateFrontCCW(Cube* cube)
     copyCell(front, F_L, &front_before, F_U);
 
     // Update adjacent faces
-    Face up_before = cube->faces[f2i(F_U)];
+    const Face up_before = cube->faces[f2i(F_U)];
     Face* up = &cube->faces[f2i(F_U)];
     Face* right = &cube->faces[f2i(F_R)];
     Face* down = &cube->faces[f2i(F_D)];
@@ -218,7 +220,7 @@ void rotateFrontCW(Cube* cube)
 static inline void rotateBackCCW(Cube* cube)
 {
     // Update Back face
-    Face back_before = cube->faces[f2i(F_B)];
+    const Face back_before = cube->faces[f2i(F_B)];
     Face* back = &cube->faces[f2i(F_B)];
     copyCell(back, F_U | F_L, back, F_U | F_R);
     copyCell(back, F_U, back, F_R);
@@ -230,7 +232,7 @@ static inline void rotateBackCCW(Cube* cube)
     copyCell(back, F_L, &back_before, F_U);
 
     // Update adjacent faces
-    Face up_before = cube->faces[f2i(F_U)];
+    const Face up_before = cube->faces[f2i(F_U)];
     Face* up = &cube->faces[f2i(F_U)];
     Face* right = &cube->faces[f2i(F_R)];
     Face* down = &cube->faces[f2i(F_D)];
@@ -263,7 +265,7 @@ void rotateBackCW(Cube* cube)
 static inline void rotateLeftCCW(Cube* cube)
 {
     // Update Left face
-    Face left_before = cube->faces[f2i(F_L)];
+    const Face left_before = cube->faces[f2i(F_L)];
     Face* left = &cube->faces[f2i(F_L)];
     copyCell(left, F_U | F_L, left, F_U | F_R);
     copyCell(left, F_U, left, F_R);
@@ -275,7 +277,7 @@ static inline void rotateLeftCCW(Cube* cube)
     copyCell(left, F_L, &left_before, F_U);
 
     // Update adjacent faces
-    Face up_before = cube->faces[f2i(F_U)];
+    const Face up_before = cube->faces[f2i(F_U)];
     Face* up = &cube->faces[f2i(F_U)];
     Face* front = &cube->faces[f2i(F_F)];
     Face* down = &cube->faces[f2i(F_D)];
@@ -308,7 +310,7 @@ void rotateLeftCW(Cube* cube)
 static inline void rotateRightCCW(Cube* cube)
 {
     // Update Right face
-    Face right_before = cube->faces[f2i(F_R)];
+    const Face right_before = cube->faces[f2i(F_R)];
     Face* right = &cube->faces[f2i(F_R)];
     copyCell(right, F_U | F_L, right, F_U | F_R);
     copyCell(right, F_U, right, F_R);
@@ -320,7 +322,7 @@ static inline void rotateRightCCW(Cube* cube)
     copyCell(right, F_L, &right_before, F_U);
 
     // Update adjacent faces
-    Face up_before = cube->faces[f2i(F_U)];
+    const Face up_before = cube->faces[f2i(F_U)];
     Face* up = &cube->faces[f2i(F_U)];
     Face* back = &cube->faces[f2i(F_B)];
     Face* down = &cube->faces[f2i(F_D)];
@@ -350,7 +352,7 @@ void rotateRightCW(Cube* cube)
     rotateRightCCW(cube);
 }
 
-void rotateCube(Cube* cube, Move m)
+void rotateCube(Cube* cube,const Move m)
 {
     if (m == NO_MOVE) return;
 
@@ -391,7 +393,7 @@ void rotateCube(Cube* cube, Move m)
 
 void updateCube(Cube* cube, Moves* moves)
 {
-    if (moves->current > moves->count)
+    if (moves->current >= moves->count && cube->rotation.progress >= 1.f)
         return;
 
     const float dt = GetFrameTime();
@@ -421,7 +423,7 @@ void updateCube(Cube* cube, Moves* moves)
     r->angle = moveMaxAngle(r->move) * r->progress;
 }
 
-Cube newCube()
+Cube newCube(void)
 {
     Cube c = {0};
 
@@ -432,25 +434,29 @@ Cube newCube()
     setFaceColor(&c.faces[f2i(F_L)], Orange);
     setFaceColor(&c.faces[f2i(F_R)], Red);
 
-    // c.rotation.face = F_L;
-    // c.rotation.angle = 45.f;
-
     return c;
 }
 
-Moves generateMoves()
+Moves generateMoves(const size_t amount)
 {
     Moves moves = {0};
 
-    moves.count = 5;
+    if (amount == 0)
+        return moves;
+
+    moves.count = amount;
     moves.items = malloc(sizeof(Move)*moves.count);
 
-    int i = 0;
-    moves.items[i++] = F2;
-    moves.items[i++] = Dp;
-    moves.items[i++] = F;
-    moves.items[i++] = F;
-    moves.items[i++] = R2;
+    SetRandomSeed(time(NULL));
+    for (size_t i = 0; i < moves.count; i++)
+    {
+        Move m = NO_MOVE;
+        while (m == NO_MOVE)
+        {
+            m =  GetRandomValue(NO_MOVE,  MOVE_LENGTH - 1);
+        }
+        moves.items[i] = m;
+    }
 
     return moves;
 }
@@ -458,36 +464,7 @@ Moves generateMoves()
 int main()
 {
     Cube cube = newCube();
-    Moves moves = generateMoves();
-
-    // paintCell(&cube.faces[f2i(F_F)], F_D | F_L, White);
-    // paintCell(&cube.faces[f2i(F_F)], F_D | F_R, Yellow);
-    //
-    // paintCell(&cube.faces[f2i(F_L)], F_D | F_R, Yellow);
-    // paintCell(&cube.faces[f2i(F_L)], F_D | F_L, White);
-    //
-    // paintCell(&cube.faces[f2i(F_R)], F_D | F_L, White);
-    // paintCell(&cube.faces[f2i(F_R)], F_D | F_R, Yellow);
-    //
-    // paintCell(&cube.faces[f2i(F_B)], F_D | F_L, White);
-    // paintCell(&cube.faces[f2i(F_B)], F_D | F_R, Yellow);
-
-    // paintCell(&cube.faces[f2i(F_D)], F_D | F_L, White);
-    // paintCell(&cube.faces[f2i(F_F)], F_D | F_L, White);
-    // paintCell(&cube.faces[f2i(F_B)], F_D | F_L, White);
-    // paintCell(&cube.faces[f2i(F_L)], F_D | F_L, White);
-    // paintCell(&cube.faces[f2i(F_R)], F_D | F_L, White);
-
-    // paintCell(&cube.faces[f2i(F_D)], F_D, Blue);
-    // paintCell(&cube.faces[f2i(F_D)], F_D | F_L, Blue);
-    // paintCell(&cube.faces[f2i(F_D)], F_L, Orange);
-    // paintCell(&cube.faces[f2i(F_D)], F_L | F_U, Orange);
-    // paintCell(&cube.faces[f2i(F_D)], F_U, Green);
-    // paintCell(&cube.faces[f2i(F_D)], F_U | F_R, Green);
-    // paintCell(&cube.faces[f2i(F_D)], F_R, Red);
-    // paintCell(&cube.faces[f2i(F_D)], F_R | F_D, Red);
-
-    // rotateCube(&cube, R);
+    Moves moves = generateMoves(2);
 
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     SetTargetFPS(60);
@@ -497,7 +474,7 @@ int main()
     SetExitKey(KEY_Q);
 
     Camera3D camera = {0};
-    camera.position = (Vector3){10.0f, -10.0f, 10.0f};
+    camera.position = (Vector3){10.0f, 10.0f, 10.0f};
     camera.target = (Vector3){0.0f, 0.0f, 0.0f};
     camera.up = (Vector3){0.0f, 1.0f, 0.0f};
     camera.fovy = 45.0f;
