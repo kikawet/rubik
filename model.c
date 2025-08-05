@@ -30,9 +30,9 @@ typedef enum
 
 typedef struct Rotation
 {
-    EFace face; // 0 for none
-    Move move;
-    float angle; // degrees
+    EFace face;     // 0 for none; Since many moves rotate the same face this is handy
+    Move move;      // clone current move to modify Moves as freely
+    float angle;    // degrees
     float progress; // [0, 1)
 } Rotation;
 
@@ -47,6 +47,7 @@ typedef struct Moves
     Move* items;
     size_t current;
     size_t count;
+    size_t capacity;
 } Moves;
 
 // Face to index
@@ -121,4 +122,30 @@ EColor getCell(const Face* f, const uint8_t cell)
     }
 
     return White;
+}
+
+const char* moveToStr(const Move m)
+{
+    switch (m)
+    {
+    case U:  return "U";
+    case Up: return "U'";
+    case U2: return "U2";
+    case L:  return "L";
+    case Lp: return "L'";
+    case L2: return "L2";
+    case F:  return "F";
+    case Fp: return "F'";
+    case F2: return "F2";
+    case R:  return "R";
+    case Rp: return "R'";
+    case R2: return "R2";
+    case B:  return "B";
+    case Bp: return "B'";
+    case B2: return "B2";
+    case D:  return "D";
+    case Dp: return "D'";
+    case D2: return "D2";
+    default: return "";
+    }
 }

@@ -4,12 +4,36 @@
 #include <stdlib.h>
 
 #include <raylib.h>
+#include <rcamera.h>
 #include <time.h>
 
 #include "model.c"
 #include "draw.c"
+#include "resources/MozillaTextFont.h"
 
-// degrees
+// TY TSODING <3 section
+#define da_append(da, item)                  \
+    do {                                     \
+        da_reserve((da), (da)->count + 1);   \
+        (da)->items[(da)->count++] = (item); \
+    } while (0)
+
+#define da_reserve(da, expected_capacity)                                                  \
+    do {                                                                                   \
+        if ((expected_capacity) > (da)->capacity) {                                        \
+            if ((da)->capacity == 0) {                                                     \
+                (da)->capacity = 16;                                                       \
+            }                                                                              \
+            while ((expected_capacity) > (da)->capacity) {                                 \
+                (da)->capacity *= 2;                                                       \
+            }                                                                              \
+            (da)->items = realloc((da)->items, (da)->capacity * sizeof(*(da)->items));  /* NOLINT Realloc may leak but since we assert below is safe! */   \
+            assert((da)->items != NULL && "Buy more RAM lol");                             \
+        }                                                                                  \
+    } while (0)
+// END TY TSODING <3 section
+
+// degrees angles are reversed bc conversions are hard
 float moveMaxAngle(const Move m)
 {
     switch (m)
@@ -391,9 +415,38 @@ void rotateCube(Cube* cube,const Move m)
 
 }
 
+void nextMove(Rotation* r, Moves* queue)
+{
+    if (queue->items == NULL) return;
+
+    if (queue->current >= queue->count)
+    {
+        // Reset rotation
+        r->move = NO_MOVE;
+        r->face = 0;
+        r->progress = 0;
+        r->angle = 0;
+
+        // Reset queue
+        queue->current = 0;
+        queue->count = 0;
+
+        TraceLog(LOG_DEBUG, "Resetting state");
+        return;
+    }
+
+    // Advance current
+    r->move = queue->items[queue->current++];
+    r->face = moveToFace(r->move);
+    r->progress = 0;
+    r->angle = moveMaxAngle(r->move) * r->progress;
+
+    // TODO: after a buffer of (10?) moves has been advanced "free/reset Moves"
+}
+
 void updateCube(Cube* cube, Moves* moves)
 {
-    if (moves->current >= moves->count && cube->rotation.progress >= 1.f)
+    if (moves->current >= moves->count && cube->rotation.face == 0)
         return;
 
     const float dt = GetFrameTime();
@@ -402,20 +455,14 @@ void updateCube(Cube* cube, Moves* moves)
 
     if (cube->rotation.face == 0)
     {
-        r->move = moves->items[moves->current++];
-        r->face = moveToFace(r->move);
-        r->progress = 0;
-        r->angle = moveMaxAngle(r->move) * r->progress;
+        nextMove(r, moves);
         return;
     }
 
     if (r->progress >= 1.f)
     {
         rotateCube(cube, r->move);
-        r->move = moves->items[moves->current++];
-        r->face = moveToFace(r->move);
-        r->progress = 0;
-        r->angle = moveMaxAngle(r->move) * r->progress;
+        nextMove(r, moves);
         return;
     }
 
@@ -450,27 +497,99 @@ Moves generateMoves(const size_t amount)
     SetRandomSeed(time(NULL));
     for (size_t i = 0; i < moves.count; i++)
     {
-        Move m = NO_MOVE;
-        while (m == NO_MOVE)
-        {
-            m =  GetRandomValue(NO_MOVE,  MOVE_LENGTH - 1);
-        }
+        const Move m = GetRandomValue(NO_MOVE + 1, MOVE_LENGTH - 1);
         moves.items[i] = m;
     }
 
     return moves;
 }
 
+void updateCamera(Camera* camera)
+{
+    const float cameraSpeed = 20.f;
+    const bool moveInWorldPlane = false;
+
+    camera->target = (Vector3){0.0f, 0.0f, 0.0f};
+
+    // Camera speeds based on frame time
+    const float cameraDistance = cameraSpeed * GetFrameTime();
+
+    // Keyboard support
+    if (IsKeyDown(KEY_UP)) CameraMoveForward(camera, cameraDistance, moveInWorldPlane);
+    if (IsKeyDown(KEY_LEFT)) CameraMoveRight(camera, -cameraDistance, moveInWorldPlane);
+    if (IsKeyDown(KEY_DOWN)) CameraMoveForward(camera, -cameraDistance, moveInWorldPlane);
+    if (IsKeyDown(KEY_RIGHT)) CameraMoveRight(camera, cameraDistance, moveInWorldPlane);
+
+    if (IsKeyDown(KEY_SPACE)) CameraMoveUp(camera, cameraDistance);
+    if (IsKeyDown(KEY_LEFT_CONTROL)) CameraMoveUp(camera, -cameraDistance);
+
+    // Zoom target distance
+    CameraMoveToTarget(camera, -GetMouseWheelMove());
+    if (IsKeyPressed(KEY_KP_SUBTRACT)) CameraMoveToTarget(camera, 2.0f);
+    if (IsKeyPressed(KEY_KP_ADD)) CameraMoveToTarget(camera, -2.0f);
+}
+
+void handleKeys(Cube* cube, Moves* queue)
+{
+    if (IsKeyPressed(KEY_S))
+    {   // Scramble
+        const Moves moves = generateMoves(15);
+        for (size_t i = 0; i < moves.count; i++)
+            rotateCube(cube, moves.items[i]);
+        free(moves.items);
+    }
+
+    const bool ccw = IsKeyDown(KEY_LEFT_SHIFT);
+
+    if (IsKeyPressed(KEY_U))
+        da_append(queue, ccw ? Up : U);
+
+    if (IsKeyPressed(KEY_L))
+        da_append(queue, ccw ? Lp : L);
+
+    if (IsKeyPressed(KEY_F))
+        da_append(queue, ccw ? Fp : F);
+
+    if (IsKeyPressed(KEY_R))
+        da_append(queue, ccw ? Rp : R);
+
+    if (IsKeyPressed(KEY_B))
+        da_append(queue, ccw ? Bp : B);
+
+    if (IsKeyPressed(KEY_D))
+        da_append(queue, ccw ? Dp : D);
+}
+
+void drawCurrentMovement(const Cube* cube, const Font* f)
+{
+    if (cube->rotation.face == 0 || cube->rotation.move == NO_MOVE)
+        return;
+
+    const char* movementText = moveToStr(cube->rotation.move);
+    const int fontSize = f->baseSize;
+    const float spacing = 2.f;
+
+    const int width = GetScreenWidth();
+    const int height = GetScreenHeight();
+    const Vector2 textSize = MeasureTextEx(*f, movementText, (float)fontSize, spacing);
+    const Vector2 movementTextPos = (Vector2){
+        ((float)width - textSize.x) / 2.f, (float)height * 0.1f
+    };
+
+    DrawTextEx(*f, movementText, movementTextPos, (float)fontSize, spacing, BLACK);
+}
+
 int main()
 {
     Cube cube = newCube();
-    Moves moves = generateMoves(2);
+    Moves queue = {0};
 
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     SetTargetFPS(60);
 
     InitWindow(800, 600, "Rubik's cube");
 
+    const Font mozillaFont = LoadFont_MozillaTextFont();
     SetExitKey(KEY_Q);
 
     Camera3D camera = {0};
@@ -482,38 +601,30 @@ int main()
 
     while (!WindowShouldClose())
     {
-        const float dt = GetFrameTime();
-
-        if (IsKeyDown(KEY_SPACE))
-        {
-            camera.position.y += 10.f * dt;
-        }
-
-        if (IsKeyDown(KEY_LEFT_CONTROL))
-        {
-            camera.position.y -= 10.f * dt;
-        }
-
-        UpdateCamera(&camera, CAMERA_ORBITAL);
-        updateCube(&cube, &moves);
+        updateCamera(&camera);
+        handleKeys(&cube, &queue);
+        updateCube(&cube, &queue);
 
         BeginDrawing();
         {
             ClearBackground(RAYWHITE);
             DrawFPS(10, 10);
+
             BeginMode3D(camera);
             {
                 DrawRubik(&cube);
-
                 DrawGrid(10, 1.f);
             }
             EndMode3D();
+
+            drawCurrentMovement(&cube, &mozillaFont);
         }
         EndDrawing();
     }
 
+    if (queue.capacity) free(queue.items);
+
     CloseWindow();
-    free(moves.items);
 
     return EXIT_SUCCESS;
 }
