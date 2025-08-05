@@ -1,5 +1,8 @@
 
+#include <raylib.h>
 #include <rlgl.h>
+
+#include "draw.h"
 
 static const Vector3 FACE_CENTERS[EFACE_LENGTH] =
 { // This order is given by the f2i function
@@ -24,84 +27,6 @@ Color c2r(const EColor color)
     case Yellow: return YELLOW;
     default: return BLACK;
     }
-}
-
-void paintCell(Face* f, const uint8_t cell, const EColor color)
-{
-    _Static_assert(ECOLOR_LENGTH <= 6, "check width is enough to fit all possible colors in a face");
-    const int width = 4; // bits required for a color
-    int offset = 0;
-
-    Face mask = ~0U << (width + offset) | ~(~0U << offset);
-    if (cell & F_U && cell & F_L)
-    {
-        *f = (*f & mask) | color << offset;
-    }
-
-    offset += width;
-    mask = ~0U << (width + offset) | ~(~0U << offset);
-    if (cell == F_U)
-    {
-        *f = (*f & mask) | color << offset;
-    }
-
-    offset += width;
-    mask = ~0U << (width + offset) | ~(~0U << offset);
-    if (cell & F_U && cell & F_R)
-    {
-        *f = (*f & mask) | color << offset;
-    }
-
-    offset += width;
-    mask = ~0U << (width + offset) | ~(~0U << offset);
-    if (cell == F_L)
-    {
-        *f = (*f & mask) | color << offset;
-    }
-
-    offset += width;
-    mask = ~0U << (width + offset) | ~(~0U << offset);
-    if (cell == F_R)
-    {
-        *f = (*f & mask) | color << offset;
-    }
-
-    offset += width;
-    mask = ~0U << (width + offset) | ~(~0U << offset);
-    if (cell & F_D && cell & F_L)
-    {
-        *f = (*f & mask) | color << offset;
-    }
-
-    offset += width;
-    mask = ~0U << (width + offset) | ~(~0U << offset);
-    if (cell == F_D)
-    {
-        *f = (*f & mask) | color << offset;
-    }
-
-    offset += width;
-    mask = 0 | ~(~0U << offset);
-    if (cell & F_D && cell & F_R)
-    {
-        *f = (*f & mask) | color << offset;
-    }
-}
-
-void setFaceColor(Face* f, const EColor color)
-{
-    *f = 0;
-
-    paintCell(f, F_U | F_L, color);
-    paintCell(f, F_U, color);
-    paintCell(f, F_U | F_R, color);
-
-    paintCell(f, F_L, color);
-    paintCell(f, F_R, color);
-
-    paintCell(f, F_D | F_L, color);
-    paintCell(f, F_D, color);
-    paintCell(f, F_D | F_R, color);
 }
 
 void DrawTopBottom(const Vector3 position, const Color top, const Color bottom)
@@ -709,4 +634,23 @@ void DrawRubik(const Cube* cube)
 
     DrawLeft(&cube->faces[f2i(F_L)], cube->rotation);
     DrawRight(&cube->faces[f2i(F_R)], cube->rotation);
+}
+
+void drawCurrentMovement(const Cube* cube, const Font* f)
+{
+    if (cube->rotation.face == 0 || cube->rotation.move == NO_MOVE)
+        return;
+
+    const char* movementText = moveToStr(cube->rotation.move);
+    const int fontSize = f->baseSize;
+    const float spacing = 2.f;
+
+    const int width = GetScreenWidth();
+    const int height = GetScreenHeight();
+    const Vector2 textSize = MeasureTextEx(*f, movementText, (float)fontSize, spacing);
+    const Vector2 movementTextPos = (Vector2){
+        ((float)width - textSize.x) / 2.f, (float)height * 0.1f
+    };
+
+    DrawTextEx(*f, movementText, movementTextPos, (float)fontSize, spacing, BLACK);
 }
