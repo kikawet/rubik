@@ -1,15 +1,20 @@
 #include <assert.h>
+#include <dlfcn.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <time.h>
 
 #include <raylib.h>
 #include <rcamera.h>
-#include <time.h>
 
 #include "model.h"
+#include "solver.h"
 #include "draw.h"
 #include "resources/MozillaTextFont.h"
+
+bool pause = false;
 
 void nextMove(Rotation* r, Moves* queue)
 {
@@ -62,6 +67,8 @@ void updateCube(Cube* cube, Moves* moves)
         return;
     }
 
+    if (pause) return;
+
     r->progress += progressSpeed * dt;
     r->angle = moveMaxAngle(r->move) * r->progress;
 }
@@ -74,7 +81,7 @@ Moves generateMoves(const size_t amount)
         return moves;
 
     moves.count = amount;
-    moves.items = malloc(sizeof(Move)*moves.count);
+    moves.items = malloc(sizeof(Move) * moves.count);
 
     SetRandomSeed(time(NULL));
     for (size_t i = 0; i < moves.count; i++)
@@ -114,7 +121,8 @@ void updateCamera(Camera* camera)
 void handleKeys(Cube* cube, Moves* queue)
 {
     if (IsKeyPressed(KEY_S))
-    {   // Scramble
+    {
+        // Scramble
         const Moves moves = generateMoves(15);
         for (size_t i = 0; i < moves.count; i++)
             rotateCube(cube, moves.items[i]);
@@ -142,19 +150,77 @@ void handleKeys(Cube* cube, Moves* queue)
         da_append(queue, ccw ? Dp : D);
 }
 
-int main()
+void thistlethwaite_suffle(Cube* cube)
 {
-    // Moves m = thistlethwaite_suffle();
+    const Move m[] = {U2, B2, Rp, F2, Rp, U2, L2, B2, Rp, B2, R2, U2, B2, Up, L, R2, U, L, F, D2, Rp, Fp};
+    const size_t size = sizeof(m) / sizeof(m[0]);
 
+    for (size_t i = 0; i < size; i++)
+    {
+        rotateCube(cube, m[i]);
+    }
+}
 
+static void* libsolver = NULL;
+solve_t* solver = NULL;
+
+bool reload_libsolver(void)
+{
+    if (libsolver != NULL) dlclose(libsolver);
+
+    const char* libsolver_file_name = "./libsolver.so";
+    libsolver = dlopen(libsolver_file_name, RTLD_NOW);
+
+    if (libsolver == NULL)
+    {
+        TraceLog(LOG_ERROR, "HOTRELOAD: could not load %s: %s", libsolver_file_name, dlerror());
+        return false;
+    }
+
+    // Cast it to prt to remove a warning
+    solver = (solve_t*)(intptr_t)dlsym(libsolver, "solve");
+    if (solver == NULL)
+    {
+        TraceLog(LOG_ERROR, "HOTRELOAD: could not find solve symbol in %s: %s", libsolver_file_name, dlerror());
+        return false;
+    }
+
+    return true;
+}
+
+void parse_args(const int argc, const char** argv, Cube* cube)
+{
+    if (argc != 2) return;
+
+    Moves rotations = {0};
+    strToMoves(argv[1], &rotations);
+
+    for (size_t i = 0; i < rotations.count; i++)
+    {
+        rotateCube(cube, rotations.items[i]);
+    }
+
+    if (rotations.items != NULL) free(rotations.items);
+}
+
+int main(const int argc, const char** argv)
+{
+    if (!reload_libsolver()) return EXIT_FAILURE;
 
     Cube cube = newCube();
+    Cube copy = {0};
+
+    parse_args(argc, argv, &cube);
+    //thistlethwaite_suffle(&cube);
+
     Moves queue = {0};
 
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     SetTargetFPS(60);
 
     InitWindow(800, 600, "Rubik's cube");
+
+    SetTraceLogLevel(LOG_ALL);
 
     const Font mozillaFont = LoadFont_MozillaTextFont();
     SetExitKey(KEY_Q);
@@ -171,6 +237,60 @@ int main()
         updateCamera(&camera);
         handleKeys(&cube, &queue);
         updateCube(&cube, &queue);
+
+        if (IsKeyPressed(KEY_F1))
+        {
+            if (cube.rotation.face)
+            {
+                TraceLog(LOG_INFO, "Cannot request a new solve while rotating!");
+                continue;
+            }
+            memcpy(&copy, &cube, sizeof(Cube));
+            TraceLog(LOG_INFO, "Cloned cube state before solving");
+            solver(cube, &queue);
+
+            if (IsKeyDown(KEY_LEFT_SHIFT))
+            {
+                for (size_t i = queue.current; i < queue.count; i++)
+                {
+                    rotateCube(&cube, queue.items[i]);
+                }
+
+                queue.current = queue.count;
+            }
+        }
+
+        if (IsKeyPressed(KEY_F5))
+        {
+            if (!reload_libsolver()) return EXIT_FAILURE;
+            TraceLog(LOG_INFO, "Solver reloaded successfully");
+        }
+
+        if (IsKeyPressed(KEY_F7))
+        {
+            memcpy(&cube, &copy, sizeof(Cube));
+            queue.current = 0;
+            queue.count = 0;
+            TraceLog(LOG_INFO, "Restored cube state");
+        }
+
+        if (IsKeyPressed(KEY_F8))
+        {
+            memcpy(&copy, &cube, sizeof(Cube));
+            TraceLog(LOG_INFO, "Cloned cube state");
+        }
+
+        if (IsKeyPressed(KEY_N))
+        {
+            cube.rotation.progress = 1.f;
+            TraceLog(LOG_INFO, "Skyped movement %s", moveToStr(cube.rotation.move));
+        }
+
+        if (IsKeyPressed(KEY_P))
+        {
+            pause = !pause;
+            TraceLog(LOG_INFO, "Skyped movement %s", moveToStr(cube.rotation.move));
+        }
 
         BeginDrawing();
         {

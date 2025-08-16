@@ -1,0 +1,2685 @@
+// TODO: Maybe add one of these solvers? https://rosettacode.org/wiki/Solve_a_Rubik's_cube#thistlethwaite
+
+#include "solver.h"
+
+#include <raylib.h>
+#include <stdio.h>
+
+void updateCube(Cube* cube, Moves* queue)
+{
+    for (size_t i = queue->current; i < queue->count; i++)
+    {
+        rotateCube(cube, queue->items[i]);
+    }
+
+    queue->current = queue->count;
+}
+
+bool solveWhiteGreenEdge(Cube* cube, Moves* moves)
+{
+    updateCube(cube, moves); // This should do nothing since solver can only be called with empty moves queue
+
+    // TODO: replace static colors with variables :/
+    const Face* up = &cube->faces[f2i(F_U)];
+    const Face* down = &cube->faces[f2i(F_D)];
+    const Face* front = &cube->faces[f2i(F_F)];
+    const Face* back = &cube->faces[f2i(F_B)];
+    const Face* left = &cube->faces[f2i(F_L)];
+    const Face* right = &cube->faces[f2i(F_R)];
+
+    bool success = false;
+    // Search Front + Up
+    // check if White in on top
+    if (getCell(up, F_U) == White && getCell(back, F_U) == Green)
+    {
+        da_append(moves, U2);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(up, F_D) == White && getCell(front, F_U) == Green)
+    {
+        // Do nothing :)
+
+        success = true;
+        TraceLog(LOG_TRACE, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(up, F_R) == White && getCell(right, F_U) == Green)
+    {
+        da_append(moves, U);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(up, F_L) == White && getCell(left, F_U) == Green)
+    {
+        da_append(moves, Up);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(back, F_U) == White && getCell(up, F_U) == Green)
+    {
+        da_append(moves, U);
+        da_append(moves, Rp);
+        da_append(moves, Fp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(front, F_U) == White && getCell(up, F_D) == Green)
+    {
+        da_append(moves, Up);
+        da_append(moves, Rp);
+        da_append(moves, Fp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(right, F_U) == White && getCell(up, F_R) == Green)
+    {
+        da_append(moves, Rp);
+        da_append(moves, Fp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(left, F_U) == White && getCell(up, F_L) == Green)
+    {
+        da_append(moves, L);
+        da_append(moves, F);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // check if White is on front side
+    else if (getCell(front, F_L) == White && getCell(left, F_R) == Green)
+    {
+        da_append(moves, Lp);
+        da_append(moves, Up);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(front, F_R) == White && getCell(right, F_L) == Green)
+    {
+        da_append(moves, R);
+        da_append(moves, U);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(right, F_L) == White && getCell(front, F_R) == Green)
+    {
+        da_append(moves, Fp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(left, F_R) == White && getCell(front, F_L) == Green)
+    {
+        da_append(moves, F);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // check if White is on back
+    else if (getCell(back, F_L) == White && getCell(right, F_R) == Green)
+    {
+        da_append(moves, Rp);
+        da_append(moves, U);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(back, F_R) == White && getCell(left, F_L) == Green)
+    {
+        da_append(moves, L);
+        da_append(moves, Up);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(right, F_R) == White && getCell(back, F_L) == Green)
+    {
+        da_append(moves, R2);
+        da_append(moves, Fp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(left, F_L) == White && getCell(back, F_R) == Green)
+    {
+        da_append(moves, L2);
+        da_append(moves, F);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Check if white is at the bottom
+    if (getCell(down, F_U) == White && getCell(front, F_D) == Green)
+    {
+        da_append(moves, F2);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_D) == White && getCell(back, F_D) == Green)
+    {
+        da_append(moves, D2);
+        da_append(moves, F2);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_R) == White && getCell(right, F_D) == Green)
+    {
+        da_append(moves, Dp);
+        da_append(moves, F2);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_L) == White && getCell(left, F_D) == Green)
+    {
+        da_append(moves, D);
+        da_append(moves, F2);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Check if green is at the bottom
+    if (getCell(front, F_D) == White && getCell(down, F_U) == Green)
+    {
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, Fp);
+        da_append(moves, Rp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(back, F_D) == White && getCell(down, F_D) == Green)
+    {
+        da_append(moves, Dp);
+        da_append(moves, R);
+        da_append(moves, Fp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(right, F_D) == White && getCell(down, F_R) == Green)
+    {
+        da_append(moves, R);
+        da_append(moves, Fp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(left, F_D) == White && getCell(down, F_L) == Green)
+    {
+        da_append(moves, Lp);
+        da_append(moves, F);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+
+    if (!success)
+    {
+        TraceLog(LOG_ERROR, "[%s] Unable to find edge piece", __func__);
+        return false;
+    }
+
+    return true;
+}
+
+bool solveWhiteBlueEdge(Cube* cube, Moves* moves)
+{
+    updateCube(cube, moves);
+
+    // TODO: replace static colors with variables :/
+    const Face* up = &cube->faces[f2i(F_U)];
+    const Face* down = &cube->faces[f2i(F_D)];
+    const Face* front = &cube->faces[f2i(F_F)];
+    const Face* back = &cube->faces[f2i(F_B)];
+    const Face* left = &cube->faces[f2i(F_L)];
+    const Face* right = &cube->faces[f2i(F_R)];
+
+    bool success = false;
+    // Check if White is on top
+    if (getCell(up, F_U) == White && getCell(back, F_U) == Blue)
+    {
+        // Do nothing :)
+
+        success = true;
+        TraceLog(LOG_TRACE, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(up, F_R) == White && getCell(right, F_U) == Blue)
+    {
+        da_append(moves, R2);
+        da_append(moves, D);
+        da_append(moves, B2);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(up, F_L) == White && getCell(left, F_U) == Blue)
+    {
+        da_append(moves, L2);
+        da_append(moves, Dp);
+        da_append(moves, B2);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(back, F_U) == White && getCell(up, F_U) == Blue)
+    {
+        da_append(moves, U);
+        da_append(moves, R);
+        da_append(moves, Up);
+        da_append(moves, B);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(right, F_U) == White && getCell(up, F_R) == Blue)
+    {
+        da_append(moves, R);
+        da_append(moves, B);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(left, F_U) == White && getCell(up, F_L) == Blue)
+    {
+        da_append(moves, Lp);
+        da_append(moves, Bp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Check edge on front
+    else if (getCell(front, F_R) == White && getCell(right, F_L) == Blue)
+    {
+        da_append(moves, Rp);
+        da_append(moves, D);
+        da_append(moves, B2);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(front, F_L) == White && getCell(left, F_R) == Blue)
+    {
+        da_append(moves, L);
+        da_append(moves, Dp);
+        da_append(moves, B2);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(right, F_L) == White && getCell(front, F_R) == Blue)
+    {
+        da_append(moves, R2);
+        da_append(moves, B);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(left, F_R) == White && getCell(front, F_L) == Blue)
+    {
+        da_append(moves, L2);
+        da_append(moves, Bp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Check edge on back face
+    else if (getCell(left, F_L) == White && getCell(back, F_R) == Blue)
+    {
+        da_append(moves, Bp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(right, F_R) == White && getCell(back, F_L) == Blue)
+    {
+        da_append(moves, B);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(back, F_R) == White && getCell(left, F_L) == Blue)
+    {
+        da_append(moves, Lp);
+        da_append(moves, Dp);
+        da_append(moves, B2);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(back, F_L) == White && getCell(right, F_R) == Blue)
+    {
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, B2);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Check edge on bottom face
+    else if (getCell(down, F_U) == White && getCell(front, F_D) == Blue)
+    {
+        da_append(moves, D2);
+        da_append(moves, B2);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_R) == White && getCell(right, F_D) == Blue)
+    {
+        da_append(moves, D);
+        da_append(moves, B2);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_D) == White && getCell(back, F_D) == Blue)
+    {
+        da_append(moves, B2);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_L) == White && getCell(left, F_D) == Blue)
+    {
+        da_append(moves, Dp);
+        da_append(moves, B2);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(front, F_D) == White && getCell(down, F_U) == Blue)
+    {
+        da_append(moves, D);
+        da_append(moves, Rp);
+        da_append(moves, B);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(right, F_D) == White && getCell(down, F_R) == Blue)
+    {
+        da_append(moves, Rp);
+        da_append(moves, B);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(back, F_D) == White && getCell(down, F_D) == Blue)
+    {
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, B);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(left, F_D) == White && getCell(down, F_L) == Blue)
+    {
+        da_append(moves, L);
+        da_append(moves, Bp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+
+    if (!success)
+    {
+        TraceLog(LOG_ERROR, "[%s] Unable to find edge piece", __func__);
+        return false;
+    }
+
+    return true;
+}
+
+bool solveWhiteRedEdge(Cube* cube, Moves* moves)
+{
+    updateCube(cube, moves);
+
+    // TODO: replace static colors with variables :/
+    const Face* up = &cube->faces[f2i(F_U)];
+    const Face* down = &cube->faces[f2i(F_D)];
+    const Face* front = &cube->faces[f2i(F_F)];
+    const Face* back = &cube->faces[f2i(F_B)];
+    const Face* left = &cube->faces[f2i(F_L)];
+    const Face* right = &cube->faces[f2i(F_R)];
+
+    bool success = false;
+    // Check if edge is up
+    if (getCell(up, F_R) == White && getCell(right, F_U) == Red)
+    {
+        // Do nothing :)
+
+        success = true;
+        TraceLog(LOG_TRACE, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(up, F_R) == Red && getCell(right, F_U) == White)
+    {
+        da_append(moves, R);
+        da_append(moves, Bp);
+        da_append(moves, Dp);
+        da_append(moves, B);
+        da_append(moves, R2);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(up, F_L) == White && getCell(left, F_U) == Red)
+    {
+        da_append(moves, L2);
+        da_append(moves, D2);
+        da_append(moves, R2);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(left, F_U) == White && getCell(up, F_L) == Red)
+    {
+        da_append(moves, L2);
+        da_append(moves, D);
+        da_append(moves, Fp);
+        da_append(moves, R);
+        da_append(moves, F);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // check if edge is in front face
+    else if (getCell(front, F_R) == White && getCell(right, F_L) == Red)
+    {
+        da_append(moves, R);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(front, F_L) == White && getCell(left, F_R) == Red)
+    {
+        da_append(moves, F2);
+        da_append(moves, R);
+        da_append(moves, F2);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(right, F_L) == White && getCell(front, F_R) == Red)
+    {
+        da_append(moves, F);
+        da_append(moves, D);
+        da_append(moves, Fp);
+        da_append(moves, R2);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(left, F_R) == White && getCell(front, F_L) == Red)
+    {
+        da_append(moves, Fp);
+        da_append(moves, D);
+        da_append(moves, F);
+        da_append(moves, R2);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Check if edge is on back
+    else if (getCell(back, F_L) == White && getCell(right, F_R) == Red)
+    {
+        da_append(moves, Rp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(back, F_R) == White && getCell(left, F_L) == Red)
+    {
+        da_append(moves, Lp);
+        da_append(moves, D2);
+        da_append(moves, L);
+        da_append(moves, R2);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(right, F_R) == White && getCell(back, F_L) == Red)
+    {
+        da_append(moves, Bp);
+        da_append(moves, Dp);
+        da_append(moves, B);
+        da_append(moves, R2);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(left, F_L) == White && getCell(back, F_R) == Red)
+    {
+        da_append(moves, B);
+        da_append(moves, Dp);
+        da_append(moves, Bp);
+        da_append(moves, R2);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Check if edge is at bottom
+    else if (getCell(down, F_U) == White && getCell(front, F_D) == Red)
+    {
+        da_append(moves, D);
+        da_append(moves, R2);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_R) == White && getCell(right, F_D) == Red)
+    {
+        da_append(moves, R2);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_D) == White && getCell(back, F_D) == Red)
+    {
+        da_append(moves, Dp);
+        da_append(moves, R2);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_L) == White && getCell(left, F_D) == Red)
+    {
+        da_append(moves, D2);
+        da_append(moves, R2);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(front, F_D) == White && getCell(down, F_U) == Red)
+    {
+        da_append(moves, Fp);
+        da_append(moves, R);
+        da_append(moves, F);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(right, F_D) == White && getCell(down, F_R) == Red)
+    {
+        da_append(moves, Dp);
+        da_append(moves, Fp);
+        da_append(moves, R);
+        da_append(moves, F);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(back, F_D) == White && getCell(down, F_D) == Red)
+    {
+        da_append(moves, B);
+        da_append(moves, Rp);
+        da_append(moves, Bp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(left, F_D) == White && getCell(down, F_L) == Red)
+    {
+        da_append(moves, Dp);
+        da_append(moves, B);
+        da_append(moves, Rp);
+        da_append(moves, Bp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+
+    if (!success)
+    {
+        TraceLog(LOG_ERROR, "[%s] Unable to find edge piece", __func__);
+        return false;
+    }
+
+    return true;
+}
+
+bool solveWhiteOrangeEdge(Cube* cube, Moves* moves)
+{
+    updateCube(cube, moves);
+
+    // TODO: replace static colors with variables :/
+    const Face* up = &cube->faces[f2i(F_U)];
+    const Face* down = &cube->faces[f2i(F_D)];
+    const Face* front = &cube->faces[f2i(F_F)];
+    const Face* back = &cube->faces[f2i(F_B)];
+    const Face* left = &cube->faces[f2i(F_L)];
+    const Face* right = &cube->faces[f2i(F_R)];
+
+    bool success = false;
+    // Check if edge is up
+    if (getCell(up, F_L) == White && getCell(left, F_U) == Orange)
+    {
+        // Do nothing :)
+
+        success = true;
+        TraceLog(LOG_TRACE, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(left, F_U) == White && getCell(up, F_L) == Orange)
+    {
+        da_append(moves, Up);
+        da_append(moves, Fp);
+        da_append(moves, U);
+        da_append(moves, Lp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Check if edge is front
+    else if (getCell(front, F_L) == White && getCell(left, F_R) == Orange)
+    {
+        da_append(moves, Lp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(front, F_R) == White && getCell(right, F_L) == Orange)
+    {
+        da_append(moves, Rp);
+        da_append(moves, D2);
+        da_append(moves, R);
+        da_append(moves, L2);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(left, F_R) == White && getCell(front, F_L) == Orange)
+    {
+        da_append(moves, Fp);
+        da_append(moves, Dp);
+        da_append(moves, F);
+        da_append(moves, L2);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(right, F_L) == White && getCell(front, F_R) == Orange)
+    {
+        da_append(moves, F);
+        da_append(moves, Dp);
+        da_append(moves, Fp);
+        da_append(moves, L2);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Check back face
+    else if (getCell(back, F_R) == White && getCell(left, F_L) == Orange)
+    {
+        da_append(moves, L);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(back, F_L) == White && getCell(right, F_R) == Orange)
+    {
+        da_append(moves, R);
+        da_append(moves, D2);
+        da_append(moves, Rp);
+        da_append(moves, L2);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(left, F_L) == White && getCell(back, F_R) == Orange)
+    {
+        da_append(moves, B);
+        da_append(moves, D);
+        da_append(moves, Bp);
+        da_append(moves, L2);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(right, F_R) == White && getCell(back, F_L) == Orange)
+    {
+        da_append(moves, Bp);
+        da_append(moves, D);
+        da_append(moves, B);
+        da_append(moves, L2);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Check down
+    else if (getCell(down, F_U) == White && getCell(front, F_D) == Orange)
+    {
+        da_append(moves, Dp);
+        da_append(moves, L2);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_R) == White && getCell(right, F_D) == Orange)
+    {
+        da_append(moves, D2);
+        da_append(moves, L2);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_D) == White && getCell(back, F_D) == Orange)
+    {
+        da_append(moves, D);
+        da_append(moves, L2);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_L) == White && getCell(left, F_D) == Orange)
+    {
+        da_append(moves, L2);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(front, F_D) == White && getCell(down, F_U) == Orange)
+    {
+        da_append(moves, F);
+        da_append(moves, Lp);
+        da_append(moves, Fp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(right, F_D) == White && getCell(down, F_R) == Orange)
+    {
+        da_append(moves, Dp);
+        da_append(moves, F);
+        da_append(moves, Lp);
+        da_append(moves, Fp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(back, F_D) == White && getCell(down, F_D) == Orange)
+    {
+        da_append(moves, Bp);
+        da_append(moves, L);
+        da_append(moves, B);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(left, F_D) == White && getCell(down, F_L) == Orange)
+    {
+        da_append(moves, D);
+        da_append(moves, F);
+        da_append(moves, Lp);
+        da_append(moves, Fp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+
+    if (!success)
+    {
+        TraceLog(LOG_ERROR, "[%s] Unable to find edge piece", __func__);
+        return false;
+    }
+
+    return true;
+}
+
+bool solveCross(Cube* cube, Moves* queue)
+{
+    return solveWhiteGreenEdge(cube, queue) && solveWhiteBlueEdge(cube, queue) && solveWhiteRedEdge(cube, queue) &&
+        solveWhiteOrangeEdge(cube, queue);
+}
+
+bool f2lGreenRedCorner(Cube* cube, Moves* moves)
+{
+    updateCube(cube, moves);
+
+    // TODO: replace static colors with variables :/
+    const Face* up = &cube->faces[f2i(F_U)];
+    const Face* down = &cube->faces[f2i(F_D)];
+    const Face* front = &cube->faces[f2i(F_F)];
+    const Face* back = &cube->faces[f2i(F_B)];
+    const Face* left = &cube->faces[f2i(F_L)];
+    const Face* right = &cube->faces[f2i(F_R)];
+
+    bool success = false;
+    // Check if corner is in place (down right) (white side)
+    if (getCell(up, F_D | F_R) == White && getCell(right, F_U | F_L) == Red && getCell(front, F_U | F_R) == Green)
+    {
+        // Do nothing
+
+        success = true;
+        TraceLog(LOG_TRACE, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(up, F_D | F_R) == Red && getCell(right, F_U | F_L) == Green && getCell(front, F_U | F_R) == White)
+    {
+        da_append(moves, F);
+        da_append(moves, D);
+        da_append(moves, Fp);
+        da_append(moves, D2);
+        da_append(moves, Rp);
+        da_append(moves, D);
+        da_append(moves, R);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(up, F_D | F_R) == Green && getCell(right, F_U | F_L) == White && getCell(front, F_U | F_R) == Red)
+    {
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, R);
+        da_append(moves, D2);
+        da_append(moves, F);
+        da_append(moves, Dp);
+        da_append(moves, Fp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Check if corner is in up right (white side)
+    else if (getCell(up, F_U | F_R) == White && getCell(right, F_U | F_R) == Green && getCell(back, F_U | F_L) == Red)
+    {
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, Rp);
+        da_append(moves, F);
+        da_append(moves, D2);
+        da_append(moves, Fp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(up, F_U | F_R) == Green && getCell(right, F_U | F_R) == Red && getCell(back, F_U | F_L) == White)
+    {
+        da_append(moves, Bp);
+        da_append(moves, F);
+        da_append(moves, Dp);
+        da_append(moves, B);
+        da_append(moves, Fp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(up, F_U | F_R) == Red && getCell(right, F_U | F_R) == White && getCell(back, F_U | F_L) == Green)
+    {
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, R2);
+        da_append(moves, D2);
+        da_append(moves, R);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Check if corner is up left (white side)
+    else if (getCell(up, F_U | F_L) == White && getCell(left, F_U | F_L) == Red && getCell(back, F_U | F_R) == Green)
+    {
+        da_append(moves, B);
+        da_append(moves, F);
+        da_append(moves, D2);
+        da_append(moves, Fp);
+        da_append(moves, Bp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(up, F_U | F_L) == Red && getCell(left, F_U | F_L) == Green && getCell(back, F_U | F_R) == White)
+    {
+        da_append(moves, B);
+        da_append(moves, Rp);
+        da_append(moves, D2);
+        da_append(moves, R);
+        da_append(moves, Bp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(up, F_U | F_L) == Green && getCell(left, F_U | F_L) == White && getCell(back, F_U | F_R) == Red)
+    {
+        da_append(moves, Lp);
+        da_append(moves, F);
+        da_append(moves, D2);
+        da_append(moves, Fp);
+        da_append(moves, L);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Check if coner is left down (white side)
+    else if (getCell(up, F_D | F_L) == White && getCell(left, F_U | F_R) == Green && getCell(front, F_U | F_L) == Red)
+    {
+        da_append(moves, L);
+        da_append(moves, Dp);
+        da_append(moves, Lp);
+        da_append(moves, Rp);
+        da_append(moves, D);
+        da_append(moves, R);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(up, F_D | F_L) == Red && getCell(left, F_U | F_R) == White && getCell(front, F_U | F_L) == Green)
+    {
+        da_append(moves, L);
+        da_append(moves, Rp);
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, Lp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(up, F_D | F_L) == Green && getCell(left, F_U | F_R) == Red && getCell(front, F_U | F_L) == White)
+    {
+        da_append(moves, Fp);
+        da_append(moves, Dp);
+        da_append(moves, F2);
+        da_append(moves, D2);
+        da_append(moves, Fp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Check if coner is up right (yellow side)
+    else if (getCell(down, F_U | F_R) == White && getCell(front, F_D | F_R) == Red && getCell(right, F_D | F_L) ==
+        Green)
+    {
+        da_append(moves, Rp);
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, F);
+        da_append(moves, D2);
+        da_append(moves, Fp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_U | F_R) == Green && getCell(front, F_D | F_R) == White && getCell(right, F_D | F_L) ==
+        Red)
+    {
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, D);
+        da_append(moves, R);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_U | F_R) == Red && getCell(front, F_D | F_R) == Green && getCell(right, F_D | F_L) ==
+        White)
+    {
+        da_append(moves, D);
+        da_append(moves, F);
+        da_append(moves, Dp);
+        da_append(moves, Fp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Check if coner is down right (yellow side)
+    else if (getCell(down, F_D | F_R) == White && getCell(right, F_D | F_R) == Red && getCell(back, F_D | F_L) == Green)
+    {
+        da_append(moves, Bp);
+        da_append(moves, F);
+        da_append(moves, D2);
+        da_append(moves, Fp);
+        da_append(moves, B);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_D | F_R) == Green && getCell(right, F_D | F_R) == White && getCell(back, F_D | F_L) == Red)
+    {
+        da_append(moves, D);
+        da_append(moves, Rp);
+        da_append(moves, D2);
+        da_append(moves, R);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_D | F_R) == Red && getCell(right, F_D | F_R) == Green && getCell(back, F_D | F_L) == White)
+    {
+        da_append(moves, F);
+        da_append(moves, Dp);
+        da_append(moves, Fp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Check if coner is down left (yellow side)
+    else if (getCell(down, F_D | F_L) == White && getCell(left, F_D | F_L) == Green && getCell(back, F_D | F_R) == Red)
+    {
+        da_append(moves, F);
+        da_append(moves, Lp);
+        da_append(moves, D);
+        da_append(moves, Fp);
+        da_append(moves, L);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_D | F_L) == Red && getCell(left, F_D | F_L) == White && getCell(back, F_D | F_R) == Green)
+    {
+        da_append(moves, F);
+        da_append(moves, D2);
+        da_append(moves, Fp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_D | F_L) == Green && getCell(left, F_D | F_L) == Red && getCell(back, F_D | F_R) == White)
+    {
+        da_append(moves, Rp);
+        da_append(moves, D2);
+        da_append(moves, R);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Check if coner is up left (yellow side)
+    else if (getCell(down, F_U | F_L) == White && getCell(front, F_D | F_L) == Green && getCell(left, F_D | F_R) == Red)
+    {
+        da_append(moves, L);
+        da_append(moves, Rp);
+        da_append(moves, D2);
+        da_append(moves, R);
+        da_append(moves, Lp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_U | F_L) == Red && getCell(front, F_D | F_L) == White && getCell(left, F_D | F_R) == Green)
+    {
+        da_append(moves, Dp);
+        da_append(moves, F);
+        da_append(moves, D2);
+        da_append(moves, Fp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_U | F_L) == Green && getCell(front, F_D | F_L) == Red && getCell(left, F_D | F_R) == White)
+    {
+        da_append(moves, Rp);
+        da_append(moves, D);
+        da_append(moves, R);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+
+    if (!success)
+    {
+        TraceLog(LOG_ERROR, "[%s] Unable to find edge piece", __func__);
+        return false;
+    }
+
+    return true;
+}
+
+bool f2lGreenRedEdge(Cube* cube, Moves* moves)
+{
+    updateCube(cube, moves);
+
+    // TODO: replace static colors with variables :/
+    const Face* down = &cube->faces[f2i(F_D)];
+    const Face* front = &cube->faces[f2i(F_F)];
+    const Face* back = &cube->faces[f2i(F_B)];
+    const Face* left = &cube->faces[f2i(F_L)];
+    const Face* right = &cube->faces[f2i(F_R)];
+
+    bool success = false;
+    // Check if edge is on front
+    if (getCell(front, F_R) == Green && getCell(right, F_L) == Red)
+    {
+        // Do nothing
+
+        success = true;
+        TraceLog(LOG_TRACE, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(front, F_R) == Red && getCell(right, F_L) == Green)
+    {
+        da_append(moves, Rp);
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, Dp);
+        da_append(moves, F);
+        da_append(moves, D2);
+        da_append(moves, Fp);
+        da_append(moves, Dp);
+        da_append(moves, F);
+        da_append(moves, D2);
+        da_append(moves, Fp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(front, F_L) == Green && getCell(left, F_R) == Red)
+    {
+        da_append(moves, Fp);
+        da_append(moves, Dp);
+        da_append(moves, F);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, F);
+        da_append(moves, D);
+        da_append(moves, Fp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(front, F_L) == Red && getCell(left, F_R) == Green)
+    {
+        da_append(moves, L);
+        da_append(moves, Dp);
+        da_append(moves, Lp);
+        da_append(moves, D);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, F);
+        da_append(moves, D);
+        da_append(moves, Fp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Check if edge is on back
+    else if (getCell(back, F_L) == Green && getCell(right, F_R) == Red)
+    {
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, Rp);
+        da_append(moves, F);
+        da_append(moves, D);
+        da_append(moves, Fp);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, R);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(back, F_L) == Red && getCell(right, F_R) == Green)
+    {
+        da_append(moves, Bp);
+        da_append(moves, D);
+        da_append(moves, B);
+        da_append(moves, Dp);
+        da_append(moves, F);
+        da_append(moves, D);
+        da_append(moves, Fp);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, R);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(back, F_R) == Green && getCell(left, F_L) == Red)
+    {
+        da_append(moves, B);
+        da_append(moves, D);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, Bp);
+        da_append(moves, F);
+        da_append(moves, D);
+        da_append(moves, Fp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(back, F_R) == Red && getCell(left, F_L) == Green)
+    {
+        da_append(moves, Lp);
+        da_append(moves, Rp);
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, L);
+        da_append(moves, D);
+        da_append(moves, F);
+        da_append(moves, Dp);
+        da_append(moves, Fp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Check on the bottom
+    else if (getCell(down, F_U) == Green && getCell(front, F_D) == Red)
+    {
+        da_append(moves, D2);
+        da_append(moves, F);
+        da_append(moves, D);
+        da_append(moves, Fp);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, R);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_U) == Red && getCell(front, F_D) == Green)
+    {
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, F);
+        da_append(moves, D);
+        da_append(moves, Fp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_R) == Green && getCell(right, F_D) == Red)
+    {
+        da_append(moves, D);
+        da_append(moves, F);
+        da_append(moves, D);
+        da_append(moves, Fp);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, R);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_R) == Red && getCell(right, F_D) == Green)
+    {
+        da_append(moves, D2);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, F);
+        da_append(moves, D);
+        da_append(moves, Fp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_D) == Green && getCell(back, F_D) == Red)
+    {
+        da_append(moves, F);
+        da_append(moves, D);
+        da_append(moves, Fp);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, R);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_D) == Red && getCell(back, F_D) == Green)
+    {
+        da_append(moves, D);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, F);
+        da_append(moves, D);
+        da_append(moves, Fp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_L) == Green && getCell(left, F_D) == Red)
+    {
+        da_append(moves, Dp);
+        da_append(moves, F);
+        da_append(moves, D);
+        da_append(moves, Fp);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, R);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_L) == Red && getCell(left, F_D) == Green)
+    {
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, F);
+        da_append(moves, D);
+        da_append(moves, Fp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+
+    if (!success)
+    {
+        TraceLog(LOG_ERROR, "[%s] Unable to find edge piece", __func__);
+        return false;
+    }
+
+    return true;
+}
+
+bool f2lGreenOrangeCorner(Cube* cube, Moves* moves)
+{
+    updateCube(cube, moves);
+
+    // TODO: replace static colors with variables :/
+    const Face* up = &cube->faces[f2i(F_U)];
+    const Face* down = &cube->faces[f2i(F_D)];
+    const Face* front = &cube->faces[f2i(F_F)];
+    const Face* back = &cube->faces[f2i(F_B)];
+    const Face* left = &cube->faces[f2i(F_L)];
+    const Face* right = &cube->faces[f2i(F_R)];
+
+    bool success = false;
+    // Check if corner is in place (down right) (white side)
+    if (getCell(up, F_D | F_L) == White && getCell(left, F_U | F_R) == Orange && getCell(front, F_U | F_L) == Green)
+    {
+        // Do nothing :)
+
+        success = true;
+        TraceLog(LOG_TRACE, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(up, F_D | F_L) == Green && getCell(left, F_U | F_R) == White && getCell(front, F_U | F_L) ==
+        Orange)
+    {
+        da_append(moves, L);
+        da_append(moves, D);
+        da_append(moves, Lp);
+        da_append(moves, D2);
+        da_append(moves, Fp);
+        da_append(moves, D);
+        da_append(moves, F);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(up, F_D | F_L) == Orange && getCell(left, F_U | F_R) == Green && getCell(front, F_U | F_L) ==
+        White)
+    {
+        da_append(moves, Fp);
+        da_append(moves, Dp);
+        da_append(moves, F);
+        da_append(moves, D2);
+        da_append(moves, L);
+        da_append(moves, Dp);
+        da_append(moves, Lp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Check if corner is in up right (white side)
+    else if (getCell(up, F_U | F_R) == White && getCell(right, F_U | F_R) == Orange && getCell(back, F_U | F_L) ==
+        Green)
+    {
+        da_append(moves, R);
+        da_append(moves, L);
+        da_append(moves, D2);
+        da_append(moves, Rp);
+        da_append(moves, Lp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(up, F_U | F_R) == Green && getCell(right, F_U | F_R) == White && getCell(back, F_U | F_L) ==
+        Orange)
+    {
+        da_append(moves, R);
+        da_append(moves, Fp);
+        da_append(moves, D2);
+        da_append(moves, F);
+        da_append(moves, Rp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(up, F_U | F_R) == Orange && getCell(right, F_U | F_R) == Green && getCell(back, F_U | F_L) ==
+        White)
+    {
+        da_append(moves, Bp);
+        da_append(moves, L);
+        da_append(moves, D2);
+        da_append(moves, Lp);
+        da_append(moves, B);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Check if corner is up left (white side)
+    else if (getCell(up, F_U | F_L) == White && getCell(left, F_U | F_L) == Green && getCell(back, F_U | F_R) == Orange)
+    {
+        da_append(moves, B);
+        da_append(moves, D);
+        da_append(moves, Bp);
+        da_append(moves, D2);
+        da_append(moves, L);
+        da_append(moves, D2);
+        da_append(moves, Lp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(up, F_U | F_L) == Orange && getCell(left, F_U | F_L) == White && getCell(back, F_U | F_R) == Green)
+    {
+        da_append(moves, Lp);
+        da_append(moves, Dp);
+        da_append(moves, L2);
+        da_append(moves, D2);
+        da_append(moves, Lp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(up, F_U | F_L) == Green && getCell(left, F_U | F_L) == Orange && getCell(back, F_U | F_R) == White)
+    {
+        da_append(moves, B);
+        da_append(moves, Fp);
+        da_append(moves, D);
+        da_append(moves, Bp);
+        da_append(moves, F);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Check if corner is in up right (yellow side)
+    else if (getCell(down, F_U | F_R) == White && getCell(front, F_D | F_R) == Green && getCell(right, F_D | F_L) ==
+        Orange)
+    {
+        da_append(moves, Dp);
+        da_append(moves, L);
+        da_append(moves, Dp);
+        da_append(moves, Lp);
+        da_append(moves, Fp);
+        da_append(moves, D2);
+        da_append(moves, F);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_U | F_R) == Orange && getCell(front, F_D | F_R) == White && getCell(right, F_D | F_L) ==
+        Green)
+    {
+        da_append(moves, D);
+        da_append(moves, Fp);
+        da_append(moves, D2);
+        da_append(moves, F);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_U | F_R) == Green && getCell(front, F_D | F_R) == Orange && getCell(right, F_D | F_L) ==
+        White)
+    {
+        da_append(moves, L);
+        da_append(moves, Dp);
+        da_append(moves, Lp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Check if corner is in down right (yellow side)
+    else if (getCell(down, F_D | F_R) == White && getCell(right, F_D | F_R) == Green && getCell(back, F_D | F_L) ==
+        Orange)
+    {
+        da_append(moves, L);
+        da_append(moves, Bp);
+        da_append(moves, D);
+        da_append(moves, B);
+        da_append(moves, Lp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_D | F_R) == Orange && getCell(right, F_D | F_R) == White && getCell(back, F_D | F_L) ==
+        Green)
+    {
+        da_append(moves, Fp);
+        da_append(moves, D2);
+        da_append(moves, F);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_D | F_R) == Green && getCell(right, F_D | F_R) == Orange && getCell(back, F_D | F_L) ==
+        White)
+    {
+        da_append(moves, L);
+        da_append(moves, D2);
+        da_append(moves, Lp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Check if corner is in down left (yellow side)
+    else if (getCell(down, F_D | F_L) == White && getCell(back, F_D | F_R) == Green && getCell(left, F_D | F_L) ==
+        Orange)
+    {
+        da_append(moves, Lp);
+        da_append(moves, D);
+        da_append(moves, L2);
+        da_append(moves, Dp);
+        da_append(moves, Lp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_D | F_L) == Orange && getCell(back, F_D | F_R) == White && getCell(left, F_D | F_L) ==
+        Green)
+    {
+        da_append(moves, Fp);
+        da_append(moves, D);
+        da_append(moves, F);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_D | F_L) == Green && getCell(back, F_D | F_R) == Orange && getCell(left, F_D | F_L) ==
+        White)
+    {
+        da_append(moves, Dp);
+        da_append(moves, L);
+        da_append(moves, D2);
+        da_append(moves, Lp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Check if corner is in up left (yellow side)
+    else if (getCell(down, F_U | F_L) == White && getCell(left, F_D | F_R) == Green && getCell(front, F_D | F_L) ==
+        Orange)
+    {
+        da_append(moves, L);
+        da_append(moves, Dp);
+        da_append(moves, Lp);
+        da_append(moves, Fp);
+        da_append(moves, D2);
+        da_append(moves, F);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_U | F_L) == Orange && getCell(left, F_D | F_R) == White && getCell(front, F_D | F_L) ==
+        Green)
+    {
+        da_append(moves, Dp);
+        da_append(moves, Fp);
+        da_append(moves, D);
+        da_append(moves, F);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_U | F_L) == Green && getCell(left, F_D | F_R) == Orange && getCell(front, F_D | F_L) ==
+        White)
+    {
+        da_append(moves, D);
+        da_append(moves, L);
+        da_append(moves, Dp);
+        da_append(moves, Lp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+
+    if (!success)
+    {
+        TraceLog(LOG_ERROR, "[%s] Unable to find edge piece", __func__);
+        return false;
+    }
+
+    return true;
+}
+
+bool f2lGreenOrangeEdge(Cube* cube, Moves* moves)
+{
+    updateCube(cube, moves);
+
+    // TODO: replace static colors with variables :/
+    const Face* down = &cube->faces[f2i(F_D)];
+    const Face* front = &cube->faces[f2i(F_F)];
+    const Face* back = &cube->faces[f2i(F_B)];
+    const Face* left = &cube->faces[f2i(F_L)];
+    const Face* right = &cube->faces[f2i(F_R)];
+
+    bool success = false;
+    // Check if edge is on front
+    if (getCell(front, F_L) == Green && getCell(left, F_R) == Orange)
+    {
+        // Do nothing
+
+        success = true;
+        TraceLog(LOG_TRACE, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(front, F_L) == Orange && getCell(left, F_R) == Green)
+    {
+        da_append(moves, Fp);
+        da_append(moves, D);
+        da_append(moves, F);
+        da_append(moves, Dp);
+        da_append(moves, L);
+        da_append(moves, D2);
+        da_append(moves, Lp);
+        da_append(moves, Dp);
+        da_append(moves, L);
+        da_append(moves, D2);
+        da_append(moves, Lp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Check if edge is on back
+    else if (getCell(back, F_R) == Green && getCell(left, F_L) == Orange)
+    {
+        da_append(moves, Lp);
+        da_append(moves, Dp);
+        da_append(moves, L);
+        da_append(moves, Fp);
+        da_append(moves, Dp);
+        da_append(moves, F);
+        da_append(moves, D);
+        da_append(moves, L);
+        da_append(moves, D);
+        da_append(moves, Lp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(back, F_R) == Orange && getCell(left, F_L) == Green)
+    {
+        da_append(moves, B);
+        da_append(moves, Dp);
+        da_append(moves, Bp);
+        da_append(moves, D);
+        da_append(moves, Fp);
+        da_append(moves, Dp);
+        da_append(moves, F);
+        da_append(moves, D);
+        da_append(moves, L);
+        da_append(moves, D);
+        da_append(moves, Lp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(back, F_L) == Green && getCell(right, F_R) == Orange)
+    {
+        da_append(moves, Bp);
+        da_append(moves, Dp);
+        da_append(moves, B);
+        da_append(moves, L);
+        da_append(moves, D);
+        da_append(moves, Lp);
+        da_append(moves, Dp);
+        da_append(moves, Fp);
+        da_append(moves, Dp);
+        da_append(moves, F);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(back, F_L) == Orange && getCell(right, F_R) == Green)
+    {
+        da_append(moves, Bp);
+        da_append(moves, Fp);
+        da_append(moves, Dp);
+        da_append(moves, F);
+        da_append(moves, D);
+        da_append(moves, L);
+        da_append(moves, D);
+        da_append(moves, Lp);
+        da_append(moves, B);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Check if edge is on bottom
+    else if (getCell(down, F_U) == Orange && getCell(front, F_D) == Green)
+    {
+        da_append(moves, D);
+        da_append(moves, L);
+        da_append(moves, D);
+        da_append(moves, Lp);
+        da_append(moves, Dp);
+        da_append(moves, Fp);
+        da_append(moves, Dp);
+        da_append(moves, F);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_U) == Green && getCell(front, F_D) == Orange)
+    {
+        da_append(moves, D2);
+        da_append(moves, Fp);
+        da_append(moves, Dp);
+        da_append(moves, F);
+        da_append(moves, D);
+        da_append(moves, L);
+        da_append(moves, D);
+        da_append(moves, Lp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_R) == Orange && getCell(right, F_D) == Green)
+    {
+        da_append(moves, L);
+        da_append(moves, D);
+        da_append(moves, Lp);
+        da_append(moves, Dp);
+        da_append(moves, Fp);
+        da_append(moves, Dp);
+        da_append(moves, F);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_R) == Green && getCell(right, F_D) == Orange)
+    {
+        da_append(moves, D);
+        da_append(moves, Fp);
+        da_append(moves, Dp);
+        da_append(moves, F);
+        da_append(moves, D);
+        da_append(moves, L);
+        da_append(moves, D);
+        da_append(moves, Lp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_D) == Orange && getCell(back, F_D) == Green)
+    {
+        da_append(moves, Dp);
+        da_append(moves, L);
+        da_append(moves, D);
+        da_append(moves, Lp);
+        da_append(moves, Dp);
+        da_append(moves, Fp);
+        da_append(moves, Dp);
+        da_append(moves, F);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_D) == Green && getCell(back, F_D) == Orange)
+    {
+        da_append(moves, Fp);
+        da_append(moves, Dp);
+        da_append(moves, F);
+        da_append(moves, D);
+        da_append(moves, L);
+        da_append(moves, D);
+        da_append(moves, Lp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_L) == Orange && getCell(left, F_D) == Green)
+    {
+        da_append(moves, D2);
+        da_append(moves, L);
+        da_append(moves, D);
+        da_append(moves, Lp);
+        da_append(moves, Dp);
+        da_append(moves, Fp);
+        da_append(moves, Dp);
+        da_append(moves, F);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_L) == Green && getCell(left, F_D) == Orange)
+    {
+        da_append(moves, Dp);
+        da_append(moves, Fp);
+        da_append(moves, Dp);
+        da_append(moves, F);
+        da_append(moves, D);
+        da_append(moves, L);
+        da_append(moves, D);
+        da_append(moves, Lp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+
+    if (!success)
+    {
+        TraceLog(LOG_ERROR, "[%s] Unable to find edge piece", __func__);
+        return false;
+    }
+
+    return true;
+}
+
+bool f2lBlueRedCorner(Cube* cube, Moves* moves)
+{
+    updateCube(cube, moves);
+
+    // TODO: replace static colors with variables :/
+    const Face* up = &cube->faces[f2i(F_U)];
+    const Face* down = &cube->faces[f2i(F_D)];
+    const Face* front = &cube->faces[f2i(F_F)];
+    const Face* back = &cube->faces[f2i(F_B)];
+    const Face* left = &cube->faces[f2i(F_L)];
+    const Face* right = &cube->faces[f2i(F_R)];
+
+    bool success = false;
+    // Check if corner is in place (up right) (white side)
+    if (getCell(up, F_U | F_R) == White && getCell(right, F_U | F_R) == Red && getCell(back, F_U | F_L) == Blue)
+    {
+        // Do nothing :)
+
+        success = true;
+        TraceLog(LOG_TRACE, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(up, F_U | F_R) == Blue && getCell(right, F_U | F_R) == White && getCell(back, F_U | F_L) == Red)
+    {
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, D2);
+        da_append(moves, Bp);
+        da_append(moves, D2);
+        da_append(moves, B);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(up, F_U | F_R) == Red && getCell(right, F_U | F_R) == Blue && getCell(back, F_U | F_L) == White)
+    {
+        da_append(moves, Bp);
+        da_append(moves, Dp);
+        da_append(moves, B);
+        da_append(moves, D2);
+        da_append(moves, R);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Check if corner is in up left (white side)
+    else if (getCell(up, F_U | F_L) == White && getCell(back, F_U | F_R) == Red && getCell(left, F_U | F_L) == Blue)
+    {
+        da_append(moves, B);
+        da_append(moves, D);
+        da_append(moves, Bp);
+        da_append(moves, R);
+        da_append(moves, D2);
+        da_append(moves, Rp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(up, F_U | F_L) == Blue && getCell(back, F_U | F_R) == White && getCell(left, F_U | F_L) == Red)
+    {
+        da_append(moves, B);
+        da_append(moves, D);
+        da_append(moves, B2);
+        da_append(moves, D2);
+        da_append(moves, B);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(up, F_U | F_L) == Red && getCell(back, F_U | F_R) == Blue && getCell(left, F_U | F_L) == White)
+    {
+        da_append(moves, Lp);
+        da_append(moves, R);
+        da_append(moves, Dp);
+        da_append(moves, L);
+        da_append(moves, Rp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Check if corner is in up right (yellow side)
+    else if (getCell(down, F_U | F_R) == White && getCell(front, F_D | F_R) == Blue && getCell(right, F_D | F_L) == Red)
+    {
+        da_append(moves, D);
+        da_append(moves, Bp);
+        da_append(moves, D);
+        da_append(moves, B);
+        da_append(moves, R);
+        da_append(moves, D2);
+        da_append(moves, Rp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_U | F_R) == Red && getCell(front, F_D | F_R) == White && getCell(right, F_D | F_L) == Blue)
+    {
+        da_append(moves, Bp);
+        da_append(moves, D);
+        da_append(moves, B);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_U | F_R) == Blue && getCell(front, F_D | F_R) == Red && getCell(right, F_D | F_L) == White)
+    {
+        da_append(moves, Dp);
+        da_append(moves, R);
+        da_append(moves, D2);
+        da_append(moves, Rp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Check if corner is in down right (yellow side)
+    else if (getCell(down, F_D | F_R) == White && getCell(right, F_D | F_R) == Blue && getCell(back, F_D | F_L) == Red)
+    {
+        da_append(moves, R);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, Bp);
+        da_append(moves, D2);
+        da_append(moves, B);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_D | F_R) == Red && getCell(right, F_D | F_R) == White && getCell(back, F_D | F_L) == Blue)
+    {
+        da_append(moves, Dp);
+        da_append(moves, Bp);
+        da_append(moves, D);
+        da_append(moves, B);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_D | F_R) == Blue && getCell(right, F_D | F_R) == Red && getCell(back, F_D | F_L) == White)
+    {
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Check if corner is in down left (yellow side)
+    else if (getCell(down, F_D | F_L) == White && getCell(back, F_D | F_R) == Blue && getCell(left, F_D | F_L) == Red)
+    {
+        da_append(moves, Lp);
+        da_append(moves, R);
+        da_append(moves, D2);
+        da_append(moves, L);
+        da_append(moves, Rp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_D | F_L) == Red && getCell(back, F_D | F_R) == White && getCell(left, F_D | F_L) == Blue)
+    {
+        da_append(moves, D);
+        da_append(moves, Bp);
+        da_append(moves, D2);
+        da_append(moves, B);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_D | F_L) == Blue && getCell(back, F_D | F_R) == Red && getCell(left, F_D | F_L) == White)
+    {
+        da_append(moves, R);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Check if corner is in up left (yellow side)
+    else if (getCell(down, F_U | F_L) == White && getCell(left, F_D | F_R) == Blue && getCell(front, F_D | F_L) == Red)
+    {
+        da_append(moves, D2);
+        da_append(moves, R);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, Bp);
+        da_append(moves, D2);
+        da_append(moves, B);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_U | F_L) == Red && getCell(left, F_D | F_R) == White && getCell(front, F_D | F_L) == Blue)
+    {
+        da_append(moves, Bp);
+        da_append(moves, D2);
+        da_append(moves, B);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_U | F_L) == Blue && getCell(left, F_D | F_R) == Red && getCell(front, F_D | F_L) == White)
+    {
+        da_append(moves, R);
+        da_append(moves, D2);
+        da_append(moves, Rp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+
+
+    if (!success)
+    {
+        TraceLog(LOG_ERROR, "[%s] Unable to find edge piece", __func__);
+        return false;
+    }
+
+    return true;
+}
+
+bool f2lBlueRedEdge(Cube* cube, Moves* moves)
+{
+    updateCube(cube, moves);
+
+    // TODO: replace static colors with variables :/
+    const Face* down = &cube->faces[f2i(F_D)];
+    const Face* front = &cube->faces[f2i(F_F)];
+    const Face* back = &cube->faces[f2i(F_B)];
+    const Face* left = &cube->faces[f2i(F_L)];
+    const Face* right = &cube->faces[f2i(F_R)];
+
+    bool success = false;
+    // Check if edge is on back
+    if (getCell(back, F_L) == Blue && getCell(right, F_R) == Red)
+    {
+        // Do nothing :)
+
+        success = true;
+        TraceLog(LOG_TRACE, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(back, F_L) == Red && getCell(right, F_R) == Blue)
+    {
+        da_append(moves, Bp);
+        da_append(moves, D);
+        da_append(moves, B2);
+        da_append(moves, D2);
+        da_append(moves, Bp);
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(back, F_R) == Blue && getCell(left, F_L) == Red)
+    {
+        da_append(moves, B);
+        da_append(moves, D);
+        da_append(moves, Bp);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, Bp);
+        da_append(moves, Dp);
+        da_append(moves, B);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(back, F_R) == Red && getCell(left, F_L) == Blue)
+    {
+        da_append(moves, Lp);
+        da_append(moves, R);
+        da_append(moves, Dp);
+        da_append(moves, L);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, Bp);
+        da_append(moves, D);
+        da_append(moves, B);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Check up yellow side
+    else if (getCell(down, F_U) == Red && getCell(front, F_D) == Blue)
+    {
+        da_append(moves, Dp);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, Bp);
+        da_append(moves, Dp);
+        da_append(moves, B);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_U) == Blue && getCell(front, F_D) == Red)
+    {
+        da_append(moves, Bp);
+        da_append(moves, Dp);
+        da_append(moves, B);
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, Rp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_R) == Red && getCell(right, F_D) == Blue)
+    {
+        da_append(moves, D2);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, Bp);
+        da_append(moves, Dp);
+        da_append(moves, B);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_R) == Blue && getCell(right, F_D) == Red)
+    {
+        da_append(moves, Dp);
+        da_append(moves, Bp);
+        da_append(moves, Dp);
+        da_append(moves, B);
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, Rp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_D) == Red && getCell(back, F_D) == Blue)
+    {
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, Bp);
+        da_append(moves, Dp);
+        da_append(moves, B);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_D) == Blue && getCell(back, F_D) == Red)
+    {
+        da_append(moves, D2);
+        da_append(moves, Bp);
+        da_append(moves, Dp);
+        da_append(moves, B);
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, Rp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_L) == Red && getCell(left, F_D) == Blue)
+    {
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, Bp);
+        da_append(moves, Dp);
+        da_append(moves, B);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_L) == Blue && getCell(left, F_D) == Red)
+    {
+        da_append(moves, D);
+        da_append(moves, Bp);
+        da_append(moves, D);
+        da_append(moves, B);
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+
+
+    if (!success)
+    {
+        TraceLog(LOG_ERROR, "[%s] Unable to find edge piece", __func__);
+        return false;
+    }
+
+    return true;
+}
+
+bool f2lBlueOrangeCorner(Cube* cube, Moves* moves)
+{
+    updateCube(cube, moves);
+
+    // TODO: replace static colors with variables :/
+    const Face* up = &cube->faces[f2i(F_U)];
+    const Face* down = &cube->faces[f2i(F_D)];
+    const Face* front = &cube->faces[f2i(F_F)];
+    const Face* back = &cube->faces[f2i(F_B)];
+    const Face* left = &cube->faces[f2i(F_L)];
+    const Face* right = &cube->faces[f2i(F_R)];
+
+    bool success = false;
+    // Check if corner is in place (up right) (white side)
+    if (getCell(up, F_U | F_L) == White && getCell(back, F_U | F_R) == Blue && getCell(left, F_U | F_L) == Orange)
+    {
+        // Do nothing :)
+
+        success = true;
+        TraceLog(LOG_TRACE, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(up, F_U | F_L) == Orange && getCell(back, F_U | F_R) == White && getCell(left, F_U | F_L) == Blue)
+    {
+        da_append(moves, B);
+        da_append(moves, D2);
+        da_append(moves, Bp);
+        da_append(moves, Lp);
+        da_append(moves, D2);
+        da_append(moves, L);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(up, F_U | F_L) == Blue && getCell(back, F_U | F_R) == Orange && getCell(left, F_U | F_L) == White)
+    {
+        da_append(moves, Lp);
+        da_append(moves, Dp);
+        da_append(moves, L);
+        da_append(moves, D2);
+        da_append(moves, B);
+        da_append(moves, Dp);
+        da_append(moves, Bp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Check if corner is up right (yellow side)
+    else if (getCell(down, F_U | F_R) == White && getCell(front, F_D | F_R) == Orange && getCell(right, F_D | F_L) ==
+        Blue)
+    {
+        da_append(moves, D2);
+        da_append(moves, B);
+        da_append(moves, D2);
+        da_append(moves, Bp);
+        da_append(moves, D2);
+        da_append(moves, Lp);
+        da_append(moves, D);
+        da_append(moves, L);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_U | F_R) == Blue && getCell(front, F_D | F_R) == White && getCell(right, F_D | F_L) ==
+        Orange)
+    {
+        da_append(moves, Lp);
+        da_append(moves, D2);
+        da_append(moves, L);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_U | F_R) == Orange && getCell(front, F_D | F_R) == Blue && getCell(right, F_D | F_L) ==
+        White)
+    {
+        da_append(moves, B);
+        da_append(moves, D2);
+        da_append(moves, Bp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Check if corner is down right (yellow side)
+    else if (getCell(down, F_D | F_R) == White && getCell(right, F_D | F_R) == Orange && getCell(back, F_D | F_L) ==
+        Blue)
+    {
+        da_append(moves, D);
+        da_append(moves, B);
+        da_append(moves, Dp);
+        da_append(moves, Bp);
+        da_append(moves, Lp);
+        da_append(moves, D2);
+        da_append(moves, L);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_D | F_R) == Blue && getCell(right, F_D | F_R) == White && getCell(back, F_D | F_L) ==
+        Orange)
+    {
+        da_append(moves, Lp);
+        da_append(moves, D);
+        da_append(moves, L);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_D | F_R) == Orange && getCell(right, F_D | F_R) == Blue && getCell(back, F_D | F_L) ==
+        White)
+    {
+        da_append(moves, D2);
+        da_append(moves, B);
+        da_append(moves, Dp);
+        da_append(moves, Bp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Check if corner is down left (yellow side)
+    else if (getCell(down, F_D | F_L) == White && getCell(back, F_D | F_R) == Orange && getCell(left, F_D | F_L) ==
+        Blue)
+    {
+        da_append(moves, B);
+        da_append(moves, Dp);
+        da_append(moves, Bp);
+        da_append(moves, Lp);
+        da_append(moves, D2);
+        da_append(moves, L);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_D | F_L) == Blue && getCell(back, F_D | F_R) == White && getCell(left, F_D | F_L) ==
+        Orange)
+    {
+        da_append(moves, Dp);
+        da_append(moves, Lp);
+        da_append(moves, D);
+        da_append(moves, L);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_D | F_L) == Orange && getCell(back, F_D | F_R) == Blue && getCell(left, F_D | F_L) ==
+        White)
+    {
+        da_append(moves, D);
+        da_append(moves, B);
+        da_append(moves, Dp);
+        da_append(moves, Bp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Check if corner is up left (yellow side)
+    else if (getCell(down, F_U | F_L) == White && getCell(left, F_D | F_R) == Orange && getCell(front, F_D | F_L) ==
+        Blue)
+    {
+        da_append(moves, Dp);
+        da_append(moves, Lp);
+        da_append(moves, D);
+        da_append(moves, L);
+        da_append(moves, B);
+        da_append(moves, D2);
+        da_append(moves, Bp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_U | F_L) == Blue && getCell(left, F_D | F_R) == White && getCell(front, F_D | F_L) ==
+        Orange)
+    {
+        da_append(moves, D);
+        da_append(moves, Lp);
+        da_append(moves, D2);
+        da_append(moves, L);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_U | F_L) == Orange && getCell(left, F_D | F_R) == Blue && getCell(front, F_D | F_L) ==
+        White)
+    {
+        da_append(moves, B);
+        da_append(moves, Dp);
+        da_append(moves, Bp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+
+    if (!success)
+    {
+        TraceLog(LOG_ERROR, "[%s] Unable to find edge piece", __func__);
+        return false;
+    }
+
+    return true;
+}
+
+bool f2lBlueOrangeEdge(Cube* cube, Moves* moves)
+{
+    updateCube(cube, moves);
+
+    // TODO: replace static colors with variables :/
+    const Face* down = &cube->faces[f2i(F_D)];
+    const Face* front = &cube->faces[f2i(F_F)];
+    const Face* back = &cube->faces[f2i(F_B)];
+    const Face* left = &cube->faces[f2i(F_L)];
+    const Face* right = &cube->faces[f2i(F_R)];
+
+    bool success = false;
+    // Check if edge is on back
+    if (getCell(back, F_R) == Blue && getCell(left, F_L) == Orange)
+    {
+        // Do nothing :)
+
+        success = true;
+        TraceLog(LOG_TRACE, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(back, F_R) == Orange && getCell(left, F_L) == Blue)
+    {
+        da_append(moves, B);
+        da_append(moves, Dp);
+        da_append(moves, Bp);
+        da_append(moves, Dp);
+        da_append(moves, Lp);
+        da_append(moves, D);
+        da_append(moves, L);
+        da_append(moves, Dp);
+        da_append(moves, B);
+        da_append(moves, D);
+        da_append(moves, Bp);
+        da_append(moves, Dp);
+        da_append(moves, Lp);
+        da_append(moves, Dp);
+        da_append(moves, L);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Check yellow side up
+    else if (getCell(down, F_U) == Blue && getCell(front, F_D) == Orange)
+    {
+        da_append(moves, B);
+        da_append(moves, D);
+        da_append(moves, Bp);
+        da_append(moves, Dp);
+        da_append(moves, Lp);
+        da_append(moves, Dp);
+        da_append(moves, L);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_U) == Orange && getCell(front, F_D) == Blue)
+    {
+        da_append(moves, D);
+        da_append(moves, Lp);
+        da_append(moves, Dp);
+        da_append(moves, L);
+        da_append(moves, D);
+        da_append(moves, B);
+        da_append(moves, D);
+        da_append(moves, Bp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Check yellow side right
+    else if (getCell(down, F_R) == Blue && getCell(right, F_D) == Orange)
+    {
+        da_append(moves, Dp);
+        da_append(moves, B);
+        da_append(moves, D);
+        da_append(moves, Bp);
+        da_append(moves, Dp);
+        da_append(moves, Lp);
+        da_append(moves, Dp);
+        da_append(moves, L);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_R) == Orange && getCell(right, F_D) == Blue)
+    {
+        da_append(moves, Lp);
+        da_append(moves, Dp);
+        da_append(moves, L);
+        da_append(moves, D);
+        da_append(moves, B);
+        da_append(moves, D);
+        da_append(moves, Bp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Check yellow side down
+    else if (getCell(down, F_D) == Blue && getCell(back, F_D) == Orange)
+    {
+        da_append(moves, D2);
+        da_append(moves, B);
+        da_append(moves, D);
+        da_append(moves, Bp);
+        da_append(moves, Dp);
+        da_append(moves, Lp);
+        da_append(moves, Dp);
+        da_append(moves, L);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_D) == Orange && getCell(back, F_D) == Blue)
+    {
+        da_append(moves, Dp);
+        da_append(moves, Lp);
+        da_append(moves, Dp);
+        da_append(moves, L);
+        da_append(moves, D);
+        da_append(moves, B);
+        da_append(moves, D);
+        da_append(moves, Bp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Check yellow side left
+    else if (getCell(down, F_L) == Blue && getCell(left, F_D) == Orange)
+    {
+        da_append(moves, D);
+        da_append(moves, B);
+        da_append(moves, D);
+        da_append(moves, Bp);
+        da_append(moves, Dp);
+        da_append(moves, Lp);
+        da_append(moves, Dp);
+        da_append(moves, L);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(down, F_L) == Orange && getCell(left, F_D) == Blue)
+    {
+        da_append(moves, D2);
+        da_append(moves, Lp);
+        da_append(moves, Dp);
+        da_append(moves, L);
+        da_append(moves, D);
+        da_append(moves, B);
+        da_append(moves, D);
+        da_append(moves, Bp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+
+    if (!success)
+    {
+        TraceLog(LOG_ERROR, "[%s] Unable to find edge piece", __func__);
+        return false;
+    }
+
+    return true;
+}
+
+bool solveF2L(Cube* cube, Moves* queue)
+{
+    return f2lGreenRedCorner(cube, queue) && f2lGreenRedEdge(cube, queue) &&
+        f2lGreenOrangeCorner(cube, queue) && f2lGreenOrangeEdge(cube, queue) &&
+        f2lBlueRedCorner(cube, queue) && f2lBlueRedEdge(cube, queue) &&
+        f2lBlueOrangeCorner(cube, queue) && f2lBlueOrangeEdge(cube, queue);
+}
+
+#define return_defer(value) do { result = (value); goto defer; } while(0)
+
+bool solve(Cube cube, Moves* queue)
+{
+    bool result = true;
+    // To solve the cube we need to perform the moves so copy the current here to later restore it!
+    const size_t current = queue->current;
+
+    if (!solveCross(&cube, queue))
+        return_defer(false);
+    if (!solveF2L(&cube, queue))
+        return_defer(false);
+
+defer:
+    queue->current = current;
+    return result;
+}

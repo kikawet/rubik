@@ -1,6 +1,6 @@
-
 #include "model.h"
 #include <raylib.h>
+#include <string.h>
 
 /// CUBE section
 
@@ -18,11 +18,28 @@ int f2i(const EFace f)
     default: break;
     }
 
-    TraceLog(LOG_FATAL, "Unknown face %d\n", f); // Will abort with exit(EXIT_FAILURE)
+    TraceLog(LOG_FATAL, "Unknown index face: %d", f); // Will abort with exit(EXIT_FAILURE)
     __builtin_unreachable();
 }
 
-EColor getCell(const Face* f, const uint8_t cell)
+EColor f2c(const EFace f)
+{
+    switch (f)
+    {
+    case F_U: return White;
+    case F_L: return Orange;
+    case F_F: return Green;
+    case F_R: return Red;
+    case F_B: return Blue;
+    case F_D: return Yellow;
+    default: break;
+    }
+
+    TraceLog(LOG_FATAL, "Unknown color for face: %d", f); // Will abort with exit(EXIT_FAILURE)
+    __builtin_unreachable();
+}
+
+EColor getCell(const Face* f, uint8_t cell)
 {
     const int width = 4; // bits required for a color
     const int mask = 0xF;
@@ -160,14 +177,24 @@ Cube newCube(void)
 {
     Cube c = {0};
 
-    setFaceColor(&c.faces[f2i(F_U)], White);
-    setFaceColor(&c.faces[f2i(F_F)], Green);
-    setFaceColor(&c.faces[f2i(F_B)], Blue);
-    setFaceColor(&c.faces[f2i(F_D)], Yellow);
-    setFaceColor(&c.faces[f2i(F_L)], Orange);
-    setFaceColor(&c.faces[f2i(F_R)], Red);
+    setFaceColor(&c.faces[f2i(F_U)], f2c(F_U));
+    setFaceColor(&c.faces[f2i(F_F)], f2c(F_F));
+    setFaceColor(&c.faces[f2i(F_B)], f2c(F_B));
+    setFaceColor(&c.faces[f2i(F_D)], f2c(F_D));
+    setFaceColor(&c.faces[f2i(F_L)], f2c(F_L));
+    setFaceColor(&c.faces[f2i(F_R)], f2c(F_R));
 
     return c;
+}
+
+void resetCube(Cube* c)
+{
+    setFaceColor(&c->faces[f2i(F_U)], f2c(F_U));
+    setFaceColor(&c->faces[f2i(F_F)], f2c(F_F));
+    setFaceColor(&c->faces[f2i(F_B)], f2c(F_B));
+    setFaceColor(&c->faces[f2i(F_D)], f2c(F_D));
+    setFaceColor(&c->faces[f2i(F_L)], f2c(F_L));
+    setFaceColor(&c->faces[f2i(F_R)], f2c(F_R));
 }
 
 /// Movements section
@@ -176,25 +203,120 @@ const char* moveToStr(const Move m)
 {
     switch (m)
     {
-    case U:  return "U";
+    case U: return "U";
     case Up: return "U'";
     case U2: return "U2";
-    case L:  return "L";
+    case L: return "L";
     case Lp: return "L'";
     case L2: return "L2";
-    case F:  return "F";
+    case F: return "F";
     case Fp: return "F'";
     case F2: return "F2";
-    case R:  return "R";
+    case R: return "R";
     case Rp: return "R'";
     case R2: return "R2";
-    case B:  return "B";
+    case B: return "B";
     case Bp: return "B'";
     case B2: return "B2";
-    case D:  return "D";
+    case D: return "D";
     case Dp: return "D'";
     case D2: return "D2";
     default: return "";
+    }
+}
+
+void strToMoves(const char* str, Moves* mv)
+{
+    int i = 0;
+    while (str[i] != '\0')
+    {
+        if (strncmp(str + i, "U'", 2) == 0)
+        {
+            da_append(mv, Up);
+            i++;
+        }
+        else if (strncmp(str + i, "L'", 2) == 0)
+        {
+            da_append(mv, Lp);
+            i++;
+        }
+        else if (strncmp(str + i, "F'", 2) == 0)
+        {
+            da_append(mv, Fp);
+            i++;
+        }
+        else if (strncmp(str + i, "R'", 2) == 0)
+        {
+            da_append(mv, Rp);
+            i++;
+        }
+        else if (strncmp(str + i, "B'", 2) == 0)
+        {
+            da_append(mv, Bp);
+            i++;
+        }
+        else if (strncmp(str + i, "D'", 2) == 0)
+        {
+            da_append(mv, Dp);
+            i++;
+        }
+        else if (strncmp(str + i, "U2", 2) == 0)
+        {
+            da_append(mv, U2);
+            i++;
+        }
+        else if (strncmp(str + i, "L2", 2) == 0)
+        {
+            da_append(mv, L2);
+            i++;
+        }
+        else if (strncmp(str + i, "F2", 2) == 0)
+        {
+            da_append(mv, F2);
+            i++;
+        }
+        else if (strncmp(str + i, "R2", 2) == 0)
+        {
+            da_append(mv, R2);
+            i++;
+        }
+        else if (strncmp(str + i, "B2", 2) == 0)
+        {
+            da_append(mv, B2);
+            i++;
+        }
+        else if (strncmp(str + i, "D2", 2) == 0)
+        {
+            da_append(mv, D2);
+            i++;
+        }
+        else if (strncmp(str + i, "U", 1) == 0)
+        {
+            da_append(mv, U);
+        }
+        else if (strncmp(str + i, "L", 1) == 0)
+        {
+            da_append(mv, L);
+        }
+        else if (strncmp(str + i, "F", 1) == 0)
+        {
+            da_append(mv, F);
+        }
+        else if (strncmp(str + i, "R", 1) == 0)
+        {
+            da_append(mv, R);
+        }
+        else if (strncmp(str + i, "B", 1) == 0)
+        {
+            da_append(mv, B);
+        }
+        else if (strncmp(str + i, "D", 1) == 0)
+        {
+            da_append(mv, D);
+        }
+
+        // Invalid move!
+        i++;
     }
 }
 
@@ -541,41 +663,52 @@ void rotateRightCW(Cube* cube)
     rotateRightCCW(cube);
 }
 
-void rotateCube(Cube* cube,const Move m)
+void rotateCube(Cube* cube, const Move m)
 {
     if (m == NO_MOVE) return;
 
     switch (m)
     {
     case U2: rotateUpCW(cube); // fallthrough
-    case U: rotateUpCW(cube); break;
-    case Up: rotateUpCCW(cube); break;
+    case U: rotateUpCW(cube);
+        break;
+    case Up: rotateUpCCW(cube);
+        break;
 
     case L2: rotateLeftCW(cube); // fallthrough
-    case L: rotateLeftCW(cube); break;
-    case Lp: rotateLeftCCW(cube); break;
+    case L: rotateLeftCW(cube);
+        break;
+    case Lp: rotateLeftCCW(cube);
+        break;
 
     case F2: rotateFrontCW(cube); // fallthrough
-    case F: rotateFrontCW(cube); break;
-    case Fp: rotateFrontCCW(cube); break;
+    case F: rotateFrontCW(cube);
+        break;
+    case Fp: rotateFrontCCW(cube);
+        break;
 
     case R2: rotateRightCW(cube); // fallthrough
-    case R: rotateRightCW(cube); break;
-    case Rp: rotateRightCCW(cube); break;
+    case R: rotateRightCW(cube);
+        break;
+    case Rp: rotateRightCCW(cube);
+        break;
 
     case B2: rotateBackCW(cube); // fallthrough
-    case B: rotateBackCW(cube); break;
-    case Bp: rotateBackCCW(cube); break;
+    case B: rotateBackCW(cube);
+        break;
+    case Bp: rotateBackCCW(cube);
+        break;
 
     case D2: rotateDownCW(cube); // fallthrough
-    case D: rotateDownCW(cube); break;
-    case Dp: rotateDownCCW(cube); break;
+    case D: rotateDownCW(cube);
+        break;
+    case Dp: rotateDownCCW(cube);
+        break;
 
     default:
         {
-            TraceLog(LOG_FATAL, "Unknown cube rotation %d\n", m); // Will abort with exit(EXIT_FAILURE)
+            TraceLog(LOG_FATAL, "Unknown cube rotation %d", m); // Will abort with exit(EXIT_FAILURE)
             __builtin_unreachable();
         }
     }
-
 }

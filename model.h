@@ -4,6 +4,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <assert.h>
 
 // TY TSODING <3 section
 #define da_append(da, item)                  \
@@ -78,13 +79,16 @@ typedef struct Moves
 } Moves;
 
 Cube newCube(void);
-void rotateCube(Cube* cube, Move m);
+void resetCube(Cube* c);
+void rotateCube(Cube* c, Move m);
 
 // Helpers for conversions
 EFace moveToFace(Move m);
 float moveMaxAngle(Move m);
 const char* moveToStr(Move m);
-int f2i(EFace f); // Face to index
-EColor getCell(const Face* f, const uint8_t cell);
+void strToMoves(const char* str, Moves* mv); // str is null terminated!!
+int f2i(EFace f);    // Face to index
+EColor f2c(EFace f); // Get the color of a face
+EColor getCell(const Face* f, uint8_t cell);
 
 #endif //MODEL_H
