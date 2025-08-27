@@ -1125,7 +1125,7 @@ bool f2lGreenRedCorner(Cube* cube, Moves* moves)
 
     if (!success)
     {
-        TraceLog(LOG_ERROR, "[%s] Unable to find edge piece", __func__);
+        TraceLog(LOG_ERROR, "[%s] Unable to find corner piece", __func__);
         return false;
     }
 
@@ -1652,7 +1652,7 @@ bool f2lGreenOrangeCorner(Cube* cube, Moves* moves)
 
     if (!success)
     {
-        TraceLog(LOG_ERROR, "[%s] Unable to find edge piece", __func__);
+        TraceLog(LOG_ERROR, "[%s] Unable to find corner piece", __func__);
         return false;
     }
 
@@ -2098,7 +2098,7 @@ bool f2lBlueRedCorner(Cube* cube, Moves* moves)
 
     if (!success)
     {
-        TraceLog(LOG_ERROR, "[%s] Unable to find edge piece", __func__);
+        TraceLog(LOG_ERROR, "[%s] Unable to find corner piece", __func__);
         return false;
     }
 
@@ -2486,7 +2486,7 @@ bool f2lBlueOrangeCorner(Cube* cube, Moves* moves)
 
     if (!success)
     {
-        TraceLog(LOG_ERROR, "[%s] Unable to find edge piece", __func__);
+        TraceLog(LOG_ERROR, "[%s] Unable to find corner piece", __func__);
         return false;
     }
 
@@ -2666,6 +2666,1354 @@ bool solveF2L(Cube* cube, Moves* queue)
         f2lBlueOrangeCorner(cube, queue) && f2lBlueOrangeEdge(cube, queue);
 }
 
+bool genericOLL(Cube* cube, Moves* moves)
+{
+    // reference for the moves: https://jperm.net/algs/oll
+    // Since all the movements are from the top also this helper required: https://cube.rider.biz/algtrans.html
+    updateCube(cube, moves);
+
+    // TODO: replace static colors with variables :/
+    const Face* down = &cube->faces[f2i(F_D)];
+    const Face* front = &cube->faces[f2i(F_F)];
+    const Face* back = &cube->faces[f2i(F_B)];
+    const Face* left = &cube->faces[f2i(F_L)];
+    const Face* right = &cube->faces[f2i(F_R)];
+
+    bool success = false;
+    if ( // 1
+        getCell(front, F_D) == Yellow &&
+        getCell(back, F_D) == Yellow &&
+        getCell(left, F_D | F_L) == Yellow && getCell(left, F_D) == Yellow && getCell(left, F_D | F_R) == Yellow &&
+        getCell(right, F_D | F_L) == Yellow && getCell(right, F_D) == Yellow && getCell(right, F_D | F_R) == Yellow
+    )
+    {
+        da_append(moves, R);
+        da_append(moves, D2);
+        da_append(moves, R2);
+        da_append(moves, B);
+        da_append(moves, R);
+        da_append(moves, Bp);
+        da_append(moves, D2);
+        da_append(moves, Rp);
+        da_append(moves, B);
+        da_append(moves, R);
+        da_append(moves, Bp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 2
+        getCell(front, F_D | F_L) == Yellow && getCell(front, F_D) == Yellow && getCell(front, F_D | F_R) == Yellow &&
+        getCell(back, F_D) == Yellow &&
+        getCell(left, F_D | F_L) == Yellow && getCell(left, F_D) == Yellow &&
+        getCell(right, F_D) == Yellow && getCell(right, F_D | F_R) == Yellow
+    )
+    {
+        da_append(moves, L);
+        da_append(moves, B);
+        da_append(moves, Lp);
+        da_append(moves, D2);
+        da_append(moves, L);
+        da_append(moves, B2);
+        da_append(moves, Rp);
+        da_append(moves, B2);
+        da_append(moves, R);
+        da_append(moves, Bp);
+        da_append(moves, Lp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 3
+        getCell(down, F_D | F_L) == Yellow &&
+        getCell(front, F_D | F_L) == Yellow && getCell(front, F_D) == Yellow &&
+        getCell(back, F_D | F_L) == Yellow && getCell(back, F_D) == Yellow &&
+        getCell(left, F_D) == Yellow &&
+        getCell(right, F_D | F_L) == Yellow && getCell(right, F_D) == Yellow
+    )
+    {
+        da_append(moves, Lp);
+        da_append(moves, R2);
+        da_append(moves, F);
+        da_append(moves, Rp);
+        da_append(moves, F);
+        da_append(moves, L);
+        da_append(moves, D2);
+        da_append(moves, Lp);
+        da_append(moves, F);
+        da_append(moves, Rp);
+        da_append(moves, L);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 4
+        getCell(down, F_D | F_R) == Yellow &&
+        getCell(front, F_D) == Yellow && getCell(front, F_D | F_R) == Yellow &&
+        getCell(back, F_D) == Yellow && getCell(back, F_D | F_R) == Yellow &&
+        getCell(left, F_D) == Yellow && getCell(left, F_D | F_R) == Yellow &&
+        getCell(right, F_D) == Yellow
+    )
+    {
+        da_append(moves, R);
+        da_append(moves, Lp);
+        da_append(moves, Fp);
+        da_append(moves, L);
+        da_append(moves, D2);
+        da_append(moves, Lp);
+        da_append(moves, Fp);
+        da_append(moves, R);
+        da_append(moves, Fp);
+        da_append(moves, R2);
+        da_append(moves, L);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 5
+        getCell(down, F_U | F_L) == Yellow && getCell(down, F_U) == Yellow && getCell(down, F_L) == Yellow &&
+        getCell(back, F_D | F_L) == Yellow && getCell(back, F_D) == Yellow &&
+        getCell(left, F_D | F_L) == Yellow &&
+        getCell(right, F_D | F_L) == Yellow && getCell(right, F_D) == Yellow
+    )
+    {
+        da_append(moves, Rp);
+        da_append(moves, B2);
+        da_append(moves, L);
+        da_append(moves, B);
+        da_append(moves, Lp);
+        da_append(moves, B);
+        da_append(moves, R);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 6
+        getCell(down, F_U) == Yellow && getCell(down, F_U | F_R) == Yellow && getCell(down, F_R) == Yellow &&
+        getCell(back, F_D) == Yellow && getCell(back, F_D | F_R) == Yellow &&
+        getCell(left, F_D) == Yellow && getCell(left, F_D | F_R) == Yellow &&
+        getCell(right, F_D | F_R) == Yellow
+    )
+    {
+        da_append(moves, L);
+        da_append(moves, B2);
+        da_append(moves, Rp);
+        da_append(moves, Bp);
+        da_append(moves, R);
+        da_append(moves, Bp);
+        da_append(moves, Lp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 7
+        getCell(down, F_U) == Yellow && getCell(down, F_L) == Yellow && getCell(down, F_D | F_L) == Yellow &&
+        getCell(front, F_D | F_L) == Yellow &&
+        getCell(back, F_D | F_L) == Yellow && getCell(back, F_D) == Yellow &&
+        getCell(right, F_D | F_L) == Yellow && getCell(right, F_D) == Yellow
+    )
+    {
+        da_append(moves, L);
+        da_append(moves, B);
+        da_append(moves, Rp);
+        da_append(moves, B);
+        da_append(moves, R);
+        da_append(moves, B2);
+        da_append(moves, Lp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 8
+        getCell(down, F_U) == Yellow && getCell(down, F_R) == Yellow && getCell(down, F_D | F_R) == Yellow &&
+        getCell(front, F_D | F_R) == Yellow &&
+        getCell(back, F_D) == Yellow && getCell(back, F_D | F_R) == Yellow &&
+        getCell(left, F_D) == Yellow && getCell(left, F_D | F_R) == Yellow
+    )
+    {
+        da_append(moves, Rp);
+        da_append(moves, Bp);
+        da_append(moves, L);
+        da_append(moves, Bp);
+        da_append(moves, Lp);
+        da_append(moves, B2);
+        da_append(moves, R);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 9
+        getCell(down, F_U) == Yellow && getCell(down, F_L) == Yellow && getCell(down, F_D | F_R) == Yellow &&
+        getCell(front, F_D | F_R) == Yellow &&
+        getCell(back, F_D) == Yellow && getCell(back, F_D | F_R) == Yellow &&
+        getCell(left, F_D | F_R) == Yellow &&
+        getCell(right, F_D) == Yellow
+    )
+    {
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, B);
+        da_append(moves, R2);
+        da_append(moves, D);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, Bp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 10
+        getCell(down, F_U | F_R) == Yellow && getCell(down, F_L) == Yellow && getCell(down, F_D) == Yellow &&
+        getCell(front, F_D | F_L) == Yellow && getCell(front, F_D) == Yellow &&
+        getCell(back, F_D | F_L) == Yellow &&
+        getCell(left, F_D | F_L) == Yellow &&
+        getCell(right, F_D) == Yellow
+    )
+    {
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, Rp);
+        da_append(moves, D);
+        da_append(moves, Rp);
+        da_append(moves, B);
+        da_append(moves, R);
+        da_append(moves, Bp);
+        da_append(moves, R);
+        da_append(moves, D2);
+        da_append(moves, Rp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 11
+        getCell(down, F_U) == Yellow && getCell(down, F_U | F_R) == Yellow && getCell(down, F_L) == Yellow &&
+        getCell(front, F_D | F_L) == Yellow &&
+        getCell(back, F_D | F_L) == Yellow && getCell(back, F_D) == Yellow &&
+        getCell(left, F_D | F_L) == Yellow &&
+        getCell(right, F_D) == Yellow
+    )
+    {
+        da_append(moves, L);
+        da_append(moves, B);
+        da_append(moves, Rp);
+        da_append(moves, B);
+        da_append(moves, Rp);
+        da_append(moves, U);
+        da_append(moves, R);
+        da_append(moves, Up);
+        da_append(moves, R);
+        da_append(moves, B2);
+        da_append(moves, Lp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 12
+        getCell(down, F_U | F_L) == Yellow && getCell(down, F_U) == Yellow && getCell(down, F_R) == Yellow &&
+        getCell(front, F_D | F_R) == Yellow &&
+        getCell(back, F_D) == Yellow && getCell(back, F_D | F_R) == Yellow &&
+        getCell(left, F_D) == Yellow &&
+        getCell(right, F_D | F_R) == Yellow
+    )
+    {
+        da_append(moves, Rp);
+        da_append(moves, L);
+        da_append(moves, Rp);
+        da_append(moves, Bp);
+        da_append(moves, R);
+        da_append(moves, Bp);
+        da_append(moves, Rp);
+        da_append(moves, B2);
+        da_append(moves, R);
+        da_append(moves, Bp);
+        da_append(moves, R);
+        da_append(moves, Lp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 13
+        getCell(down, F_L) == Yellow && getCell(down, F_R) == Yellow && getCell(down, F_D | F_L) == Yellow &&
+        getCell(front, F_D | F_L) == Yellow && getCell(front, F_D) == Yellow &&
+        getCell(back, F_D | F_L) == Yellow && getCell(back, F_D) == Yellow &&
+        getCell(right, F_D | F_L) == Yellow
+    )
+    {
+        da_append(moves, B);
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, Dp);
+        da_append(moves, R2);
+        da_append(moves, Bp);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 14
+        getCell(down, F_L) == Yellow && getCell(down, F_R) == Yellow && getCell(down, F_D | F_R) == Yellow &&
+        getCell(front, F_D) == Yellow && getCell(front, F_D | F_R) == Yellow &&
+        getCell(back, F_D) == Yellow && getCell(back, F_D | F_R) == Yellow &&
+        getCell(left, F_D | F_R) == Yellow
+    )
+    {
+        da_append(moves, Rp);
+        da_append(moves, B);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, Rp);
+        da_append(moves, Bp);
+        da_append(moves, R);
+        da_append(moves, B);
+        da_append(moves, Dp);
+        da_append(moves, Bp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 15
+        getCell(down, F_U | F_L) == Yellow && getCell(down, F_L) == Yellow && getCell(down, F_R) == Yellow &&
+        getCell(front, F_D) == Yellow &&
+        getCell(back, F_D | F_L) == Yellow && getCell(back, F_D) == Yellow &&
+        getCell(left, F_D | F_L) == Yellow &&
+        getCell(right, F_D | F_L) == Yellow
+    )
+    {
+        da_append(moves, Rp);
+        da_append(moves, Bp);
+        da_append(moves, R);
+        da_append(moves, Lp);
+        da_append(moves, Dp);
+        da_append(moves, L);
+        da_append(moves, D);
+        da_append(moves, Rp);
+        da_append(moves, B);
+        da_append(moves, R);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 16
+        getCell(down, F_U | F_R) == Yellow && getCell(down, F_L) == Yellow && getCell(down, F_R) == Yellow &&
+        getCell(front, F_D) == Yellow &&
+        getCell(back, F_D) == Yellow && getCell(back, F_D | F_R) == Yellow &&
+        getCell(left, F_D | F_R) == Yellow &&
+        getCell(right, F_D | F_R) == Yellow
+    )
+    {
+        da_append(moves, L);
+        da_append(moves, B);
+        da_append(moves, Lp);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, L);
+        da_append(moves, Bp);
+        da_append(moves, Lp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 17
+        getCell(down, F_U | F_L) == Yellow && getCell(down, F_D | F_R) == Yellow &&
+        getCell(front, F_D) == Yellow &&
+        getCell(back, F_D) == Yellow && getCell(back, F_D | F_R) == Yellow &&
+        getCell(left, F_D) == Yellow &&
+        getCell(right, F_D | F_L) == Yellow && getCell(right, F_D) == Yellow
+    )
+    {
+        da_append(moves, B);
+        da_append(moves, Rp);
+        da_append(moves, Bp);
+        da_append(moves, R2);
+        da_append(moves, Lp);
+        da_append(moves, F);
+        da_append(moves, R);
+        da_append(moves, Fp);
+        da_append(moves, Rp);
+        da_append(moves, Fp);
+        da_append(moves, Rp);
+        da_append(moves, L);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 18
+        getCell(down, F_U | F_L) == Yellow && getCell(down, F_U | F_R) == Yellow &&
+        getCell(front, F_D) == Yellow &&
+        getCell(back, F_D | F_L) == Yellow && getCell(back, F_D) == Yellow && getCell(back, F_D | F_R) == Yellow &&
+        getCell(left, F_D) == Yellow &&
+        getCell(right, F_D) == Yellow
+    )
+    {
+        da_append(moves, L);
+        da_append(moves, B);
+        da_append(moves, Rp);
+        da_append(moves, B);
+        da_append(moves, R);
+        da_append(moves, B2);
+        da_append(moves, L2);
+        da_append(moves, Fp);
+        da_append(moves, R);
+        da_append(moves, Fp);
+        da_append(moves, Rp);
+        da_append(moves, F2);
+        da_append(moves, L);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 19
+        getCell(down, F_U | F_L) == Yellow && getCell(down, F_U | F_R) == Yellow &&
+        getCell(front, F_D) == Yellow &&
+        getCell(back, F_D) == Yellow &&
+        getCell(left, F_D | F_L) == Yellow && getCell(left, F_D) == Yellow &&
+        getCell(right, F_D) == Yellow && getCell(right, F_D | F_R) == Yellow
+    )
+    {
+        da_append(moves, Lp);
+        da_append(moves, R);
+        da_append(moves, F);
+        da_append(moves, R);
+        da_append(moves, F);
+        da_append(moves, Rp);
+        da_append(moves, Fp);
+        da_append(moves, Rp);
+        da_append(moves, L);
+        da_append(moves, Rp);
+        da_append(moves, B);
+        da_append(moves, R);
+        da_append(moves, Bp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 20
+        getCell(down, F_U | F_L) == Yellow && getCell(down, F_U | F_R) == Yellow && getCell(down, F_D | F_L) == Yellow
+        && getCell(down, F_D | F_R) == Yellow &&
+        getCell(front, F_D) == Yellow &&
+        getCell(back, F_D) == Yellow &&
+        getCell(left, F_D) == Yellow &&
+        getCell(right, F_D) == Yellow
+    )
+    {
+        da_append(moves, L);
+        da_append(moves, B);
+        da_append(moves, Rp);
+        da_append(moves, Bp);
+        da_append(moves, R);
+        da_append(moves, Lp);
+        da_append(moves, R);
+        da_append(moves, Lp);
+        da_append(moves, F);
+        da_append(moves, R);
+        da_append(moves, Fp);
+        da_append(moves, Rp);
+        da_append(moves, Fp);
+        da_append(moves, Rp);
+        da_append(moves, L);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 21
+        getCell(down, F_U) == Yellow && getCell(down, F_L) == Yellow && getCell(down, F_R) == Yellow &&
+        getCell(down, F_D) == Yellow &&
+        getCell(front, F_D | F_L) == Yellow && getCell(front, F_D | F_R) == Yellow &&
+        getCell(back, F_D | F_L) == Yellow && getCell(back, F_D | F_R) == Yellow
+    )
+    {
+        da_append(moves, R);
+        da_append(moves, D2);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, R);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 22
+        getCell(down, F_U) == Yellow && getCell(down, F_L) == Yellow && getCell(down, F_R) == Yellow &&
+        getCell(down, F_D) == Yellow &&
+        getCell(front, F_D | F_R) == Yellow &&
+        getCell(back, F_D | F_L) == Yellow &&
+        getCell(left, F_D | F_L) == Yellow && getCell(left, F_D | F_R) == Yellow
+    )
+    {
+        da_append(moves, R);
+        da_append(moves, D2);
+        da_append(moves, R2);
+        da_append(moves, Dp);
+        da_append(moves, R2);
+        da_append(moves, Dp);
+        da_append(moves, R2);
+        da_append(moves, D2);
+        da_append(moves, R);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 23
+        getCell(down, F_U) == Yellow && getCell(down, F_L) == Yellow && getCell(down, F_R) == Yellow &&
+        getCell(down, F_D | F_L) == Yellow && getCell(down, F_D) == Yellow && getCell(down, F_D | F_R) == Yellow &&
+
+        getCell(front, F_D | F_L) == Yellow && getCell(front, F_D | F_R) == Yellow
+    )
+    {
+        da_append(moves, R2);
+        da_append(moves, Up);
+        da_append(moves, R);
+        da_append(moves, D2);
+        da_append(moves, Rp);
+        da_append(moves, U);
+        da_append(moves, R);
+        da_append(moves, D2);
+        da_append(moves, R);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 24
+        getCell(down, F_U) == Yellow && getCell(down, F_U | F_R) == Yellow &&
+        getCell(down, F_L) == Yellow && getCell(down, F_R) == Yellow &&
+        getCell(down, F_D) == Yellow && getCell(down, F_D | F_R) == Yellow &&
+
+        getCell(front, F_D | F_L) == Yellow &&
+        getCell(back, F_D | F_R) == Yellow
+    )
+    {
+        da_append(moves, L);
+        da_append(moves, B);
+        da_append(moves, Rp);
+        da_append(moves, Bp);
+        da_append(moves, Lp);
+        da_append(moves, B);
+        da_append(moves, R);
+        da_append(moves, Bp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 25
+        getCell(down, F_U) == Yellow && getCell(down, F_U | F_R) == Yellow &&
+        getCell(down, F_L) == Yellow && getCell(down, F_R) == Yellow &&
+        getCell(down, F_D | F_L) == Yellow && getCell(down, F_D) == Yellow &&
+
+        getCell(back, F_D | F_L) == Yellow &&
+        getCell(left, F_D | F_R) == Yellow
+    )
+    {
+        da_append(moves, Bp);
+        da_append(moves, L);
+        da_append(moves, B);
+        da_append(moves, Rp);
+        da_append(moves, Bp);
+        da_append(moves, Lp);
+        da_append(moves, B);
+        da_append(moves, R);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 26
+        getCell(down, F_U) == Yellow && getCell(down, F_U | F_R) == Yellow &&
+        getCell(down, F_L) == Yellow && getCell(down, F_R) == Yellow &&
+        getCell(down, F_D) == Yellow &&
+
+        getCell(back, F_D | F_R) == Yellow &&
+        getCell(left, F_D | F_R) == Yellow &&
+        getCell(right, F_D | F_R) == Yellow
+    )
+    {
+        da_append(moves, R);
+        da_append(moves, D2);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, R);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 27
+        getCell(down, F_U) == Yellow &&
+        getCell(down, F_L) == Yellow && getCell(down, F_R) == Yellow &&
+        getCell(down, F_D | F_L) == Yellow && getCell(down, F_D) == Yellow &&
+
+        getCell(front, F_D | F_L) == Yellow &&
+        getCell(back, F_D | F_L) == Yellow &&
+        getCell(right, F_D | F_L) == Yellow
+    )
+    {
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, Rp);
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, D2);
+        da_append(moves, Rp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 28
+        getCell(down, F_U | F_L) == Yellow && getCell(down, F_U) == Yellow && getCell(down, F_U | F_R) == Yellow &&
+        getCell(down, F_L) == Yellow &&
+        getCell(down, F_D | F_L) == Yellow && getCell(down, F_D | F_R) == Yellow &&
+
+        getCell(back, F_D) == Yellow &&
+        getCell(right, F_D) == Yellow
+    )
+    {
+        da_append(moves, L);
+        da_append(moves, B);
+        da_append(moves, Rp);
+        da_append(moves, Bp);
+        da_append(moves, Lp);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 29
+        getCell(down, F_U) == Yellow && getCell(down, F_U | F_R) == Yellow &&
+        getCell(down, F_L) == Yellow &&
+        getCell(down, F_D | F_R) == Yellow &&
+
+        getCell(front, F_D | F_L) == Yellow &&
+        getCell(back, F_D) == Yellow && getCell(back, F_D | F_R) == Yellow &&
+        getCell(right, F_D) == Yellow
+    )
+    {
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, R);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, Bp);
+        da_append(moves, Dp);
+        da_append(moves, B);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, Rp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 30
+        getCell(down, F_U) == Yellow &&
+        getCell(down, F_L) == Yellow &&
+        getCell(down, F_D | F_L) == Yellow && getCell(down, F_D | F_R) == Yellow &&
+
+        getCell(back, F_D) == Yellow &&
+        getCell(left, F_D | F_R) == Yellow &&
+        getCell(right, F_D | F_L) == Yellow && getCell(right, F_D) == Yellow
+    )
+    {
+        da_append(moves, B);
+        da_append(moves, Rp);
+        da_append(moves, B);
+        da_append(moves, R2);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, Rp);
+        da_append(moves, B2);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 31
+        getCell(down, F_U) == Yellow && getCell(down, F_U | F_R) == Yellow &&
+        getCell(down, F_R) == Yellow &&
+        getCell(down, F_D | F_R) == Yellow &&
+
+        getCell(front, F_D | F_L) == Yellow &&
+        getCell(back, F_D) == Yellow && getCell(back, F_D | F_R) == Yellow &&
+        getCell(left, F_D) == Yellow
+    )
+    {
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, B);
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, Bp);
+        da_append(moves, R);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 32
+        getCell(down, F_U | F_L) == Yellow && getCell(down, F_U) == Yellow &&
+        getCell(down, F_L) == Yellow &&
+        getCell(down, F_D | F_L) == Yellow &&
+
+        getCell(front, F_D | F_R) == Yellow &&
+        getCell(back, F_D | F_L) == Yellow && getCell(back, F_D) == Yellow &&
+        getCell(right, F_D) == Yellow
+    )
+    {
+        da_append(moves, L);
+        da_append(moves, D);
+        da_append(moves, Bp);
+        da_append(moves, Dp);
+        da_append(moves, Lp);
+        da_append(moves, D);
+        da_append(moves, L);
+        da_append(moves, B);
+        da_append(moves, Lp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 33
+        getCell(down, F_U | F_R) == Yellow &&
+        getCell(down, F_L) == Yellow && getCell(down, F_R) == Yellow &&
+        getCell(down, F_D | F_R) == Yellow &&
+
+        getCell(front, F_D | F_L) == Yellow && getCell(front, F_D) == Yellow &&
+        getCell(back, F_D) == Yellow && getCell(back, F_D | F_R) == Yellow
+    )
+    {
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, B);
+        da_append(moves, R);
+        da_append(moves, Bp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 34
+        getCell(down, F_L) == Yellow && getCell(down, F_R) == Yellow &&
+        getCell(down, F_D | F_L) == Yellow && getCell(down, F_D | F_R) == Yellow &&
+
+        getCell(front, F_D) == Yellow &&
+        getCell(back, F_D) == Yellow &&
+        getCell(left, F_D | F_R) == Yellow &&
+        getCell(right, F_D | F_L) == Yellow
+    )
+    {
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, R2);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, B);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, Dp);
+        da_append(moves, Bp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 35
+        getCell(down, F_U | F_L) == Yellow &&
+        getCell(down, F_R) == Yellow &&
+        getCell(down, F_D) == Yellow && getCell(down, F_D | F_R) == Yellow &&
+
+        getCell(front, F_D) == Yellow &&
+        getCell(back, F_D | F_R) == Yellow &&
+        getCell(left, F_D) == Yellow &&
+        getCell(right, F_D | F_L) == Yellow
+    )
+    {
+        da_append(moves, R);
+        da_append(moves, D2);
+        da_append(moves, R2);
+        da_append(moves, B);
+        da_append(moves, R);
+        da_append(moves, Bp);
+        da_append(moves, R);
+        da_append(moves, D2);
+        da_append(moves, Rp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 36
+        getCell(down, F_U | F_L) == Yellow && getCell(down, F_U) == Yellow &&
+        getCell(down, F_R) == Yellow &&
+        getCell(down, F_D | F_R) == Yellow &&
+
+        getCell(front, F_D | F_R) == Yellow &&
+        getCell(back, F_D) == Yellow &&
+        getCell(left, F_D | F_L) == Yellow && getCell(left, F_D) == Yellow
+    )
+    {
+        da_append(moves, Lp);
+        da_append(moves, Dp);
+        da_append(moves, L);
+        da_append(moves, Dp);
+        da_append(moves, Lp);
+        da_append(moves, D);
+        da_append(moves, L);
+        da_append(moves, D);
+        da_append(moves, L);
+        da_append(moves, Bp);
+        da_append(moves, Lp);
+        da_append(moves, B);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 37
+        getCell(down, F_U | F_L) == Yellow && getCell(down, F_U) == Yellow &&
+        getCell(down, F_L) == Yellow &&
+        getCell(down, F_D | F_R) == Yellow &&
+
+        getCell(back, F_D) == Yellow && getCell(back, F_D | F_R) == Yellow &&
+        getCell(right, F_D | F_L) == Yellow && getCell(right, F_D) == Yellow
+    )
+    {
+        da_append(moves, B);
+        da_append(moves, Rp);
+        da_append(moves, Bp);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 38
+        getCell(down, F_U) == Yellow && getCell(down, F_U | F_R) == Yellow &&
+        getCell(down, F_L) == Yellow &&
+        getCell(down, F_D | F_L) == Yellow &&
+
+        getCell(front, F_D | F_L) == Yellow &&
+        getCell(back, F_D) == Yellow &&
+        getCell(right, F_D) == Yellow && getCell(right, F_D | F_R) == Yellow
+    )
+    {
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, Rp);
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, B);
+        da_append(moves, R);
+        da_append(moves, Bp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 39
+        getCell(down, F_U | F_R) == Yellow &&
+        getCell(down, F_L) == Yellow && getCell(down, F_R) == Yellow &&
+        getCell(down, F_D | F_L) == Yellow &&
+
+        getCell(front, F_D | F_L) == Yellow && getCell(front, F_D) == Yellow &&
+        getCell(back, F_D) == Yellow &&
+        getCell(right, F_D | F_R) == Yellow
+    )
+    {
+        da_append(moves, L);
+        da_append(moves, Bp);
+        da_append(moves, Lp);
+        da_append(moves, Dp);
+        da_append(moves, L);
+        da_append(moves, D);
+        da_append(moves, B);
+        da_append(moves, Dp);
+        da_append(moves, Lp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 40
+        getCell(down, F_U | F_L) == Yellow &&
+        getCell(down, F_L) == Yellow && getCell(down, F_R) == Yellow &&
+        getCell(down, F_D | F_R) == Yellow &&
+
+        getCell(front, F_D) == Yellow && getCell(front, F_D | F_R) == Yellow &&
+        getCell(back, F_D) == Yellow &&
+        getCell(left, F_D | F_L) == Yellow
+    )
+    {
+        da_append(moves, Rp);
+        da_append(moves, B);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, Bp);
+        da_append(moves, D);
+        da_append(moves, R);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 41
+        getCell(down, F_U) == Yellow &&
+        getCell(down, F_L) == Yellow &&
+        getCell(down, F_D | F_L) == Yellow && getCell(down, F_D | F_R) == Yellow &&
+
+        getCell(front, F_D | F_L) == Yellow && getCell(front, F_D | F_R) == Yellow &&
+        getCell(back, F_D) == Yellow &&
+        getCell(right, F_D) == Yellow
+    )
+    {
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, Rp);
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, D2);
+        da_append(moves, Rp);
+        da_append(moves, B);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, Bp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 42
+        getCell(down, F_U | F_L) == Yellow && getCell(down, F_U | F_R) == Yellow &&
+        getCell(down, F_L) == Yellow &&
+        getCell(down, F_D) == Yellow &&
+
+        getCell(front, F_D) == Yellow &&
+        getCell(back, F_D | F_L) == Yellow && getCell(back, F_D | F_R) == Yellow &&
+        getCell(right, F_D) == Yellow
+    )
+    {
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, R);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, D2);
+        da_append(moves, R);
+        da_append(moves, B);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, Bp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 43
+        getCell(down, F_U) == Yellow && getCell(down, F_U | F_R) == Yellow &&
+        getCell(down, F_R) == Yellow &&
+        getCell(down, F_D | F_R) == Yellow &&
+
+        getCell(back, F_D) == Yellow &&
+        getCell(left, F_D | F_L) == Yellow && getCell(left, F_D) == Yellow && getCell(left, F_D | F_R) == Yellow
+    )
+    {
+        da_append(moves, Bp);
+        da_append(moves, Dp);
+        da_append(moves, Lp);
+        da_append(moves, D);
+        da_append(moves, L);
+        da_append(moves, B);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 44
+        getCell(down, F_U | F_L) == Yellow && getCell(down, F_U) == Yellow &&
+        getCell(down, F_L) == Yellow &&
+        getCell(down, F_D | F_L) == Yellow &&
+
+        getCell(back, F_D) == Yellow &&
+        getCell(right, F_D | F_L) == Yellow && getCell(right, F_D) == Yellow && getCell(right, F_D | F_R) == Yellow
+    )
+    {
+        da_append(moves, B);
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, Bp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 45
+        getCell(down, F_U | F_R) == Yellow &&
+        getCell(down, F_L) == Yellow && getCell(down, F_R) == Yellow &&
+        getCell(down, F_D | F_R) == Yellow &&
+
+        getCell(front, F_D) == Yellow &&
+        getCell(back, F_D) == Yellow &&
+        getCell(left, F_D | F_L) == Yellow && getCell(left, F_D | F_R) == Yellow
+    )
+    {
+        da_append(moves, B);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, Bp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 46
+        getCell(down, F_U | F_L) == Yellow && getCell(down, F_U) == Yellow &&
+        getCell(down, F_D | F_L) == Yellow && getCell(down, F_D) == Yellow &&
+
+        getCell(left, F_D) == Yellow &&
+        getCell(right, F_D | F_L) == Yellow && getCell(right, F_D) == Yellow && getCell(right, F_D | F_R) == Yellow
+    )
+    {
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, B);
+        da_append(moves, R);
+        da_append(moves, Bp);
+        da_append(moves, D);
+        da_append(moves, R);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 47
+        getCell(down, F_U) == Yellow &&
+        getCell(down, F_R) == Yellow &&
+
+        getCell(front, F_D | F_L) == Yellow &&
+        getCell(back, F_D) == Yellow && getCell(back, F_D | F_R) == Yellow &&
+        getCell(left, F_D) == Yellow &&
+        getCell(right, F_D | F_L) == Yellow && getCell(right, F_D | F_R) == Yellow
+    )
+    {
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, B);
+        da_append(moves, R);
+        da_append(moves, Bp);
+        da_append(moves, Rp);
+        da_append(moves, B);
+        da_append(moves, R);
+        da_append(moves, Bp);
+        da_append(moves, D);
+        da_append(moves, R);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 48
+        getCell(down, F_U) == Yellow &&
+        getCell(down, F_L) == Yellow &&
+
+        getCell(front, F_D | F_R) == Yellow &&
+        getCell(back, F_D | F_L) == Yellow && getCell(back, F_D) == Yellow &&
+        getCell(left, F_D | F_L) == Yellow && getCell(left, F_D | F_R) == Yellow &&
+        getCell(right, F_D) == Yellow
+    )
+    {
+        da_append(moves, B);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, Bp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 49
+        getCell(down, F_U) == Yellow &&
+        getCell(down, F_R) == Yellow &&
+
+        getCell(front, F_D | F_R) == Yellow &&
+        getCell(back, F_D | F_L) == Yellow && getCell(back, F_D) == Yellow &&
+        getCell(left, F_D | F_L) == Yellow && getCell(left, F_D) == Yellow && getCell(left, F_D | F_R) == Yellow
+    )
+    {
+        da_append(moves, L);
+        da_append(moves, Bp);
+        da_append(moves, L2);
+        da_append(moves, F);
+        da_append(moves, L2);
+        da_append(moves, B);
+        da_append(moves, L2);
+        da_append(moves, Fp);
+        da_append(moves, L);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 50
+        getCell(down, F_R) == Yellow &&
+        getCell(down, F_D) == Yellow &&
+
+        getCell(front, F_D) == Yellow && getCell(front, F_D | F_R) == Yellow &&
+        getCell(back, F_D | F_L) == Yellow &&
+        getCell(left, F_D | F_L) == Yellow && getCell(left, F_D) == Yellow && getCell(left, F_D | F_R) == Yellow
+    )
+    {
+        da_append(moves, Lp);
+        da_append(moves, F);
+        da_append(moves, L2);
+        da_append(moves, Bp);
+        da_append(moves, L2);
+        da_append(moves, Fp);
+        da_append(moves, L2);
+        da_append(moves, B);
+        da_append(moves, Lp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 51
+        getCell(down, F_L) == Yellow && getCell(down, F_R) == Yellow &&
+
+        getCell(front, F_D | F_L) == Yellow && getCell(front, F_D) == Yellow &&
+        getCell(back, F_D) == Yellow && getCell(back, F_D | F_R) == Yellow &&
+        getCell(right, F_D | F_L) == Yellow && getCell(right, F_D | F_R) == Yellow
+    )
+    {
+        da_append(moves, B);
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, Bp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 52
+        getCell(down, F_U) == Yellow && getCell(down, F_D) == Yellow &&
+
+        getCell(front, F_D | F_L) == Yellow &&
+        getCell(back, F_D | F_R) == Yellow &&
+        getCell(left, F_D) == Yellow &&
+        getCell(right, F_D | F_L) == Yellow && getCell(right, F_D) == Yellow && getCell(right, F_D | F_R) == Yellow
+    )
+    {
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, Rp);
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, Dp);
+        da_append(moves, F);
+        da_append(moves, Dp);
+        da_append(moves, Fp);
+        da_append(moves, Rp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 53
+        getCell(down, F_U) == Yellow && getCell(down, F_R) == Yellow &&
+
+        getCell(front, F_D | F_L) == Yellow && getCell(front, F_D | F_R) == Yellow &&
+        getCell(back, F_D | F_L) == Yellow && getCell(back, F_D) == Yellow && getCell(back, F_D | F_R) == Yellow &&
+        getCell(left, F_D) == Yellow
+    )
+    {
+        da_append(moves, Rp);
+        da_append(moves, B2);
+        da_append(moves, L);
+        da_append(moves, B);
+        da_append(moves, Lp);
+        da_append(moves, Bp);
+        da_append(moves, L);
+        da_append(moves, B);
+        da_append(moves, Lp);
+        da_append(moves, B);
+        da_append(moves, R);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 54
+        getCell(down, F_U) == Yellow && getCell(down, F_L) == Yellow &&
+
+        getCell(front, F_D | F_L) == Yellow && getCell(front, F_D | F_R) == Yellow &&
+        getCell(back, F_D | F_L) == Yellow && getCell(back, F_D) == Yellow && getCell(back, F_D | F_R) == Yellow &&
+        getCell(right, F_D) == Yellow
+    )
+    {
+        da_append(moves, L);
+        da_append(moves, B2);
+        da_append(moves, Rp);
+        da_append(moves, Bp);
+        da_append(moves, R);
+        da_append(moves, B);
+        da_append(moves, Rp);
+        da_append(moves, Bp);
+        da_append(moves, R);
+        da_append(moves, Bp);
+        da_append(moves, Lp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 55
+        getCell(down, F_L) == Yellow && getCell(down, F_R) == Yellow &&
+
+        getCell(front, F_D | F_L) == Yellow && getCell(front, F_D) == Yellow && getCell(front, F_D | F_R) == Yellow &&
+        getCell(back, F_D | F_L) == Yellow && getCell(back, F_D) == Yellow && getCell(back, F_D | F_R) == Yellow
+    )
+    {
+        da_append(moves, Rp);
+        da_append(moves, B);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, Dp);
+        da_append(moves, R2);
+        da_append(moves, Bp);
+        da_append(moves, R2);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, Rp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 56
+        getCell(down, F_L) == Yellow && getCell(down, F_R) == Yellow &&
+
+        getCell(front, F_D) == Yellow &&
+        getCell(back, F_D) == Yellow &&
+        getCell(left, F_D | F_L) == Yellow && getCell(left, F_D | F_R) == Yellow &&
+        getCell(right, F_D | F_L) == Yellow && getCell(right, F_D | F_R) == Yellow
+    )
+    {
+        da_append(moves, Lp);
+        da_append(moves, Fp);
+        da_append(moves, L);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, Lp);
+        da_append(moves, F);
+        da_append(moves, L);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 57
+        getCell(down, F_U | F_L) == Yellow && getCell(down, F_U | F_R) == Yellow &&
+        getCell(down, F_L) == Yellow && getCell(down, F_R) == Yellow &&
+        getCell(down, F_D | F_L) == Yellow && getCell(down, F_D | F_R) == Yellow &&
+
+        getCell(front, F_D) == Yellow &&
+        getCell(back, F_D) == Yellow
+    )
+    {
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, L);
+        da_append(moves, B);
+        da_append(moves, R);
+        da_append(moves, Bp);
+        da_append(moves, Lp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+
+    if (!success)
+    {
+        TraceLog(LOG_WARNING, "[%s] Unable to find OLL pattern", __func__);
+        return false;
+    }
+
+    return true;
+}
+
+bool solveOLL(Cube* cube, Moves* queue)
+{
+    // Try all possible combinations because genericOLL only checks one orientation
+    if (genericOLL(cube, queue)) return true;
+
+    TraceLog(LOG_INFO, "[%s] Rotating down face to try find OLL pattern", __func__);
+    da_append(queue, D);
+    if (genericOLL(cube, queue)) return true;
+
+    TraceLog(LOG_INFO, "[%s] Rotating down face to try find OLL pattern", __func__);
+    rotateCube(cube, Dp);
+    queue->count--;
+    queue->current--;
+    da_append(queue, D2);
+    if (genericOLL(cube, queue)) return true;
+
+    TraceLog(LOG_INFO, "[%s] Rotating down face to try find OLL pattern", __func__);
+    queue->count--;
+    queue->current--;
+    rotateCube(cube, D2);
+    da_append(queue, Dp);
+    if (genericOLL(cube, queue)) return true;
+
+    queue->count--;
+    queue->current--;
+    rotateCube(cube, D);
+    TraceLog(LOG_ERROR, "[%s] Unable to find any OLL pattern", __func__);
+    return false;
+}
+
 #define return_defer(value) do { result = (value); goto defer; } while(0)
 
 bool solve(Cube cube, Moves* queue)
@@ -2677,6 +4025,8 @@ bool solve(Cube cube, Moves* queue)
     if (!solveCross(&cube, queue))
         return_defer(false);
     if (!solveF2L(&cube, queue))
+        return_defer(false);
+    if (!solveOLL(&cube, queue))
         return_defer(false);
 
 defer:
