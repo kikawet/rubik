@@ -2680,7 +2680,18 @@ bool genericOLL(Cube* cube, Moves* moves)
     const Face* right = &cube->faces[f2i(F_R)];
 
     bool success = false;
-    if ( // 1
+    if (
+        getCell(down, F_U | F_L) == Yellow && getCell(down, F_U) == Yellow && getCell(down, F_U | F_R) == Yellow &&
+        getCell(down, F_L) == Yellow && getCell(down, F_R) == Yellow &&
+        getCell(down, F_D | F_L) == Yellow && getCell(down, F_D) == Yellow && getCell(down, F_D | F_R) == Yellow
+    )
+    {
+        // Do nothing :)
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if ( // 1
         getCell(front, F_D) == Yellow &&
         getCell(back, F_D) == Yellow &&
         getCell(left, F_D | F_L) == Yellow && getCell(left, F_D) == Yellow && getCell(left, F_D | F_R) == Yellow &&
@@ -4014,6 +4025,433 @@ bool solveOLL(Cube* cube, Moves* queue)
     return false;
 }
 
+bool pllGreenRedCorner(Cube* cube, Moves* moves)
+{
+    updateCube(cube, moves);
+
+    // TODO: replace static colors with variables :/
+    const Face* front = &cube->faces[f2i(F_F)];
+    const Face* back = &cube->faces[f2i(F_B)];
+    const Face* left = &cube->faces[f2i(F_L)];
+    const Face* right = &cube->faces[f2i(F_R)];
+
+    bool success = false;
+    if (getCell(front, F_D | F_R) == Green && getCell(right, F_D | F_L) == Red)
+    {
+        // do nothing :)
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(right, F_D | F_R) == Green && getCell(back, F_D | F_L) == Red)
+    {
+        da_append(moves, Dp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(back, F_D | F_R) == Green && getCell(left, F_D | F_L) == Red)
+    {
+        da_append(moves, D2);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(left, F_D | F_R) == Green && getCell(front, F_D | F_L) == Red)
+    {
+        da_append(moves, D);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+
+    if (!success)
+    {
+        TraceLog(LOG_WARNING, "[%s] Unable to find PLL pattern", __func__);
+        return false;
+    }
+
+    return true;
+}
+
+bool pllBlueRedCorner(Cube* cube, Moves* moves)
+{
+    updateCube(cube, moves);
+
+    // TODO: replace static colors with variables :/
+    const Face* front = &cube->faces[f2i(F_F)];
+    const Face* back = &cube->faces[f2i(F_B)];
+    const Face* left = &cube->faces[f2i(F_L)];
+    const Face* right = &cube->faces[f2i(F_R)];
+
+    bool success = false;
+    if (getCell(right, F_D | F_R) == Red && getCell(back, F_D | F_L) == Blue)
+    {
+        // do nothing :)
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(back, F_D | F_R) == Red && getCell(left, F_D | F_L) == Blue)
+    {
+        da_append(moves, Dp);
+        da_append(moves, B);
+        da_append(moves, R);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, R2);
+        da_append(moves, Bp);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, D);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(left, F_D | F_R) == Red && getCell(front, F_D | F_L) == Blue)
+    {
+        da_append(moves, B);
+        da_append(moves, R);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, Rp);
+        da_append(moves, Bp);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, B);
+        da_append(moves, R);
+        da_append(moves, Bp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+
+    if (!success)
+    {
+        TraceLog(LOG_WARNING, "[%s] Unable to find PLL pattern", __func__);
+        return false;
+    }
+
+    return true;
+}
+
+bool pllBlueOrangeCorner(Cube* cube, Moves* moves)
+{
+    updateCube(cube, moves);
+
+    // TODO: replace static colors with variables :/
+    const Face* front = &cube->faces[f2i(F_F)];
+    const Face* back = &cube->faces[f2i(F_B)];
+    const Face* left = &cube->faces[f2i(F_L)];
+
+    bool success = false;
+    if (getCell(back, F_D | F_R) == Blue && getCell(left, F_D | F_L) == Orange)
+    {
+        // do nothing :)
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    else if (getCell(left, F_D | F_R) == Blue && getCell(front, F_D | F_L) == Orange)
+    {
+        da_append(moves, D2);
+        da_append(moves, B);
+        da_append(moves, R);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, R2);
+        da_append(moves, Bp);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, D2);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+
+    if (!success)
+    {
+        TraceLog(LOG_WARNING, "[%s] Unable to find PLL pattern", __func__);
+        return false;
+    }
+
+    return true;
+}
+
+bool pllEdges(Cube* cube, Moves* moves)
+{
+    updateCube(cube, moves);
+
+    // TODO: replace static colors with variables :/
+    const EColor front = getCell(&cube->faces[f2i(F_F)], F_D);
+    const EColor back = getCell(&cube->faces[f2i(F_B)], F_D);
+    const EColor left = getCell(&cube->faces[f2i(F_L)], F_D);
+    const EColor right = getCell(&cube->faces[f2i(F_R)], F_D);
+
+    bool success = false;
+    if (front == Green && right == Red && back == Blue && left == Orange)
+    {
+        // do nothing :)
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // H
+    else if (front == Blue && right == Orange && back == Green && left == Red)
+    {
+        da_append(moves, R2);
+        da_append(moves, L2);
+        da_append(moves, U);
+        da_append(moves, R2);
+        da_append(moves, L2);
+        da_append(moves, D2);
+        da_append(moves, R2);
+        da_append(moves, L2);
+        da_append(moves, U);
+        da_append(moves, R2);
+        da_append(moves, L2);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Ua green side
+    else if (front == Green && right == Orange && back == Red && left == Blue)
+    {
+        da_append(moves, R);
+        da_append(moves, Dp);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, R2);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Ua red side
+    else if (front == Orange && right == Red && back == Green && left == Blue)
+    {
+        da_append(moves, Dp);
+        da_append(moves, R);
+        da_append(moves, Dp);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, R2);
+        da_append(moves, D);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Ua blue side
+    else if (front == Orange && right == Green && back == Blue && left == Red)
+    {
+        da_append(moves, D2);
+        da_append(moves, R);
+        da_append(moves, Dp);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, R2);
+        da_append(moves, D2);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Ua orange side
+    else if (front == Blue && right == Green && back == Red && left == Orange)
+    {
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, Dp);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, R2);
+        da_append(moves, Dp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Ub green side
+    else if (front == Green && right == Blue && back == Orange && left == Red)
+    {
+        da_append(moves, R2);
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, D);
+        da_append(moves, Rp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Ub red side
+    else if (front == Blue && right == Red && back == Orange && left == Green)
+    {
+        da_append(moves, Dp);
+        da_append(moves, R2);
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, D);
+        da_append(moves, Rp);
+        da_append(moves, D);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Ub blue side
+    else if (front == Red && right == Orange && back == Blue && left == Green)
+    {
+        da_append(moves, D2);
+        da_append(moves, R2);
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, D);
+        da_append(moves, Rp);
+        da_append(moves, D2);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Ub Orange side
+    else if (front == Red && right == Blue && back == Green && left == Orange)
+    {
+        da_append(moves, D);
+        da_append(moves, R2);
+        da_append(moves, D);
+        da_append(moves, R);
+        da_append(moves, D);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, D);
+        da_append(moves, Rp);
+        da_append(moves, Dp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Z
+    else if (front == Red && right == Green && back == Orange && left == Blue)
+    {
+        da_append(moves, R2);
+        da_append(moves, L2);
+        da_append(moves, Up);
+        da_append(moves, R2);
+        da_append(moves, L2);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, L);
+        da_append(moves, B2);
+        da_append(moves, R2);
+        da_append(moves, L2);
+        da_append(moves, F2);
+        da_append(moves, Rp);
+        da_append(moves, L);
+        da_append(moves, D2);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+    // Z left
+    else if (front == Orange && right == Blue && back == Red && left == Green)
+    {
+        da_append(moves, D);
+        da_append(moves, R2);
+        da_append(moves, L2);
+        da_append(moves, Up);
+        da_append(moves, R2);
+        da_append(moves, L2);
+        da_append(moves, Dp);
+        da_append(moves, Rp);
+        da_append(moves, L);
+        da_append(moves, B2);
+        da_append(moves, R2);
+        da_append(moves, L2);
+        da_append(moves, F2);
+        da_append(moves, Rp);
+        da_append(moves, L);
+        da_append(moves, D2);
+        da_append(moves, Dp);
+
+        success = true;
+        TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
+    }
+
+    if (!success)
+    {
+        TraceLog(LOG_WARNING, "[%s] Unable to find PLL pattern", __func__);
+        return false;
+    }
+
+    return true;
+}
+
+bool solvePLL(Cube* cube, Moves* queue)
+{
+    // reference for the moves: https://jperm.net/algs/2look/pll
+    // Since all the movements are from the top also this helper required: https://cube.rider.biz/algtrans.html
+    return pllGreenRedCorner(cube, queue) && pllBlueRedCorner(cube, queue) && pllBlueOrangeCorner(cube, queue) &&
+        pllEdges(cube, queue);
+}
+
 #define return_defer(value) do { result = (value); goto defer; } while(0)
 
 bool solve(Cube cube, Moves* queue)
@@ -4027,6 +4465,8 @@ bool solve(Cube cube, Moves* queue)
     if (!solveF2L(&cube, queue))
         return_defer(false);
     if (!solveOLL(&cube, queue))
+        return_defer(false);
+    if (!solvePLL(&cube, queue))
         return_defer(false);
 
 defer:
