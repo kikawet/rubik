@@ -152,7 +152,7 @@ void handleKeys(Cube* cube, Moves* queue)
 
 void thistlethwaite_suffle(Cube* cube)
 {
-    const Move m[] = {U2, B2, Rp, F2, Rp, U2, L2, B2, Rp, B2, R2, U2, B2, Up, L, R2, U, L, F, D2, Rp, Fp};
+    const Move m[] = {UU, BB, Rp, FF, Rp, UU, LL, BB, Rp, BB, RR, UU, BB, Up, L, RR, U, L, F, DD, Rp, Fp};
     const size_t size = sizeof(m) / sizeof(m[0]);
 
     for (size_t i = 0; i < size; i++)

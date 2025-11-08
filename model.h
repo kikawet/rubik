@@ -47,12 +47,12 @@ typedef enum
 typedef enum
 {
     NO_MOVE,
-    U, Up, U2,
-    L, Lp, L2,
-    F, Fp, F2,
-    R, Rp, R2,
-    B, Bp, B2,
-    D, Dp, D2,
+    U, Up, UU,
+    L, Lp, LL,
+    F, Fp, FF,
+    R, Rp, RR,
+    B, Bp, BB,
+    D, Dp, DD,
     MOVE_LENGTH
 } Move;
 

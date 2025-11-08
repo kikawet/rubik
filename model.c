@@ -39,7 +39,7 @@ EColor f2c(const EFace f)
     __builtin_unreachable();
 }
 
-EColor getCell(const Face* f, uint8_t cell)
+EColor getCell(const Face* f, const uint8_t cell)
 {
     const int width = 4; // bits required for a color
     const int mask = 0xF;
@@ -205,22 +205,22 @@ const char* moveToStr(const Move m)
     {
     case U: return "U";
     case Up: return "U'";
-    case U2: return "U2";
+    case UU: return "U2";
     case L: return "L";
     case Lp: return "L'";
-    case L2: return "L2";
+    case LL: return "L2";
     case F: return "F";
     case Fp: return "F'";
-    case F2: return "F2";
+    case FF: return "F2";
     case R: return "R";
     case Rp: return "R'";
-    case R2: return "R2";
+    case RR: return "R2";
     case B: return "B";
     case Bp: return "B'";
-    case B2: return "B2";
+    case BB: return "B2";
     case D: return "D";
     case Dp: return "D'";
-    case D2: return "D2";
+    case DD: return "D2";
     default: return "";
     }
 }
@@ -262,32 +262,32 @@ void strToMoves(const char* str, Moves* mv)
         }
         else if (strncmp(str + i, "U2", 2) == 0)
         {
-            da_append(mv, U2);
+            da_append(mv, UU);
             i++;
         }
         else if (strncmp(str + i, "L2", 2) == 0)
         {
-            da_append(mv, L2);
+            da_append(mv, LL);
             i++;
         }
         else if (strncmp(str + i, "F2", 2) == 0)
         {
-            da_append(mv, F2);
+            da_append(mv, FF);
             i++;
         }
         else if (strncmp(str + i, "R2", 2) == 0)
         {
-            da_append(mv, R2);
+            da_append(mv, RR);
             i++;
         }
         else if (strncmp(str + i, "B2", 2) == 0)
         {
-            da_append(mv, B2);
+            da_append(mv, BB);
             i++;
         }
         else if (strncmp(str + i, "D2", 2) == 0)
         {
-            da_append(mv, D2);
+            da_append(mv, DD);
             i++;
         }
         else if (strncmp(str + i, "U", 1) == 0)
@@ -339,12 +339,12 @@ float moveMaxAngle(const Move m)
     case Bp:
     case Dp:
         return 90.f;
-    case U2:
-    case L2:
-    case F2:
-    case R2:
-    case B2:
-    case D2:
+    case UU:
+    case LL:
+    case FF:
+    case RR:
+    case BB:
+    case DD:
         return -180.f;
     default:
         return 0.f;
@@ -358,27 +358,27 @@ EFace moveToFace(const Move m)
     case NO_MOVE: return 0;
     case U:
     case Up:
-    case U2:
+    case UU:
         return F_U;
     case L:
     case Lp:
-    case L2:
+    case LL:
         return F_L;
     case F:
     case Fp:
-    case F2:
+    case FF:
         return F_F;
     case R:
     case Rp:
-    case R2:
+    case RR:
         return F_R;
     case B:
     case Bp:
-    case B2:
+    case BB:
         return F_B;
     case D:
     case Dp:
-    case D2:
+    case DD:
         return F_D;
     default: break;
     }
@@ -393,7 +393,7 @@ void copyCell(Face* dst, const uint8_t cellDst, const Face* src, const uint8_t c
     paintCell(dst, cellDst, color);
 }
 
-static inline void rotateUpCCW(Cube* cube)
+void rotateUpCCW(Cube* cube)
 {
     // Update Up face
     const Face up_before = cube->faces[f2i(F_U)];
@@ -438,7 +438,7 @@ void rotateUpCW(Cube* cube)
     rotateUpCCW(cube);
 }
 
-static inline void rotateDownCCW(Cube* cube)
+void rotateDownCCW(Cube* cube)
 {
     // Update Down face
     const Face down_before = cube->faces[f2i(F_D)];
@@ -483,7 +483,7 @@ void rotateDownCW(Cube* cube)
     rotateDownCCW(cube);
 }
 
-static inline void rotateFrontCCW(Cube* cube)
+void rotateFrontCCW(Cube* cube)
 {
     // Update Front face
     const Face front_before = cube->faces[f2i(F_F)];
@@ -528,7 +528,7 @@ void rotateFrontCW(Cube* cube)
     rotateFrontCCW(cube);
 }
 
-static inline void rotateBackCCW(Cube* cube)
+void rotateBackCCW(Cube* cube)
 {
     // Update Back face
     const Face back_before = cube->faces[f2i(F_B)];
@@ -573,7 +573,7 @@ void rotateBackCW(Cube* cube)
     rotateBackCCW(cube);
 }
 
-static inline void rotateLeftCCW(Cube* cube)
+void rotateLeftCCW(Cube* cube)
 {
     // Update Left face
     const Face left_before = cube->faces[f2i(F_L)];
@@ -618,7 +618,7 @@ void rotateLeftCW(Cube* cube)
     rotateLeftCCW(cube);
 }
 
-static inline void rotateRightCCW(Cube* cube)
+void rotateRightCCW(Cube* cube)
 {
     // Update Right face
     const Face right_before = cube->faces[f2i(F_R)];
@@ -669,37 +669,37 @@ void rotateCube(Cube* cube, const Move m)
 
     switch (m)
     {
-    case U2: rotateUpCW(cube); // fallthrough
+    case UU: rotateUpCW(cube); // fallthrough
     case U: rotateUpCW(cube);
         break;
     case Up: rotateUpCCW(cube);
         break;
 
-    case L2: rotateLeftCW(cube); // fallthrough
+    case LL: rotateLeftCW(cube); // fallthrough
     case L: rotateLeftCW(cube);
         break;
     case Lp: rotateLeftCCW(cube);
         break;
 
-    case F2: rotateFrontCW(cube); // fallthrough
+    case FF: rotateFrontCW(cube); // fallthrough
     case F: rotateFrontCW(cube);
         break;
     case Fp: rotateFrontCCW(cube);
         break;
 
-    case R2: rotateRightCW(cube); // fallthrough
+    case RR: rotateRightCW(cube); // fallthrough
     case R: rotateRightCW(cube);
         break;
     case Rp: rotateRightCCW(cube);
         break;
 
-    case B2: rotateBackCW(cube); // fallthrough
+    case BB: rotateBackCW(cube); // fallthrough
     case B: rotateBackCW(cube);
         break;
     case Bp: rotateBackCCW(cube);
         break;
 
-    case D2: rotateDownCW(cube); // fallthrough
+    case DD: rotateDownCW(cube); // fallthrough
     case D: rotateDownCW(cube);
         break;
     case Dp: rotateDownCCW(cube);

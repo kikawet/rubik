@@ -32,7 +32,7 @@ bool solveWhiteGreenEdge(Cube* cube, Moves* moves)
     // check if White in on top
     if (getCell(up, F_U) == White && getCell(back, F_U) == Green)
     {
-        da_append(moves, U2);
+        da_append(moves, UU);
 
         success = true;
         TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
@@ -142,7 +142,7 @@ bool solveWhiteGreenEdge(Cube* cube, Moves* moves)
     }
     else if (getCell(right, F_R) == White && getCell(back, F_L) == Green)
     {
-        da_append(moves, R2);
+        da_append(moves, RR);
         da_append(moves, Fp);
 
         success = true;
@@ -150,7 +150,7 @@ bool solveWhiteGreenEdge(Cube* cube, Moves* moves)
     }
     else if (getCell(left, F_L) == White && getCell(back, F_R) == Green)
     {
-        da_append(moves, L2);
+        da_append(moves, LL);
         da_append(moves, F);
 
         success = true;
@@ -159,15 +159,15 @@ bool solveWhiteGreenEdge(Cube* cube, Moves* moves)
     // Check if white is at the bottom
     if (getCell(down, F_U) == White && getCell(front, F_D) == Green)
     {
-        da_append(moves, F2);
+        da_append(moves, FF);
 
         success = true;
         TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
     }
     else if (getCell(down, F_D) == White && getCell(back, F_D) == Green)
     {
-        da_append(moves, D2);
-        da_append(moves, F2);
+        da_append(moves, DD);
+        da_append(moves, FF);
 
         success = true;
         TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
@@ -175,7 +175,7 @@ bool solveWhiteGreenEdge(Cube* cube, Moves* moves)
     else if (getCell(down, F_R) == White && getCell(right, F_D) == Green)
     {
         da_append(moves, Dp);
-        da_append(moves, F2);
+        da_append(moves, FF);
 
         success = true;
         TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
@@ -183,7 +183,7 @@ bool solveWhiteGreenEdge(Cube* cube, Moves* moves)
     else if (getCell(down, F_L) == White && getCell(left, F_D) == Green)
     {
         da_append(moves, D);
-        da_append(moves, F2);
+        da_append(moves, FF);
 
         success = true;
         TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
@@ -257,18 +257,18 @@ bool solveWhiteBlueEdge(Cube* cube, Moves* moves)
     }
     else if (getCell(up, F_R) == White && getCell(right, F_U) == Blue)
     {
-        da_append(moves, R2);
+        da_append(moves, RR);
         da_append(moves, D);
-        da_append(moves, B2);
+        da_append(moves, BB);
 
         success = true;
         TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
     }
     else if (getCell(up, F_L) == White && getCell(left, F_U) == Blue)
     {
-        da_append(moves, L2);
+        da_append(moves, LL);
         da_append(moves, Dp);
-        da_append(moves, B2);
+        da_append(moves, BB);
 
         success = true;
         TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
@@ -304,7 +304,7 @@ bool solveWhiteBlueEdge(Cube* cube, Moves* moves)
     {
         da_append(moves, Rp);
         da_append(moves, D);
-        da_append(moves, B2);
+        da_append(moves, BB);
 
         success = true;
         TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
@@ -313,14 +313,14 @@ bool solveWhiteBlueEdge(Cube* cube, Moves* moves)
     {
         da_append(moves, L);
         da_append(moves, Dp);
-        da_append(moves, B2);
+        da_append(moves, BB);
 
         success = true;
         TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
     }
     else if (getCell(right, F_L) == White && getCell(front, F_R) == Blue)
     {
-        da_append(moves, R2);
+        da_append(moves, RR);
         da_append(moves, B);
 
         success = true;
@@ -328,7 +328,7 @@ bool solveWhiteBlueEdge(Cube* cube, Moves* moves)
     }
     else if (getCell(left, F_R) == White && getCell(front, F_L) == Blue)
     {
-        da_append(moves, L2);
+        da_append(moves, LL);
         da_append(moves, Bp);
 
         success = true;
@@ -353,7 +353,7 @@ bool solveWhiteBlueEdge(Cube* cube, Moves* moves)
     {
         da_append(moves, Lp);
         da_append(moves, Dp);
-        da_append(moves, B2);
+        da_append(moves, BB);
 
         success = true;
         TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
@@ -362,7 +362,7 @@ bool solveWhiteBlueEdge(Cube* cube, Moves* moves)
     {
         da_append(moves, R);
         da_append(moves, D);
-        da_append(moves, B2);
+        da_append(moves, BB);
 
         success = true;
         TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
@@ -370,8 +370,8 @@ bool solveWhiteBlueEdge(Cube* cube, Moves* moves)
     // Check edge on bottom face
     else if (getCell(down, F_U) == White && getCell(front, F_D) == Blue)
     {
-        da_append(moves, D2);
-        da_append(moves, B2);
+        da_append(moves, DD);
+        da_append(moves, BB);
 
         success = true;
         TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
@@ -379,14 +379,14 @@ bool solveWhiteBlueEdge(Cube* cube, Moves* moves)
     else if (getCell(down, F_R) == White && getCell(right, F_D) == Blue)
     {
         da_append(moves, D);
-        da_append(moves, B2);
+        da_append(moves, BB);
 
         success = true;
         TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
     }
     else if (getCell(down, F_D) == White && getCell(back, F_D) == Blue)
     {
-        da_append(moves, B2);
+        da_append(moves, BB);
 
         success = true;
         TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
@@ -394,7 +394,7 @@ bool solveWhiteBlueEdge(Cube* cube, Moves* moves)
     else if (getCell(down, F_L) == White && getCell(left, F_D) == Blue)
     {
         da_append(moves, Dp);
-        da_append(moves, B2);
+        da_append(moves, BB);
 
         success = true;
         TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
@@ -470,23 +470,23 @@ bool solveWhiteRedEdge(Cube* cube, Moves* moves)
         da_append(moves, Bp);
         da_append(moves, Dp);
         da_append(moves, B);
-        da_append(moves, R2);
+        da_append(moves, RR);
 
         success = true;
         TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
     }
     else if (getCell(up, F_L) == White && getCell(left, F_U) == Red)
     {
-        da_append(moves, L2);
-        da_append(moves, D2);
-        da_append(moves, R2);
+        da_append(moves, LL);
+        da_append(moves, DD);
+        da_append(moves, RR);
 
         success = true;
         TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
     }
     else if (getCell(left, F_U) == White && getCell(up, F_L) == Red)
     {
-        da_append(moves, L2);
+        da_append(moves, LL);
         da_append(moves, D);
         da_append(moves, Fp);
         da_append(moves, R);
@@ -505,9 +505,9 @@ bool solveWhiteRedEdge(Cube* cube, Moves* moves)
     }
     else if (getCell(front, F_L) == White && getCell(left, F_R) == Red)
     {
-        da_append(moves, F2);
+        da_append(moves, FF);
         da_append(moves, R);
-        da_append(moves, F2);
+        da_append(moves, FF);
 
         success = true;
         TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
@@ -517,7 +517,7 @@ bool solveWhiteRedEdge(Cube* cube, Moves* moves)
         da_append(moves, F);
         da_append(moves, D);
         da_append(moves, Fp);
-        da_append(moves, R2);
+        da_append(moves, RR);
 
         success = true;
         TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
@@ -527,7 +527,7 @@ bool solveWhiteRedEdge(Cube* cube, Moves* moves)
         da_append(moves, Fp);
         da_append(moves, D);
         da_append(moves, F);
-        da_append(moves, R2);
+        da_append(moves, RR);
 
         success = true;
         TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
@@ -543,9 +543,9 @@ bool solveWhiteRedEdge(Cube* cube, Moves* moves)
     else if (getCell(back, F_R) == White && getCell(left, F_L) == Red)
     {
         da_append(moves, Lp);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, L);
-        da_append(moves, R2);
+        da_append(moves, RR);
 
         success = true;
         TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
@@ -555,7 +555,7 @@ bool solveWhiteRedEdge(Cube* cube, Moves* moves)
         da_append(moves, Bp);
         da_append(moves, Dp);
         da_append(moves, B);
-        da_append(moves, R2);
+        da_append(moves, RR);
 
         success = true;
         TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
@@ -565,7 +565,7 @@ bool solveWhiteRedEdge(Cube* cube, Moves* moves)
         da_append(moves, B);
         da_append(moves, Dp);
         da_append(moves, Bp);
-        da_append(moves, R2);
+        da_append(moves, RR);
 
         success = true;
         TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
@@ -574,14 +574,14 @@ bool solveWhiteRedEdge(Cube* cube, Moves* moves)
     else if (getCell(down, F_U) == White && getCell(front, F_D) == Red)
     {
         da_append(moves, D);
-        da_append(moves, R2);
+        da_append(moves, RR);
 
         success = true;
         TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
     }
     else if (getCell(down, F_R) == White && getCell(right, F_D) == Red)
     {
-        da_append(moves, R2);
+        da_append(moves, RR);
 
         success = true;
         TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
@@ -589,15 +589,15 @@ bool solveWhiteRedEdge(Cube* cube, Moves* moves)
     else if (getCell(down, F_D) == White && getCell(back, F_D) == Red)
     {
         da_append(moves, Dp);
-        da_append(moves, R2);
+        da_append(moves, RR);
 
         success = true;
         TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
     }
     else if (getCell(down, F_L) == White && getCell(left, F_D) == Red)
     {
-        da_append(moves, D2);
-        da_append(moves, R2);
+        da_append(moves, DD);
+        da_append(moves, RR);
 
         success = true;
         TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
@@ -692,9 +692,9 @@ bool solveWhiteOrangeEdge(Cube* cube, Moves* moves)
     else if (getCell(front, F_R) == White && getCell(right, F_L) == Orange)
     {
         da_append(moves, Rp);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, R);
-        da_append(moves, L2);
+        da_append(moves, LL);
 
         success = true;
         TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
@@ -704,7 +704,7 @@ bool solveWhiteOrangeEdge(Cube* cube, Moves* moves)
         da_append(moves, Fp);
         da_append(moves, Dp);
         da_append(moves, F);
-        da_append(moves, L2);
+        da_append(moves, LL);
 
         success = true;
         TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
@@ -714,7 +714,7 @@ bool solveWhiteOrangeEdge(Cube* cube, Moves* moves)
         da_append(moves, F);
         da_append(moves, Dp);
         da_append(moves, Fp);
-        da_append(moves, L2);
+        da_append(moves, LL);
 
         success = true;
         TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
@@ -730,9 +730,9 @@ bool solveWhiteOrangeEdge(Cube* cube, Moves* moves)
     else if (getCell(back, F_L) == White && getCell(right, F_R) == Orange)
     {
         da_append(moves, R);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, Rp);
-        da_append(moves, L2);
+        da_append(moves, LL);
 
         success = true;
         TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
@@ -742,7 +742,7 @@ bool solveWhiteOrangeEdge(Cube* cube, Moves* moves)
         da_append(moves, B);
         da_append(moves, D);
         da_append(moves, Bp);
-        da_append(moves, L2);
+        da_append(moves, LL);
 
         success = true;
         TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
@@ -752,7 +752,7 @@ bool solveWhiteOrangeEdge(Cube* cube, Moves* moves)
         da_append(moves, Bp);
         da_append(moves, D);
         da_append(moves, B);
-        da_append(moves, L2);
+        da_append(moves, LL);
 
         success = true;
         TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
@@ -761,15 +761,15 @@ bool solveWhiteOrangeEdge(Cube* cube, Moves* moves)
     else if (getCell(down, F_U) == White && getCell(front, F_D) == Orange)
     {
         da_append(moves, Dp);
-        da_append(moves, L2);
+        da_append(moves, LL);
 
         success = true;
         TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
     }
     else if (getCell(down, F_R) == White && getCell(right, F_D) == Orange)
     {
-        da_append(moves, D2);
-        da_append(moves, L2);
+        da_append(moves, DD);
+        da_append(moves, LL);
 
         success = true;
         TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
@@ -777,14 +777,14 @@ bool solveWhiteOrangeEdge(Cube* cube, Moves* moves)
     else if (getCell(down, F_D) == White && getCell(back, F_D) == Orange)
     {
         da_append(moves, D);
-        da_append(moves, L2);
+        da_append(moves, LL);
 
         success = true;
         TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
     }
     else if (getCell(down, F_L) == White && getCell(left, F_D) == Orange)
     {
-        da_append(moves, L2);
+        da_append(moves, LL);
 
         success = true;
         TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
@@ -869,7 +869,7 @@ bool f2lGreenRedCorner(Cube* cube, Moves* moves)
         da_append(moves, F);
         da_append(moves, D);
         da_append(moves, Fp);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, Rp);
         da_append(moves, D);
         da_append(moves, R);
@@ -882,7 +882,7 @@ bool f2lGreenRedCorner(Cube* cube, Moves* moves)
         da_append(moves, Rp);
         da_append(moves, Dp);
         da_append(moves, R);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, F);
         da_append(moves, Dp);
         da_append(moves, Fp);
@@ -897,7 +897,7 @@ bool f2lGreenRedCorner(Cube* cube, Moves* moves)
         da_append(moves, D);
         da_append(moves, Rp);
         da_append(moves, F);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, Fp);
 
         success = true;
@@ -918,8 +918,8 @@ bool f2lGreenRedCorner(Cube* cube, Moves* moves)
     {
         da_append(moves, R);
         da_append(moves, D);
-        da_append(moves, R2);
-        da_append(moves, D2);
+        da_append(moves, RR);
+        da_append(moves, DD);
         da_append(moves, R);
 
         success = true;
@@ -930,7 +930,7 @@ bool f2lGreenRedCorner(Cube* cube, Moves* moves)
     {
         da_append(moves, B);
         da_append(moves, F);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, Fp);
         da_append(moves, Bp);
 
@@ -941,7 +941,7 @@ bool f2lGreenRedCorner(Cube* cube, Moves* moves)
     {
         da_append(moves, B);
         da_append(moves, Rp);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, R);
         da_append(moves, Bp);
 
@@ -952,7 +952,7 @@ bool f2lGreenRedCorner(Cube* cube, Moves* moves)
     {
         da_append(moves, Lp);
         da_append(moves, F);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, Fp);
         da_append(moves, L);
 
@@ -987,8 +987,8 @@ bool f2lGreenRedCorner(Cube* cube, Moves* moves)
     {
         da_append(moves, Fp);
         da_append(moves, Dp);
-        da_append(moves, F2);
-        da_append(moves, D2);
+        da_append(moves, FF);
+        da_append(moves, DD);
         da_append(moves, Fp);
 
         success = true;
@@ -1002,7 +1002,7 @@ bool f2lGreenRedCorner(Cube* cube, Moves* moves)
         da_append(moves, D);
         da_append(moves, R);
         da_append(moves, F);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, Fp);
 
         success = true;
@@ -1035,7 +1035,7 @@ bool f2lGreenRedCorner(Cube* cube, Moves* moves)
     {
         da_append(moves, Bp);
         da_append(moves, F);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, Fp);
         da_append(moves, B);
 
@@ -1046,7 +1046,7 @@ bool f2lGreenRedCorner(Cube* cube, Moves* moves)
     {
         da_append(moves, D);
         da_append(moves, Rp);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, R);
 
         success = true;
@@ -1076,7 +1076,7 @@ bool f2lGreenRedCorner(Cube* cube, Moves* moves)
     else if (getCell(down, F_D | F_L) == Red && getCell(left, F_D | F_L) == White && getCell(back, F_D | F_R) == Green)
     {
         da_append(moves, F);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, Fp);
 
         success = true;
@@ -1085,7 +1085,7 @@ bool f2lGreenRedCorner(Cube* cube, Moves* moves)
     else if (getCell(down, F_D | F_L) == Green && getCell(left, F_D | F_L) == Red && getCell(back, F_D | F_R) == White)
     {
         da_append(moves, Rp);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, R);
 
         success = true;
@@ -1096,7 +1096,7 @@ bool f2lGreenRedCorner(Cube* cube, Moves* moves)
     {
         da_append(moves, L);
         da_append(moves, Rp);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, R);
         da_append(moves, Lp);
 
@@ -1107,7 +1107,7 @@ bool f2lGreenRedCorner(Cube* cube, Moves* moves)
     {
         da_append(moves, Dp);
         da_append(moves, F);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, Fp);
 
         success = true;
@@ -1159,11 +1159,11 @@ bool f2lGreenRedEdge(Cube* cube, Moves* moves)
         da_append(moves, R);
         da_append(moves, Dp);
         da_append(moves, F);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, Fp);
         da_append(moves, Dp);
         da_append(moves, F);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, Fp);
 
         success = true;
@@ -1270,7 +1270,7 @@ bool f2lGreenRedEdge(Cube* cube, Moves* moves)
     // Check on the bottom
     else if (getCell(down, F_U) == Green && getCell(front, F_D) == Red)
     {
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, F);
         da_append(moves, D);
         da_append(moves, Fp);
@@ -1312,7 +1312,7 @@ bool f2lGreenRedEdge(Cube* cube, Moves* moves)
     }
     else if (getCell(down, F_R) == Red && getCell(right, F_D) == Green)
     {
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, Rp);
         da_append(moves, Dp);
         da_append(moves, R);
@@ -1415,7 +1415,7 @@ bool f2lGreenOrangeCorner(Cube* cube, Moves* moves)
         da_append(moves, L);
         da_append(moves, D);
         da_append(moves, Lp);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, Fp);
         da_append(moves, D);
         da_append(moves, F);
@@ -1429,7 +1429,7 @@ bool f2lGreenOrangeCorner(Cube* cube, Moves* moves)
         da_append(moves, Fp);
         da_append(moves, Dp);
         da_append(moves, F);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, L);
         da_append(moves, Dp);
         da_append(moves, Lp);
@@ -1443,7 +1443,7 @@ bool f2lGreenOrangeCorner(Cube* cube, Moves* moves)
     {
         da_append(moves, R);
         da_append(moves, L);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, Rp);
         da_append(moves, Lp);
 
@@ -1455,7 +1455,7 @@ bool f2lGreenOrangeCorner(Cube* cube, Moves* moves)
     {
         da_append(moves, R);
         da_append(moves, Fp);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, F);
         da_append(moves, Rp);
 
@@ -1467,7 +1467,7 @@ bool f2lGreenOrangeCorner(Cube* cube, Moves* moves)
     {
         da_append(moves, Bp);
         da_append(moves, L);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, Lp);
         da_append(moves, B);
 
@@ -1480,9 +1480,9 @@ bool f2lGreenOrangeCorner(Cube* cube, Moves* moves)
         da_append(moves, B);
         da_append(moves, D);
         da_append(moves, Bp);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, L);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, Lp);
 
         success = true;
@@ -1492,8 +1492,8 @@ bool f2lGreenOrangeCorner(Cube* cube, Moves* moves)
     {
         da_append(moves, Lp);
         da_append(moves, Dp);
-        da_append(moves, L2);
-        da_append(moves, D2);
+        da_append(moves, LL);
+        da_append(moves, DD);
         da_append(moves, Lp);
 
         success = true;
@@ -1519,7 +1519,7 @@ bool f2lGreenOrangeCorner(Cube* cube, Moves* moves)
         da_append(moves, Dp);
         da_append(moves, Lp);
         da_append(moves, Fp);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, F);
 
         success = true;
@@ -1530,7 +1530,7 @@ bool f2lGreenOrangeCorner(Cube* cube, Moves* moves)
     {
         da_append(moves, D);
         da_append(moves, Fp);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, F);
 
         success = true;
@@ -1563,7 +1563,7 @@ bool f2lGreenOrangeCorner(Cube* cube, Moves* moves)
         Green)
     {
         da_append(moves, Fp);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, F);
 
         success = true;
@@ -1573,7 +1573,7 @@ bool f2lGreenOrangeCorner(Cube* cube, Moves* moves)
         White)
     {
         da_append(moves, L);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, Lp);
 
         success = true;
@@ -1585,7 +1585,7 @@ bool f2lGreenOrangeCorner(Cube* cube, Moves* moves)
     {
         da_append(moves, Lp);
         da_append(moves, D);
-        da_append(moves, L2);
+        da_append(moves, LL);
         da_append(moves, Dp);
         da_append(moves, Lp);
 
@@ -1607,7 +1607,7 @@ bool f2lGreenOrangeCorner(Cube* cube, Moves* moves)
     {
         da_append(moves, Dp);
         da_append(moves, L);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, Lp);
 
         success = true;
@@ -1621,7 +1621,7 @@ bool f2lGreenOrangeCorner(Cube* cube, Moves* moves)
         da_append(moves, Dp);
         da_append(moves, Lp);
         da_append(moves, Fp);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, F);
 
         success = true;
@@ -1686,11 +1686,11 @@ bool f2lGreenOrangeEdge(Cube* cube, Moves* moves)
         da_append(moves, F);
         da_append(moves, Dp);
         da_append(moves, L);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, Lp);
         da_append(moves, Dp);
         da_append(moves, L);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, Lp);
 
         success = true;
@@ -1778,7 +1778,7 @@ bool f2lGreenOrangeEdge(Cube* cube, Moves* moves)
     }
     else if (getCell(down, F_U) == Green && getCell(front, F_D) == Orange)
     {
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, Fp);
         da_append(moves, Dp);
         da_append(moves, F);
@@ -1846,7 +1846,7 @@ bool f2lGreenOrangeEdge(Cube* cube, Moves* moves)
     }
     else if (getCell(down, F_L) == Orange && getCell(left, F_D) == Green)
     {
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, L);
         da_append(moves, D);
         da_append(moves, Lp);
@@ -1909,9 +1909,9 @@ bool f2lBlueRedCorner(Cube* cube, Moves* moves)
         da_append(moves, D);
         da_append(moves, Rp);
         da_append(moves, Dp);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, Bp);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, B);
 
         success = true;
@@ -1922,7 +1922,7 @@ bool f2lBlueRedCorner(Cube* cube, Moves* moves)
         da_append(moves, Bp);
         da_append(moves, Dp);
         da_append(moves, B);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, R);
         da_append(moves, Dp);
         da_append(moves, Rp);
@@ -1937,7 +1937,7 @@ bool f2lBlueRedCorner(Cube* cube, Moves* moves)
         da_append(moves, D);
         da_append(moves, Bp);
         da_append(moves, R);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, Rp);
 
         success = true;
@@ -1947,8 +1947,8 @@ bool f2lBlueRedCorner(Cube* cube, Moves* moves)
     {
         da_append(moves, B);
         da_append(moves, D);
-        da_append(moves, B2);
-        da_append(moves, D2);
+        da_append(moves, BB);
+        da_append(moves, DD);
         da_append(moves, B);
 
         success = true;
@@ -1973,7 +1973,7 @@ bool f2lBlueRedCorner(Cube* cube, Moves* moves)
         da_append(moves, D);
         da_append(moves, B);
         da_append(moves, R);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, Rp);
 
         success = true;
@@ -1992,7 +1992,7 @@ bool f2lBlueRedCorner(Cube* cube, Moves* moves)
     {
         da_append(moves, Dp);
         da_append(moves, R);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, Rp);
 
         success = true;
@@ -2005,7 +2005,7 @@ bool f2lBlueRedCorner(Cube* cube, Moves* moves)
         da_append(moves, Dp);
         da_append(moves, Rp);
         da_append(moves, Bp);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, B);
 
         success = true;
@@ -2036,7 +2036,7 @@ bool f2lBlueRedCorner(Cube* cube, Moves* moves)
     {
         da_append(moves, Lp);
         da_append(moves, R);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, L);
         da_append(moves, Rp);
 
@@ -2047,7 +2047,7 @@ bool f2lBlueRedCorner(Cube* cube, Moves* moves)
     {
         da_append(moves, D);
         da_append(moves, Bp);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, B);
 
         success = true;
@@ -2065,12 +2065,12 @@ bool f2lBlueRedCorner(Cube* cube, Moves* moves)
     // Check if corner is in up left (yellow side)
     else if (getCell(down, F_U | F_L) == White && getCell(left, F_D | F_R) == Blue && getCell(front, F_D | F_L) == Red)
     {
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, R);
         da_append(moves, Dp);
         da_append(moves, Rp);
         da_append(moves, Bp);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, B);
 
         success = true;
@@ -2079,7 +2079,7 @@ bool f2lBlueRedCorner(Cube* cube, Moves* moves)
     else if (getCell(down, F_U | F_L) == Red && getCell(left, F_D | F_R) == White && getCell(front, F_D | F_L) == Blue)
     {
         da_append(moves, Bp);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, B);
 
         success = true;
@@ -2088,7 +2088,7 @@ bool f2lBlueRedCorner(Cube* cube, Moves* moves)
     else if (getCell(down, F_U | F_L) == Blue && getCell(left, F_D | F_R) == Red && getCell(front, F_D | F_L) == White)
     {
         da_append(moves, R);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, Rp);
 
         success = true;
@@ -2129,8 +2129,8 @@ bool f2lBlueRedEdge(Cube* cube, Moves* moves)
     {
         da_append(moves, Bp);
         da_append(moves, D);
-        da_append(moves, B2);
-        da_append(moves, D2);
+        da_append(moves, BB);
+        da_append(moves, DD);
         da_append(moves, Bp);
         da_append(moves, D);
         da_append(moves, R);
@@ -2201,7 +2201,7 @@ bool f2lBlueRedEdge(Cube* cube, Moves* moves)
     }
     else if (getCell(down, F_R) == Red && getCell(right, F_D) == Blue)
     {
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, R);
         da_append(moves, D);
         da_append(moves, Rp);
@@ -2243,7 +2243,7 @@ bool f2lBlueRedEdge(Cube* cube, Moves* moves)
     }
     else if (getCell(down, F_D) == Blue && getCell(back, F_D) == Red)
     {
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, Bp);
         da_append(moves, Dp);
         da_append(moves, B);
@@ -2317,10 +2317,10 @@ bool f2lBlueOrangeCorner(Cube* cube, Moves* moves)
     else if (getCell(up, F_U | F_L) == Orange && getCell(back, F_U | F_R) == White && getCell(left, F_U | F_L) == Blue)
     {
         da_append(moves, B);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, Bp);
         da_append(moves, Lp);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, L);
 
         success = true;
@@ -2331,7 +2331,7 @@ bool f2lBlueOrangeCorner(Cube* cube, Moves* moves)
         da_append(moves, Lp);
         da_append(moves, Dp);
         da_append(moves, L);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, B);
         da_append(moves, Dp);
         da_append(moves, Bp);
@@ -2343,11 +2343,11 @@ bool f2lBlueOrangeCorner(Cube* cube, Moves* moves)
     else if (getCell(down, F_U | F_R) == White && getCell(front, F_D | F_R) == Orange && getCell(right, F_D | F_L) ==
         Blue)
     {
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, B);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, Bp);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, Lp);
         da_append(moves, D);
         da_append(moves, L);
@@ -2359,7 +2359,7 @@ bool f2lBlueOrangeCorner(Cube* cube, Moves* moves)
         Orange)
     {
         da_append(moves, Lp);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, L);
 
         success = true;
@@ -2369,7 +2369,7 @@ bool f2lBlueOrangeCorner(Cube* cube, Moves* moves)
         White)
     {
         da_append(moves, B);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, Bp);
 
         success = true;
@@ -2384,7 +2384,7 @@ bool f2lBlueOrangeCorner(Cube* cube, Moves* moves)
         da_append(moves, Dp);
         da_append(moves, Bp);
         da_append(moves, Lp);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, L);
 
         success = true;
@@ -2403,7 +2403,7 @@ bool f2lBlueOrangeCorner(Cube* cube, Moves* moves)
     else if (getCell(down, F_D | F_R) == Orange && getCell(right, F_D | F_R) == Blue && getCell(back, F_D | F_L) ==
         White)
     {
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, B);
         da_append(moves, Dp);
         da_append(moves, Bp);
@@ -2419,7 +2419,7 @@ bool f2lBlueOrangeCorner(Cube* cube, Moves* moves)
         da_append(moves, Dp);
         da_append(moves, Bp);
         da_append(moves, Lp);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, L);
 
         success = true;
@@ -2456,7 +2456,7 @@ bool f2lBlueOrangeCorner(Cube* cube, Moves* moves)
         da_append(moves, D);
         da_append(moves, L);
         da_append(moves, B);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, Bp);
 
         success = true;
@@ -2467,7 +2467,7 @@ bool f2lBlueOrangeCorner(Cube* cube, Moves* moves)
     {
         da_append(moves, D);
         da_append(moves, Lp);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, L);
 
         success = true;
@@ -2593,7 +2593,7 @@ bool f2lBlueOrangeEdge(Cube* cube, Moves* moves)
     // Check yellow side down
     else if (getCell(down, F_D) == Blue && getCell(back, F_D) == Orange)
     {
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, B);
         da_append(moves, D);
         da_append(moves, Bp);
@@ -2636,7 +2636,7 @@ bool f2lBlueOrangeEdge(Cube* cube, Moves* moves)
     }
     else if (getCell(down, F_L) == Orange && getCell(left, F_D) == Blue)
     {
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, Lp);
         da_append(moves, Dp);
         da_append(moves, L);
@@ -2699,12 +2699,12 @@ bool genericOLL(Cube* cube, Moves* moves)
     )
     {
         da_append(moves, R);
-        da_append(moves, D2);
-        da_append(moves, R2);
+        da_append(moves, DD);
+        da_append(moves, RR);
         da_append(moves, B);
         da_append(moves, R);
         da_append(moves, Bp);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, Rp);
         da_append(moves, B);
         da_append(moves, R);
@@ -2723,11 +2723,11 @@ bool genericOLL(Cube* cube, Moves* moves)
         da_append(moves, L);
         da_append(moves, B);
         da_append(moves, Lp);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, L);
-        da_append(moves, B2);
+        da_append(moves, BB);
         da_append(moves, Rp);
-        da_append(moves, B2);
+        da_append(moves, BB);
         da_append(moves, R);
         da_append(moves, Bp);
         da_append(moves, Lp);
@@ -2744,12 +2744,12 @@ bool genericOLL(Cube* cube, Moves* moves)
     )
     {
         da_append(moves, Lp);
-        da_append(moves, R2);
+        da_append(moves, RR);
         da_append(moves, F);
         da_append(moves, Rp);
         da_append(moves, F);
         da_append(moves, L);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, Lp);
         da_append(moves, F);
         da_append(moves, Rp);
@@ -2770,12 +2770,12 @@ bool genericOLL(Cube* cube, Moves* moves)
         da_append(moves, Lp);
         da_append(moves, Fp);
         da_append(moves, L);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, Lp);
         da_append(moves, Fp);
         da_append(moves, R);
         da_append(moves, Fp);
-        da_append(moves, R2);
+        da_append(moves, RR);
         da_append(moves, L);
 
         success = true;
@@ -2789,7 +2789,7 @@ bool genericOLL(Cube* cube, Moves* moves)
     )
     {
         da_append(moves, Rp);
-        da_append(moves, B2);
+        da_append(moves, BB);
         da_append(moves, L);
         da_append(moves, B);
         da_append(moves, Lp);
@@ -2807,7 +2807,7 @@ bool genericOLL(Cube* cube, Moves* moves)
     )
     {
         da_append(moves, L);
-        da_append(moves, B2);
+        da_append(moves, BB);
         da_append(moves, Rp);
         da_append(moves, Bp);
         da_append(moves, R);
@@ -2829,7 +2829,7 @@ bool genericOLL(Cube* cube, Moves* moves)
         da_append(moves, Rp);
         da_append(moves, B);
         da_append(moves, R);
-        da_append(moves, B2);
+        da_append(moves, BB);
         da_append(moves, Lp);
 
         success = true;
@@ -2847,7 +2847,7 @@ bool genericOLL(Cube* cube, Moves* moves)
         da_append(moves, L);
         da_append(moves, Bp);
         da_append(moves, Lp);
-        da_append(moves, B2);
+        da_append(moves, BB);
         da_append(moves, R);
 
         success = true;
@@ -2867,7 +2867,7 @@ bool genericOLL(Cube* cube, Moves* moves)
         da_append(moves, Dp);
         da_append(moves, Rp);
         da_append(moves, B);
-        da_append(moves, R2);
+        da_append(moves, RR);
         da_append(moves, D);
         da_append(moves, Rp);
         da_append(moves, Dp);
@@ -2893,7 +2893,7 @@ bool genericOLL(Cube* cube, Moves* moves)
         da_append(moves, R);
         da_append(moves, Bp);
         da_append(moves, R);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, Rp);
 
         success = true;
@@ -2916,7 +2916,7 @@ bool genericOLL(Cube* cube, Moves* moves)
         da_append(moves, R);
         da_append(moves, Up);
         da_append(moves, R);
-        da_append(moves, B2);
+        da_append(moves, BB);
         da_append(moves, Lp);
 
         success = true;
@@ -2937,7 +2937,7 @@ bool genericOLL(Cube* cube, Moves* moves)
         da_append(moves, R);
         da_append(moves, Bp);
         da_append(moves, Rp);
-        da_append(moves, B2);
+        da_append(moves, BB);
         da_append(moves, R);
         da_append(moves, Bp);
         da_append(moves, R);
@@ -2957,7 +2957,7 @@ bool genericOLL(Cube* cube, Moves* moves)
         da_append(moves, D);
         da_append(moves, R);
         da_append(moves, Dp);
-        da_append(moves, R2);
+        da_append(moves, RR);
         da_append(moves, Bp);
         da_append(moves, R);
         da_append(moves, D);
@@ -3044,7 +3044,7 @@ bool genericOLL(Cube* cube, Moves* moves)
         da_append(moves, B);
         da_append(moves, Rp);
         da_append(moves, Bp);
-        da_append(moves, R2);
+        da_append(moves, RR);
         da_append(moves, Lp);
         da_append(moves, F);
         da_append(moves, R);
@@ -3070,13 +3070,13 @@ bool genericOLL(Cube* cube, Moves* moves)
         da_append(moves, Rp);
         da_append(moves, B);
         da_append(moves, R);
-        da_append(moves, B2);
-        da_append(moves, L2);
+        da_append(moves, BB);
+        da_append(moves, LL);
         da_append(moves, Fp);
         da_append(moves, R);
         da_append(moves, Fp);
         da_append(moves, Rp);
-        da_append(moves, F2);
+        da_append(moves, FF);
         da_append(moves, L);
 
         success = true;
@@ -3143,7 +3143,7 @@ bool genericOLL(Cube* cube, Moves* moves)
     )
     {
         da_append(moves, R);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, Rp);
         da_append(moves, Dp);
         da_append(moves, R);
@@ -3166,13 +3166,13 @@ bool genericOLL(Cube* cube, Moves* moves)
     )
     {
         da_append(moves, R);
-        da_append(moves, D2);
-        da_append(moves, R2);
+        da_append(moves, DD);
+        da_append(moves, RR);
         da_append(moves, Dp);
-        da_append(moves, R2);
+        da_append(moves, RR);
         da_append(moves, Dp);
-        da_append(moves, R2);
-        da_append(moves, D2);
+        da_append(moves, RR);
+        da_append(moves, DD);
         da_append(moves, R);
 
         success = true;
@@ -3185,14 +3185,14 @@ bool genericOLL(Cube* cube, Moves* moves)
         getCell(front, F_D | F_L) == Yellow && getCell(front, F_D | F_R) == Yellow
     )
     {
-        da_append(moves, R2);
+        da_append(moves, RR);
         da_append(moves, Up);
         da_append(moves, R);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, Rp);
         da_append(moves, U);
         da_append(moves, R);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, R);
 
         success = true;
@@ -3251,7 +3251,7 @@ bool genericOLL(Cube* cube, Moves* moves)
     )
     {
         da_append(moves, R);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, Rp);
         da_append(moves, Dp);
         da_append(moves, R);
@@ -3276,7 +3276,7 @@ bool genericOLL(Cube* cube, Moves* moves)
         da_append(moves, Rp);
         da_append(moves, D);
         da_append(moves, R);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, Rp);
 
         success = true;
@@ -3345,14 +3345,14 @@ bool genericOLL(Cube* cube, Moves* moves)
         da_append(moves, B);
         da_append(moves, Rp);
         da_append(moves, B);
-        da_append(moves, R2);
+        da_append(moves, RR);
         da_append(moves, Dp);
         da_append(moves, Rp);
         da_append(moves, Dp);
         da_append(moves, R);
         da_append(moves, D);
         da_append(moves, Rp);
-        da_append(moves, B2);
+        da_append(moves, BB);
 
         success = true;
         TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
@@ -3436,7 +3436,7 @@ bool genericOLL(Cube* cube, Moves* moves)
     {
         da_append(moves, R);
         da_append(moves, D);
-        da_append(moves, R2);
+        da_append(moves, RR);
         da_append(moves, Dp);
         da_append(moves, Rp);
         da_append(moves, B);
@@ -3461,13 +3461,13 @@ bool genericOLL(Cube* cube, Moves* moves)
     )
     {
         da_append(moves, R);
-        da_append(moves, D2);
-        da_append(moves, R2);
+        da_append(moves, DD);
+        da_append(moves, RR);
         da_append(moves, B);
         da_append(moves, R);
         da_append(moves, Bp);
         da_append(moves, R);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, Rp);
 
         success = true;
@@ -3607,7 +3607,7 @@ bool genericOLL(Cube* cube, Moves* moves)
         da_append(moves, Rp);
         da_append(moves, D);
         da_append(moves, R);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, Rp);
         da_append(moves, B);
         da_append(moves, R);
@@ -3634,7 +3634,7 @@ bool genericOLL(Cube* cube, Moves* moves)
         da_append(moves, R);
         da_append(moves, Dp);
         da_append(moves, Rp);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, R);
         da_append(moves, B);
         da_append(moves, R);
@@ -3785,11 +3785,11 @@ bool genericOLL(Cube* cube, Moves* moves)
     {
         da_append(moves, L);
         da_append(moves, Bp);
-        da_append(moves, L2);
+        da_append(moves, LL);
         da_append(moves, F);
-        da_append(moves, L2);
+        da_append(moves, LL);
         da_append(moves, B);
-        da_append(moves, L2);
+        da_append(moves, LL);
         da_append(moves, Fp);
         da_append(moves, L);
 
@@ -3807,11 +3807,11 @@ bool genericOLL(Cube* cube, Moves* moves)
     {
         da_append(moves, Lp);
         da_append(moves, F);
-        da_append(moves, L2);
+        da_append(moves, LL);
         da_append(moves, Bp);
-        da_append(moves, L2);
+        da_append(moves, LL);
         da_append(moves, Fp);
-        da_append(moves, L2);
+        da_append(moves, LL);
         da_append(moves, B);
         da_append(moves, Lp);
 
@@ -3872,7 +3872,7 @@ bool genericOLL(Cube* cube, Moves* moves)
     )
     {
         da_append(moves, Rp);
-        da_append(moves, B2);
+        da_append(moves, BB);
         da_append(moves, L);
         da_append(moves, B);
         da_append(moves, Lp);
@@ -3895,7 +3895,7 @@ bool genericOLL(Cube* cube, Moves* moves)
     )
     {
         da_append(moves, L);
-        da_append(moves, B2);
+        da_append(moves, BB);
         da_append(moves, Rp);
         da_append(moves, Bp);
         da_append(moves, R);
@@ -3922,9 +3922,9 @@ bool genericOLL(Cube* cube, Moves* moves)
         da_append(moves, D);
         da_append(moves, R);
         da_append(moves, Dp);
-        da_append(moves, R2);
+        da_append(moves, RR);
         da_append(moves, Bp);
-        da_append(moves, R2);
+        da_append(moves, RR);
         da_append(moves, Dp);
         da_append(moves, Rp);
         da_append(moves, D);
@@ -4008,13 +4008,13 @@ bool solveOLL(Cube* cube, Moves* queue)
     rotateCube(cube, Dp);
     queue->count--;
     queue->current--;
-    da_append(queue, D2);
+    da_append(queue, DD);
     if (genericOLL(cube, queue)) return true;
 
     TraceLog(LOG_INFO, "[%s] Rotating down face to try find OLL pattern", __func__);
     queue->count--;
     queue->current--;
-    rotateCube(cube, D2);
+    rotateCube(cube, DD);
     da_append(queue, Dp);
     if (genericOLL(cube, queue)) return true;
 
@@ -4052,7 +4052,7 @@ bool pllGreenRedCorner(Cube* cube, Moves* moves)
     }
     else if (getCell(back, F_D | F_R) == Green && getCell(left, F_D | F_L) == Red)
     {
-        da_append(moves, D2);
+        da_append(moves, DD);
 
         success = true;
         TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
@@ -4102,7 +4102,7 @@ bool pllBlueRedCorner(Cube* cube, Moves* moves)
         da_append(moves, D);
         da_append(moves, R);
         da_append(moves, D);
-        da_append(moves, R2);
+        da_append(moves, RR);
         da_append(moves, Bp);
         da_append(moves, R);
         da_append(moves, D);
@@ -4166,7 +4166,7 @@ bool pllBlueOrangeCorner(Cube* cube, Moves* moves)
     }
     else if (getCell(left, F_D | F_R) == Blue && getCell(front, F_D | F_L) == Orange)
     {
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, B);
         da_append(moves, R);
         da_append(moves, Dp);
@@ -4174,14 +4174,14 @@ bool pllBlueOrangeCorner(Cube* cube, Moves* moves)
         da_append(moves, D);
         da_append(moves, R);
         da_append(moves, D);
-        da_append(moves, R2);
+        da_append(moves, RR);
         da_append(moves, Bp);
         da_append(moves, R);
         da_append(moves, D);
         da_append(moves, R);
         da_append(moves, Dp);
         da_append(moves, Rp);
-        da_append(moves, D2);
+        da_append(moves, DD);
 
         success = true;
         TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
@@ -4217,17 +4217,17 @@ bool pllEdges(Cube* cube, Moves* moves)
     // H
     else if (front == Blue && right == Orange && back == Green && left == Red)
     {
-        da_append(moves, R2);
-        da_append(moves, L2);
+        da_append(moves, RR);
+        da_append(moves, LL);
         da_append(moves, U);
-        da_append(moves, R2);
-        da_append(moves, L2);
-        da_append(moves, D2);
-        da_append(moves, R2);
-        da_append(moves, L2);
+        da_append(moves, RR);
+        da_append(moves, LL);
+        da_append(moves, DD);
+        da_append(moves, RR);
+        da_append(moves, LL);
         da_append(moves, U);
-        da_append(moves, R2);
-        da_append(moves, L2);
+        da_append(moves, RR);
+        da_append(moves, LL);
 
         success = true;
         TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
@@ -4245,7 +4245,7 @@ bool pllEdges(Cube* cube, Moves* moves)
         da_append(moves, Dp);
         da_append(moves, Rp);
         da_append(moves, Dp);
-        da_append(moves, R2);
+        da_append(moves, RR);
 
         success = true;
         TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
@@ -4264,7 +4264,7 @@ bool pllEdges(Cube* cube, Moves* moves)
         da_append(moves, Dp);
         da_append(moves, Rp);
         da_append(moves, Dp);
-        da_append(moves, R2);
+        da_append(moves, RR);
         da_append(moves, D);
 
         success = true;
@@ -4273,7 +4273,7 @@ bool pllEdges(Cube* cube, Moves* moves)
     // Ua blue side
     else if (front == Orange && right == Green && back == Blue && left == Red)
     {
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, R);
         da_append(moves, Dp);
         da_append(moves, R);
@@ -4284,8 +4284,8 @@ bool pllEdges(Cube* cube, Moves* moves)
         da_append(moves, Dp);
         da_append(moves, Rp);
         da_append(moves, Dp);
-        da_append(moves, R2);
-        da_append(moves, D2);
+        da_append(moves, RR);
+        da_append(moves, DD);
 
         success = true;
         TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
@@ -4304,7 +4304,7 @@ bool pllEdges(Cube* cube, Moves* moves)
         da_append(moves, Dp);
         da_append(moves, Rp);
         da_append(moves, Dp);
-        da_append(moves, R2);
+        da_append(moves, RR);
         da_append(moves, Dp);
 
         success = true;
@@ -4313,7 +4313,7 @@ bool pllEdges(Cube* cube, Moves* moves)
     // Ub green side
     else if (front == Green && right == Blue && back == Orange && left == Red)
     {
-        da_append(moves, R2);
+        da_append(moves, RR);
         da_append(moves, D);
         da_append(moves, R);
         da_append(moves, D);
@@ -4332,7 +4332,7 @@ bool pllEdges(Cube* cube, Moves* moves)
     else if (front == Blue && right == Red && back == Orange && left == Green)
     {
         da_append(moves, Dp);
-        da_append(moves, R2);
+        da_append(moves, RR);
         da_append(moves, D);
         da_append(moves, R);
         da_append(moves, D);
@@ -4351,8 +4351,8 @@ bool pllEdges(Cube* cube, Moves* moves)
     // Ub blue side
     else if (front == Red && right == Orange && back == Blue && left == Green)
     {
-        da_append(moves, D2);
-        da_append(moves, R2);
+        da_append(moves, DD);
+        da_append(moves, RR);
         da_append(moves, D);
         da_append(moves, R);
         da_append(moves, D);
@@ -4363,7 +4363,7 @@ bool pllEdges(Cube* cube, Moves* moves)
         da_append(moves, Rp);
         da_append(moves, D);
         da_append(moves, Rp);
-        da_append(moves, D2);
+        da_append(moves, DD);
 
         success = true;
         TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
@@ -4372,7 +4372,7 @@ bool pllEdges(Cube* cube, Moves* moves)
     else if (front == Red && right == Blue && back == Green && left == Orange)
     {
         da_append(moves, D);
-        da_append(moves, R2);
+        da_append(moves, RR);
         da_append(moves, D);
         da_append(moves, R);
         da_append(moves, D);
@@ -4391,21 +4391,21 @@ bool pllEdges(Cube* cube, Moves* moves)
     // Z
     else if (front == Red && right == Green && back == Orange && left == Blue)
     {
-        da_append(moves, R2);
-        da_append(moves, L2);
+        da_append(moves, RR);
+        da_append(moves, LL);
         da_append(moves, Up);
-        da_append(moves, R2);
-        da_append(moves, L2);
+        da_append(moves, RR);
+        da_append(moves, LL);
         da_append(moves, Dp);
         da_append(moves, Rp);
         da_append(moves, L);
-        da_append(moves, B2);
-        da_append(moves, R2);
-        da_append(moves, L2);
-        da_append(moves, F2);
+        da_append(moves, BB);
+        da_append(moves, RR);
+        da_append(moves, LL);
+        da_append(moves, FF);
         da_append(moves, Rp);
         da_append(moves, L);
-        da_append(moves, D2);
+        da_append(moves, DD);
 
         success = true;
         TraceLog(LOG_DEBUG, "[%s] Running case %d", __func__, __LINE__);
@@ -4414,21 +4414,21 @@ bool pllEdges(Cube* cube, Moves* moves)
     else if (front == Orange && right == Blue && back == Red && left == Green)
     {
         da_append(moves, D);
-        da_append(moves, R2);
-        da_append(moves, L2);
+        da_append(moves, RR);
+        da_append(moves, LL);
         da_append(moves, Up);
-        da_append(moves, R2);
-        da_append(moves, L2);
+        da_append(moves, RR);
+        da_append(moves, LL);
         da_append(moves, Dp);
         da_append(moves, Rp);
         da_append(moves, L);
-        da_append(moves, B2);
-        da_append(moves, R2);
-        da_append(moves, L2);
-        da_append(moves, F2);
+        da_append(moves, BB);
+        da_append(moves, RR);
+        da_append(moves, LL);
+        da_append(moves, FF);
         da_append(moves, Rp);
         da_append(moves, L);
-        da_append(moves, D2);
+        da_append(moves, DD);
         da_append(moves, Dp);
 
         success = true;

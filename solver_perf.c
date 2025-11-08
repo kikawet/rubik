@@ -63,7 +63,8 @@ void parse_args(const int argc, const char** argv, Moves* moves)
 
 int main(const int argc, const char** argv)
 {
-    SetTraceLogLevel(LOG_NONE);
+    //SetTraceLogLevel(LOG_NONE);
+    SetTraceLogLevel(LOG_TRACE);
 
     Cube cube = newCube();
     Moves shuffle = {0};
@@ -72,7 +73,13 @@ int main(const int argc, const char** argv)
     parse_args(argc, argv, &shuffle);
     applyMoves(&cube, &shuffle);
 
-    solve(cube, &solution);
+    if (!solve(cube, &solution))
+    {
+        // fprintf(stderr, "Error solving cube!\n");
+        // dump_moves(&shuffle);
+        abort();
+    }
+    
     applyMoves(&cube, &solution);
 
     if (!is_solved(&cube))
@@ -80,6 +87,8 @@ int main(const int argc, const char** argv)
         dump_moves(&shuffle);
         abort();
     }
+
+    dump_moves(&solution);
 
     if (shuffle.items) free(shuffle.items);
     if (solution.items) free(solution.items);
