@@ -2,7 +2,7 @@
 #include <time.h>
 #include <raylib.h>
 
-#include "solver.h"
+#include "solver/solver.h"
 
 bool is_face_solved(const Face* f, const EColor color)
 {
@@ -56,6 +56,7 @@ void parse_args(const int argc, const char** argv, Moves* moves)
     if (argc != 2)
     {
         fprintf(stderr, "Usage: %s \"[moves]\"\n", argv[0]);
+        exit(1);
     }
 
     strToMoves(argv[1], moves);

@@ -10,9 +10,9 @@
 #include <rcamera.h>
 
 #include "model.h"
-#include "solver.h"
+#include "solver/solver.h"
 #include "draw.h"
-#include "resources/MozillaTextFont.h"
+#include "../resources/MozillaTextFont.h"
 
 bool pause = false;
 

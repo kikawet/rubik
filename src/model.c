@@ -97,7 +97,7 @@ EColor getCell(const Face* f, const uint8_t cell)
 
 void paintCell(Face* f, const uint8_t cell, const EColor color)
 {
-    _Static_assert(ECOLOR_LENGTH <= 6, "check width is enough to fit all possible colors in a face");
+    assert(ECOLOR_LENGTH <= 6 && "check width is enough to fit all possible colors in a face");
     const int width = 4; // bits required for a color
     int offset = 0;
 

@@ -1,6 +1,3 @@
 
 .idea
-rubik
-solver_perf
-*.o
-*.so
+cmake**

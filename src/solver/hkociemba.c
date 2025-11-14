@@ -1,29 +1,12 @@
+// Credit: https://github.com/hkociemba/RubiksCube-OptimalSolver/tree/master#
+// This is just a C implementation of their Python code
+
 #include "solver.h"
 #include "raylib.h"
 #include <stdio.h>
 #include <string.h>
 
-#include "generated/flipslicesorted_classidx.h"
-#include "generated/flipslicesorted_rep.h"
-#include "generated/flipslicesorted_sym.h"
-#include "generated/conj_twist.h"
-#include "generated/twist_move.h"
-#include "generated/slice_sorted_move.h"
-#include "generated/flip_move.h"
-#include "generated/corner_depth.h"
-#include "generated/corners_move.h"
-
-#if 0 // flipslicesorted_twist_depth3.h is 2GB and no compiler can handle it so it has to be linked by hand :/
-#include "generated/flipslicesorted_twist_depth3.h"
-#else
-extern const unsigned int flipslicesorted_twist_depth3_start[];
-extern const unsigned int flipslicesorted_twist_depth3_end[];
-extern const unsigned int flipslicesorted_twist_depth3_size[];
-
-#define flipslicesorted_twist_depth3 flipslicesorted_twist_depth3_start
-#define FLIPSLICESORTED_TWIST_DEPTH3_LENGTH 208293161
-#endif
-
+#include "../../generated/common.h"
 
 typedef enum
 {
