@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 4.1)
 set(CMAKE_C_STANDARD 99)
 add_compile_options(-Wall -Wextra -Wpedantic)
 # The other way to set cache variable doesn't work :<
-set(SOLVER "hkociemba_optimal_solver_parallel" CACHE FILEPATH "helps")
+set(SOLVER "solver_hkociemba_optimized" CACHE FILEPATH "helps")
 
 message("CMAKE_C_FLAGS are '${CMAKE_C_FLAGS}'")
 message("SOLVER is $CACHE{SOLVER}")
@@ -62,3 +62,13 @@ add_dependencies(${PROJECT_NAME} LIBSOLVER)
 project(solver_perf DESCRIPTION "Run a simulation without GUI")
 add_executable(${PROJECT_NAME} src/solver_perf.c)
 target_link_libraries(${PROJECT_NAME} raylib model solver)
+
+################    SOLVER_TESTER    ################
+project(solver_tester DESCRIPTION "Brute force many solutions to check if solver works :P")
+#set(CMAKE_C_COMPILER clang)
+add_executable(${PROJECT_NAME} src/solver_tester.c)
+target_link_libraries(${PROJECT_NAME} raylib model solver)
+set_target_properties(${PROJECT_NAME} PROPERTIES CMAKE_C_COMPILER clang) # Pretty sure this doesn't work but can't test it :v
+target_compile_options(${PROJECT_NAME} PRIVATE -fsanitize=address -fsanitize=undefined)
+target_link_options(${PROJECT_NAME} PRIVATE -fsanitize=address -fsanitize=undefined)
+#unset(CMAKE_C_COMPILER)
