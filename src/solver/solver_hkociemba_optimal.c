@@ -69,7 +69,7 @@ bool calculate_next_coords(CoordCube* ncc, const FaceTurnMove m, const CoordCube
     const int32_t UD_dist1_mod3 = get_flipslicesorted_twist_depth3(
         N_TWIST * fs_idx + twist_conj[(UD_twist1 << 4) + fs_sym]
     );
-    const int32_t UD_dist1 = (int32_t)distance[3 * cc.UD_phasex24_depth + UD_dist1_mod3];
+    const int32_t UD_dist1 = distance[3 * cc.UD_phasex24_depth + UD_dist1_mod3];
 
     if (UD_dist1 >= togo)
     {
@@ -89,7 +89,7 @@ bool calculate_next_coords(CoordCube* ncc, const FaceTurnMove m, const CoordCube
     const int32_t RL_dist1_mod3 = get_flipslicesorted_twist_depth3(
         N_TWIST * fs_idx + twist_conj[(RL_twist1 << 4) + fs_sym]
     );
-    const int32_t RL_dist1 = (int32_t)distance[3 * cc.RL_phasex24_depth + RL_dist1_mod3];
+    const int32_t RL_dist1 = distance[3 * cc.RL_phasex24_depth + RL_dist1_mod3];
 
     if (RL_dist1 >= togo)
     {
@@ -110,7 +110,7 @@ bool calculate_next_coords(CoordCube* ncc, const FaceTurnMove m, const CoordCube
     const int32_t FB_dist1_mod3 = get_flipslicesorted_twist_depth3(
         N_TWIST * fs_idx + twist_conj[(FB_twist1 << 4) + fs_sym]
     );
-    const int32_t FB_dist1 = (int32_t)distance[3 * cc.FB_phasex24_depth + FB_dist1_mod3];
+    const int32_t FB_dist1 = distance[3 * cc.FB_phasex24_depth + FB_dist1_mod3];
 
     if (FB_dist1 >= togo)
     {

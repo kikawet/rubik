@@ -62,6 +62,7 @@ void dump_moves(const Moves* moves)
     fprintf(stderr, "\n");
 }
 
+// TODO: include multiple testing modes/steps one random and another for testing known solutions?
 int main(const int argc, char** argv)
 {
     SetRandomSeed(time(NULL));

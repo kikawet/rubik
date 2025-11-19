@@ -1,6 +1,6 @@
 // TODO: Maybe add one of these solvers? https://rosettacode.org/wiki/Solve_a_Rubik's_cube#thistlethwaite
 
-#include "../solver.h"
+#include "./solver.h"
 
 #include <raylib.h>
 #include <stdio.h>

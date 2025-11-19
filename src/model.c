@@ -663,46 +663,46 @@ void rotateRightCW(Cube* cube)
     rotateRightCCW(cube);
 }
 
-void rotateCube(Cube* cube, const Move m)
+void rotateCube(Cube* c, const Move m)
 {
     if (m == NO_MOVE) return;
 
     switch (m)
     {
-    case UU: rotateUpCW(cube); // fallthrough
-    case U: rotateUpCW(cube);
+    case UU: rotateUpCW(c); // fallthrough
+    case U: rotateUpCW(c);
         break;
-    case Up: rotateUpCCW(cube);
-        break;
-
-    case LL: rotateLeftCW(cube); // fallthrough
-    case L: rotateLeftCW(cube);
-        break;
-    case Lp: rotateLeftCCW(cube);
+    case Up: rotateUpCCW(c);
         break;
 
-    case FF: rotateFrontCW(cube); // fallthrough
-    case F: rotateFrontCW(cube);
+    case LL: rotateLeftCW(c); // fallthrough
+    case L: rotateLeftCW(c);
         break;
-    case Fp: rotateFrontCCW(cube);
-        break;
-
-    case RR: rotateRightCW(cube); // fallthrough
-    case R: rotateRightCW(cube);
-        break;
-    case Rp: rotateRightCCW(cube);
+    case Lp: rotateLeftCCW(c);
         break;
 
-    case BB: rotateBackCW(cube); // fallthrough
-    case B: rotateBackCW(cube);
+    case FF: rotateFrontCW(c); // fallthrough
+    case F: rotateFrontCW(c);
         break;
-    case Bp: rotateBackCCW(cube);
+    case Fp: rotateFrontCCW(c);
         break;
 
-    case DD: rotateDownCW(cube); // fallthrough
-    case D: rotateDownCW(cube);
+    case RR: rotateRightCW(c); // fallthrough
+    case R: rotateRightCW(c);
         break;
-    case Dp: rotateDownCCW(cube);
+    case Rp: rotateRightCCW(c);
+        break;
+
+    case BB: rotateBackCW(c); // fallthrough
+    case B: rotateBackCW(c);
+        break;
+    case Bp: rotateBackCCW(c);
+        break;
+
+    case DD: rotateDownCW(c); // fallthrough
+    case D: rotateDownCW(c);
+        break;
+    case Dp: rotateDownCCW(c);
         break;
 
     default:
