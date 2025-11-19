@@ -1,9 +1,12 @@
 cmake_minimum_required(VERSION 4.1)
+project(rubik DESCRIPTION "GUI with 3D rubik cube simulation" LANGUAGES C)
+
 #set(CMAKE_C_COMPILER tcc) # If you enable this clion dies
 set(CMAKE_C_STANDARD 99)
-add_compile_options(-Wall -Wextra -Wpedantic)
+add_compile_options(-O2 -Wall -Wextra -Wpedantic)
 # The other way to set cache variable doesn't work :<
-set(SOLVER "solver_hkociemba_optimized" CACHE FILEPATH "helps")
+set(SOLVER "solver_hkociemba_optimal" CACHE FILEPATH "There are multiple solvers implemented src/solver, the default may take up to 7h")
+add_compile_definitions("CMAKE_SOURCE_DIR=\"${CMAKE_SOURCE_DIR}/\"")
 
 message("CMAKE_C_FLAGS are '${CMAKE_C_FLAGS}'")
 message("SOLVER is $CACHE{SOLVER}")
@@ -38,37 +41,36 @@ add_library(generated OBJECT ${generated_c})
 add_library(draw OBJECT src/draw.c)
 add_library(model OBJECT src/model.c)
 
-################    STATIC SOLVER    ################
+################    SOLVER    ################
+### Generate a static solver for testing and a shared for hot reloading ###
 add_library(solver OBJECT src/solver/$CACHE{SOLVER}.c)
+# This will use generated headers directly but will take more time to compile or straight up f*ck your IDE
+# Note that if you enable this you need to remove "$<TARGET_OBJECTS:generated>" symbols or symbols will be duplicated wey
 #target_compile_definitions(solver PUBLIC NOT_A_PUSSY)
 target_sources(solver INTERFACE ${CMAKE_CURRENT_BINARY_DIR}/flipslicesorted_twist_depth3.o "$<TARGET_OBJECTS:generated>")
 add_dependencies(solver flipslicesorted_twist_depth3)
 
-################    DYNAMIC SOLVER    ################
-project(LIBSOLVER DESCRIPTION "Dynamic solver library for hotreload")
-add_library(${PROJECT_NAME} SHARED src/solver/$CACHE{SOLVER}.c)
-target_sources(${PROJECT_NAME} PRIVATE flipslicesorted_twist_depth3.o "$<TARGET_OBJECTS:generated>")
-target_link_libraries(${PROJECT_NAME} raylib model)
-set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "solver")
-add_dependencies(${PROJECT_NAME} flipslicesorted_twist_depth3)
+add_library(libsolver SHARED src/solver/$CACHE{SOLVER}.c)
+target_sources(libsolver PRIVATE flipslicesorted_twist_depth3.o "$<TARGET_OBJECTS:generated>")
+target_link_libraries(libsolver PRIVATE raylib model)
+set_target_properties(libsolver PROPERTIES OUTPUT_NAME "solver")
+add_dependencies(libsolver flipslicesorted_twist_depth3)
 
 ################    RUBIK    ################
-project(rubik DESCRIPTION "GUI with 3D rubik cube simulation")
+### This is the actual executable with the GUI
 add_executable(${PROJECT_NAME} src/rubik.c)
 target_link_libraries(${PROJECT_NAME} raylib model draw)
-add_dependencies(${PROJECT_NAME} LIBSOLVER)
+add_dependencies(${PROJECT_NAME} libsolver)
 
 ################    SOLVER_PERF    ################
-project(solver_perf DESCRIPTION "Run a simulation without GUI")
-add_executable(${PROJECT_NAME} src/solver_perf.c)
-target_link_libraries(${PROJECT_NAME} raylib model solver)
+### Run a simulation without GUI
+add_executable(solver_perf src/solver_perf.c)
+target_link_libraries(solver_perf raylib model solver)
 
 ################    SOLVER_TESTER    ################
-project(solver_tester DESCRIPTION "Brute force many solutions to check if solver works :P")
-#set(CMAKE_C_COMPILER clang)
-add_executable(${PROJECT_NAME} src/solver_tester.c)
-target_link_libraries(${PROJECT_NAME} raylib model solver)
-set_target_properties(${PROJECT_NAME} PROPERTIES CMAKE_C_COMPILER clang) # Pretty sure this doesn't work but can't test it :v
-target_compile_options(${PROJECT_NAME} PRIVATE -fsanitize=address -fsanitize=undefined)
-target_link_options(${PROJECT_NAME} PRIVATE -fsanitize=address -fsanitize=undefined)
-#unset(CMAKE_C_COMPILER)
+### Brute force many solutions to check if solver works :P
+add_executable(solver_tester src/solver_tester.c)
+target_link_libraries(solver_tester raylib model solver)
+set_target_properties(solver_tester PROPERTIES CMAKE_C_COMPILER clang) # Pretty sure this doesn't work but can't test it :v
+target_compile_options(solver_tester PRIVATE -fsanitize=address -fsanitize=undefined)
+target_link_options(solver_tester PRIVATE -fsanitize=address -fsanitize=undefined)
