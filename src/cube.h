@@ -56,29 +56,18 @@ typedef enum
     MOVE_LENGTH
 } Move;
 
-typedef struct Rotation
-{
-    EFace face;     // 0 for none; Since many moves rotate the same face this is handy
-    Move move;      // clone current move to modify Moves as freely
-    float angle;    // degrees
-    float progress; // [0, 1)
-} Rotation;
-
 typedef struct Cube
 {
     Face faces[EFACE_LENGTH];
-    Rotation rotation;
 } Cube;
 
 typedef struct Moves
 {
     Move* items;
-    size_t current;
     size_t count;
     size_t capacity;
 } Moves;
 
-Cube newCube(void);
 void resetCube(Cube* c);
 void rotateCube(Cube* c, Move m);
 

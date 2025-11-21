@@ -14,18 +14,18 @@ message("SOLVER is $CACHE{SOLVER}")
 ################    RUBIK    ################
 ### This is the actual executable with the GUI
 add_executable(${PROJECT_NAME} src/rubik.c)
-target_link_libraries(${PROJECT_NAME} raylib model draw)
+target_link_libraries(${PROJECT_NAME} raylib cube draw)
 add_dependencies(${PROJECT_NAME} libsolver)
 
 ################    SOLVER_PERF    ################
 ### Run a simulation without GUI
 add_executable(solver_perf src/solver_perf.c)
-target_link_libraries(solver_perf raylib model solver)
+target_link_libraries(solver_perf raylib cube solver)
 
 ################    SOLVER_TESTER    ################
 ### Brute force many solutions to check if solver works :P
 add_executable(solver_tester src/solver_tester.c)
-target_link_libraries(solver_tester raylib model solver)
+target_link_libraries(solver_tester raylib cube solver)
 set_target_properties(solver_tester PROPERTIES CMAKE_C_COMPILER clang) # Pretty sure this doesn't work but can't test it :v
 target_compile_options(solver_tester PRIVATE -fsanitize=address -fsanitize=undefined)
 target_link_options(solver_tester PRIVATE -fsanitize=address -fsanitize=undefined)
@@ -41,14 +41,14 @@ set_target_properties(raylib PROPERTIES
 
 ################    SOURCES    ################
 add_library(draw OBJECT src/draw.c)
-add_library(model OBJECT src/model.c)
+add_library(cube OBJECT src/cube.c)
 
 ################    SOLVER    ################
 ### Generate a static solver for testing and a shared for hot reloading ###
 add_library(solver OBJECT src/solver/$CACHE{SOLVER}.c)
 
 add_library(libsolver SHARED src/solver/$CACHE{SOLVER}.c)
-target_link_libraries(libsolver PRIVATE raylib model)
+target_link_libraries(libsolver PRIVATE raylib cube)
 set_target_properties(libsolver PROPERTIES OUTPUT_NAME "solver")
 
 if ($CACHE{SOLVER} MATCHES ".*hkociemba.*")

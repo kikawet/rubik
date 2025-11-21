@@ -4,7 +4,7 @@
 
 #include <stdbool.h>
 
-#include "../model.h"
+#include "../cube.h"
 
 // Call once to push into queue all the required moves to solve the cube
 // Need to pass cube by value so changes don't affect it

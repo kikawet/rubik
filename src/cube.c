@@ -1,4 +1,4 @@
-#include "model.h"
+#include "cube.h"
 #include <raylib.h>
 #include <string.h>
 
@@ -171,20 +171,6 @@ void setFaceColor(Face* f, const EColor color)
     paintCell(f, F_D | F_L, color);
     paintCell(f, F_D, color);
     paintCell(f, F_D | F_R, color);
-}
-
-Cube newCube(void)
-{
-    Cube c = {0};
-
-    setFaceColor(&c.faces[f2i(F_U)], f2c(F_U));
-    setFaceColor(&c.faces[f2i(F_F)], f2c(F_F));
-    setFaceColor(&c.faces[f2i(F_B)], f2c(F_B));
-    setFaceColor(&c.faces[f2i(F_D)], f2c(F_D));
-    setFaceColor(&c.faces[f2i(F_L)], f2c(F_L));
-    setFaceColor(&c.faces[f2i(F_R)], f2c(F_R));
-
-    return c;
 }
 
 void resetCube(Cube* c)

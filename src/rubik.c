@@ -9,68 +9,82 @@
 #include <raylib.h>
 #include <rcamera.h>
 
-#include "model.h"
-#include "solver/solver.h"
+
+#define ASYNC_IMPLEMENTATION
+#include "solver/async.h"
+
+#include "cube.h"
 #include "draw.h"
+#include "solver/solver.h"
 #include "../resources/MozillaTextFont.h"
 
-bool pause = false;
-
-void nextMove(Rotation* r, Moves* queue)
+// TODO: Global state looked like a good idea at the start but after chaging the code looks like add friction, remove?
+typedef struct state
 {
-    if (queue->items == NULL) return;
+    Cube cube;
+    Moves solution;
+    Animation animation;
 
-    if (queue->current >= queue->count)
+    void* dlsolver;
+    solve_t* solver;
+} State;
+
+void nextMove(State* s)
+{
+    if (s->solution.items == NULL) return;
+
+    Animation* a = &s->animation;
+    if (a->current_move >= s->solution.count)
     {
         // Reset rotation
-        r->move = NO_MOVE;
-        r->face = 0;
-        r->progress = 0;
-        r->angle = 0;
+        a->move = NO_MOVE;
+        a->face = 0;
+        a->progress = 0;
+        a->angle = 0;
 
         // Reset queue
-        queue->current = 0;
-        queue->count = 0;
+        a->current_move = 0;
+        s->solution.count = 0;
 
         TraceLog(LOG_DEBUG, "Resetting state");
         return;
     }
 
     // Advance current
-    r->move = queue->items[queue->current++];
-    r->face = moveToFace(r->move);
-    r->progress = 0;
-    r->angle = moveMaxAngle(r->move) * r->progress;
+    a->move = s->solution.items[a->current_move++];
+    a->face = moveToFace(a->move);
+    a->progress = 0;
+    a->angle = moveMaxAngle(a->move) * a->progress;
 
     // TODO: after a buffer of (10?) moves has been advanced "free/reset Moves"
 }
 
-void updateCube(Cube* cube, Moves* moves)
+void updateCube(State* s)
 {
-    if (moves->current >= moves->count && cube->rotation.face == 0)
+    if (s->animation.current_move >= s->solution.count && s->animation.face == 0)
         return;
 
     const float dt = GetFrameTime();
     const float progressSpeed = 0.4f;
-    Rotation* r = &cube->rotation;
+    Animation* a = &s->animation;
 
-    if (cube->rotation.face == 0)
+    if (a->face == 0)
     {
-        nextMove(r, moves);
+        nextMove(s);
         return;
     }
 
-    if (r->progress >= 1.f)
+    if (a->progress >= 1.f)
     {
-        rotateCube(cube, r->move);
-        nextMove(r, moves);
+        rotateCube(&s->cube, a->move);
+        nextMove(s);
         return;
     }
 
-    if (pause) return;
+    if (a->is_paused) return;
 
-    r->progress += progressSpeed * dt;
-    r->angle = moveMaxAngle(r->move) * r->progress;
+    a->progress += progressSpeed * dt;
+    a->angle = moveMaxAngle(a->move) * a->progress;
 }
 
 Moves generateMoves(const size_t amount)
@@ -123,6 +137,7 @@ void handleKeys(Cube* cube, Moves* queue)
     if (IsKeyPressed(KEY_S))
     {
         // Scramble
+        // TODO: accept Moves*
         const Moves moves = generateMoves(15);
         for (size_t i = 0; i < moves.count; i++)
             rotateCube(cube, moves.items[i]);
@@ -161,25 +176,22 @@ void thistlethwaite_suffle(Cube* cube)
     }
 }
 
-static void* libsolver = NULL;
-solve_t* solver = NULL;
-
-bool reload_libsolver(void)
+bool reload_libsolver(State* s)
 {
-    if (libsolver != NULL) dlclose(libsolver);
+    if (s->dlsolver != NULL) dlclose(s->dlsolver);
 
     const char* libsolver_file_name = "./libsolver.so";
-    libsolver = dlopen(libsolver_file_name, RTLD_NOW);
+    s->dlsolver = dlopen(libsolver_file_name, RTLD_NOW);
 
-    if (libsolver == NULL)
+    if (s->dlsolver == NULL)
     {
         TraceLog(LOG_ERROR, "HOTRELOAD: could not load %s: %s", libsolver_file_name, dlerror());
         return false;
     }
 
     // Cast it to prt to remove a warning
-    solver = (solve_t*)(intptr_t)dlsym(libsolver, "solve");
-    if (solver == NULL)
+    s->solver = (solve_t*)(intptr_t)dlsym(s->dlsolver, "solve");
+    if (s->solver == NULL)
     {
         TraceLog(LOG_ERROR, "HOTRELOAD: could not find solve symbol in %s: %s", libsolver_file_name, dlerror());
         return false;
@@ -205,15 +217,16 @@ void parse_args(const int argc, const char** argv, Cube* cube)
 
 int main(const int argc, const char** argv)
 {
-    if (!reload_libsolver()) return EXIT_FAILURE;
-
-    Cube cube = newCube();
+    State state = {0};
     Cube copy = {0};
+    AsyncSolver as = {0};
 
-    parse_args(argc, argv, &cube);
+    if (!reload_libsolver(&state)) return EXIT_FAILURE;
+
+    resetCube(&state.cube);
+
+    parse_args(argc, argv, &state.cube);
     //thistlethwaite_suffle(&cube);
-
-    Moves queue = {0};
 
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     SetTargetFPS(60);
@@ -232,64 +245,68 @@ int main(const int argc, const char** argv)
     camera.fovy = 45.0f;
     camera.projection = CAMERA_PERSPECTIVE;
 
+
     while (!WindowShouldClose())
     {
         updateCamera(&camera);
-        handleKeys(&cube, &queue);
-        updateCube(&cube, &queue);
+        handleKeys(&state.cube, &state.solution);
+        updateCube(&state); // This is more like update animation + cube
+
+        as_solve(&as, &state.solution);
 
         if (IsKeyPressed(KEY_F1))
         {
-            if (cube.rotation.face)
+            if (state.animation.current_move < state.solution.count)
             {
                 TraceLog(LOG_INFO, "Cannot request a new solve while rotating!");
                 continue;
             }
-            memcpy(&copy, &cube, sizeof(Cube));
+            memcpy(&copy, &state.cube, sizeof(Cube));
             TraceLog(LOG_INFO, "Cloned cube state before solving");
-            solver(cube, &queue);
+            as_new_custom(&as, state.cube, state.solver);
 
             if (IsKeyDown(KEY_LEFT_SHIFT))
             {
-                for (size_t i = queue.current; i < queue.count; i++)
+                as_solve(&as, &state.solution);
+                for (size_t i = state.animation.current_move; i < state.solution.count; i++)
                 {
-                    rotateCube(&cube, queue.items[i]);
+                    rotateCube(&state.cube, state.solution.items[i]);
                 }
 
-                queue.current = queue.count;
+                state.animation.current_move = state.solution.count;
             }
         }
 
         if (IsKeyPressed(KEY_F5))
         {
-            if (!reload_libsolver()) return EXIT_FAILURE;
+            if (!reload_libsolver(&state)) return EXIT_FAILURE;
             TraceLog(LOG_INFO, "Solver reloaded successfully");
         }
 
         if (IsKeyPressed(KEY_F7))
         {
-            memcpy(&cube, &copy, sizeof(Cube));
-            queue.current = 0;
-            queue.count = 0;
+            memcpy(&state.cube, &copy, sizeof(Cube));
+            state.animation.current_move = 0;
+            state.solution.count = 0;
             TraceLog(LOG_INFO, "Restored cube state");
         }
 
         if (IsKeyPressed(KEY_F8))
         {
-            memcpy(&copy, &cube, sizeof(Cube));
+            memcpy(&copy, &state.cube, sizeof(Cube));
             TraceLog(LOG_INFO, "Cloned cube state");
         }
 
         if (IsKeyPressed(KEY_N))
         {
-            cube.rotation.progress = 1.f;
-            TraceLog(LOG_INFO, "Skyped movement %s", moveToStr(cube.rotation.move));
+            state.animation.progress = 1.f;
+            TraceLog(LOG_INFO, "Skyped movement %s", moveToStr(state.animation.move));
         }
 
         if (IsKeyPressed(KEY_P))
         {
-            pause = !pause;
-            TraceLog(LOG_INFO, "Skyped movement %s", moveToStr(cube.rotation.move));
+            state.animation.is_paused = !state.animation.is_paused;
+            TraceLog(LOG_INFO, "Skyped movement %s", moveToStr(state.animation.move));
         }
 
         BeginDrawing();
@@ -299,19 +316,20 @@ int main(const int argc, const char** argv)
 
             BeginMode3D(camera);
             {
-                DrawRubik(&cube);
+                DrawRubik(&state.cube, &state.animation);
                 DrawGrid(10, 1.f);
             }
             EndMode3D();
 
-            drawCurrentMovement(&cube, &mozillaFont);
+            drawCurrentMovement(&state.animation, &mozillaFont);
         }
         EndDrawing();
     }
 
-    if (queue.capacity) free(queue.items);
-
     CloseWindow();
+
+    if (state.solution.capacity) free(state.solution.items);
+    as_free(&as);
 
     return EXIT_SUCCESS;
 }

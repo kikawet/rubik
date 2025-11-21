@@ -232,416 +232,416 @@ void DrawLeftRight(const Vector3 position, const Color left, const Color right)
     rlPopMatrix();
 }
 
-void DrawUp(const Face* up, const Rotation r)
+void DrawUp(const Face* up, const Animation* a)
 {
     EColor color = {0};
-    if (r.face == F_U || r.face == F_B || r.face == F_F || r.face == F_L || r.face == F_R )
+    if (a->face == F_U || a->face == F_B || a->face == F_F || a->face == F_L || a->face == F_R )
         rlPushMatrix();
 
-    if (r.face == F_U)
-        rlRotatef(r.angle, FACE_CENTERS[f2i(F_U)].x, FACE_CENTERS[f2i(F_U)].y, FACE_CENTERS[f2i(F_U)].z);
+    if (a->face == F_U)
+        rlRotatef(a->angle, FACE_CENTERS[f2i(F_U)].x, FACE_CENTERS[f2i(F_U)].y, FACE_CENTERS[f2i(F_U)].z);
 
-    if (r.face == F_B)
-        rlRotatef(r.angle, FACE_CENTERS[f2i(F_B)].x, FACE_CENTERS[f2i(F_B)].y, FACE_CENTERS[f2i(F_B)].z);
+    if (a->face == F_B)
+        rlRotatef(a->angle, FACE_CENTERS[f2i(F_B)].x, FACE_CENTERS[f2i(F_B)].y, FACE_CENTERS[f2i(F_B)].z);
 
-    if (r.face == F_L) rlRotatef(r.angle, FACE_CENTERS[f2i(F_L)].x, FACE_CENTERS[f2i(F_L)].y, FACE_CENTERS[f2i(F_L)].z);
+    if (a->face == F_L) rlRotatef(a->angle, FACE_CENTERS[f2i(F_L)].x, FACE_CENTERS[f2i(F_L)].y, FACE_CENTERS[f2i(F_L)].z);
     color = getCell(up, F_U | F_L);
     DrawTopBottom((Vector3){-1.f, 1.f, -1.f}, c2r(color), BLACK);
-    if (r.face == F_L) rlPopMatrix();
+    if (a->face == F_L) rlPopMatrix();
     color = getCell(up, F_U);
     DrawTopBottom((Vector3){0.f, 1.f, -1.f}, c2r(color), BLACK);
-    if (r.face == F_R) rlRotatef(r.angle, FACE_CENTERS[f2i(F_R)].x, FACE_CENTERS[f2i(F_R)].y, FACE_CENTERS[f2i(F_R)].z);
+    if (a->face == F_R) rlRotatef(a->angle, FACE_CENTERS[f2i(F_R)].x, FACE_CENTERS[f2i(F_R)].y, FACE_CENTERS[f2i(F_R)].z);
     color = getCell(up, F_U | F_R);
     DrawTopBottom((Vector3){1.f, 1.f, -1.f}, c2r(color), BLACK);
-    if (r.face == F_R) rlPopMatrix();
+    if (a->face == F_R) rlPopMatrix();
 
-    if (r.face == F_B)
+    if (a->face == F_B)
         rlPopMatrix();
 
-    if (r.face == F_L || r.face == F_R)
+    if (a->face == F_L || a->face == F_R)
         rlPushMatrix();
 
-    if (r.face == F_L) rlRotatef(r.angle, FACE_CENTERS[f2i(F_L)].x, FACE_CENTERS[f2i(F_L)].y, FACE_CENTERS[f2i(F_L)].z);
+    if (a->face == F_L) rlRotatef(a->angle, FACE_CENTERS[f2i(F_L)].x, FACE_CENTERS[f2i(F_L)].y, FACE_CENTERS[f2i(F_L)].z);
     color = getCell(up, F_L);
     DrawTopBottom((Vector3){-1.f, 1.f, 0.f}, c2r(color), BLACK);
-    if (r.face == F_L) rlPopMatrix();
+    if (a->face == F_L) rlPopMatrix();
     color = White;
     DrawTopBottom(FACE_CENTERS[f2i(F_U)], c2r(color), BLACK);
-    if (r.face == F_R) rlRotatef(r.angle, FACE_CENTERS[f2i(F_R)].x, FACE_CENTERS[f2i(F_R)].y, FACE_CENTERS[f2i(F_R)].z);
+    if (a->face == F_R) rlRotatef(a->angle, FACE_CENTERS[f2i(F_R)].x, FACE_CENTERS[f2i(F_R)].y, FACE_CENTERS[f2i(F_R)].z);
     color = getCell(up, F_R);
     DrawTopBottom((Vector3){1.f, 1.f, 0.f}, c2r(color), BLACK);
-    if (r.face == F_R) rlPopMatrix();
+    if (a->face == F_R) rlPopMatrix();
 
-    if (r.face == F_F)
-        rlRotatef(r.angle, FACE_CENTERS[f2i(F_F)].x, FACE_CENTERS[f2i(F_F)].y, FACE_CENTERS[f2i(F_F)].z);
+    if (a->face == F_F)
+        rlRotatef(a->angle, FACE_CENTERS[f2i(F_F)].x, FACE_CENTERS[f2i(F_F)].y, FACE_CENTERS[f2i(F_F)].z);
 
-    if (r.face == F_L || r.face == F_R)
+    if (a->face == F_L || a->face == F_R)
         rlPushMatrix();
 
-    if (r.face == F_L) rlRotatef(r.angle, FACE_CENTERS[f2i(F_L)].x, FACE_CENTERS[f2i(F_L)].y, FACE_CENTERS[f2i(F_L)].z);
+    if (a->face == F_L) rlRotatef(a->angle, FACE_CENTERS[f2i(F_L)].x, FACE_CENTERS[f2i(F_L)].y, FACE_CENTERS[f2i(F_L)].z);
     color = getCell(up, F_D | F_L);
     DrawTopBottom((Vector3){-1.f, 1.f, 1.f}, c2r(color), BLACK);
-    if (r.face == F_L) rlPopMatrix();
+    if (a->face == F_L) rlPopMatrix();
     color = getCell(up, F_D);
     DrawTopBottom((Vector3){0.f, 1.f, 1.f}, c2r(color), BLACK);
-    if (r.face == F_R) rlRotatef(r.angle, FACE_CENTERS[f2i(F_R)].x, FACE_CENTERS[f2i(F_R)].y, FACE_CENTERS[f2i(F_R)].z);
+    if (a->face == F_R) rlRotatef(a->angle, FACE_CENTERS[f2i(F_R)].x, FACE_CENTERS[f2i(F_R)].y, FACE_CENTERS[f2i(F_R)].z);
     color = getCell(up, F_D | F_R);
     DrawTopBottom((Vector3){1.f, 1.f, 1.f}, c2r(color), BLACK);
-    if (r.face == F_R) rlPopMatrix();
+    if (a->face == F_R) rlPopMatrix();
 
-    if (r.face == F_U || r.face == F_F)
+    if (a->face == F_U || a->face == F_F)
         rlPopMatrix();
 }
 
-void DrawDown(const Face* down, const Rotation r)
+void DrawDown(const Face* down, const Animation* a)
 {
     EColor color = {0};
 
-    if (r.face == F_D || r.face == F_B || r.face == F_F || r.face == F_L || r.face == F_R )
+    if (a->face == F_D || a->face == F_B || a->face == F_F || a->face == F_L || a->face == F_R )
         rlPushMatrix();
 
-    if (r.face == F_D)
-        rlRotatef(r.angle, FACE_CENTERS[f2i(F_D)].x, FACE_CENTERS[f2i(F_D)].y, FACE_CENTERS[f2i(F_D)].z);
+    if (a->face == F_D)
+        rlRotatef(a->angle, FACE_CENTERS[f2i(F_D)].x, FACE_CENTERS[f2i(F_D)].y, FACE_CENTERS[f2i(F_D)].z);
 
-    if (r.face == F_F)
-        rlRotatef(r.angle, FACE_CENTERS[f2i(F_F)].x, FACE_CENTERS[f2i(F_F)].y, FACE_CENTERS[f2i(F_F)].z);
+    if (a->face == F_F)
+        rlRotatef(a->angle, FACE_CENTERS[f2i(F_F)].x, FACE_CENTERS[f2i(F_F)].y, FACE_CENTERS[f2i(F_F)].z);
 
-    if (r.face == F_L) rlRotatef(r.angle, FACE_CENTERS[f2i(F_L)].x, FACE_CENTERS[f2i(F_L)].y, FACE_CENTERS[f2i(F_L)].z);
+    if (a->face == F_L) rlRotatef(a->angle, FACE_CENTERS[f2i(F_L)].x, FACE_CENTERS[f2i(F_L)].y, FACE_CENTERS[f2i(F_L)].z);
     color = getCell(down, F_U | F_L);
     DrawTopBottom((Vector3){-1.f, -1.f, 1.f}, BLACK, c2r(color));
-    if (r.face == F_L) rlPopMatrix();
+    if (a->face == F_L) rlPopMatrix();
     color = getCell(down, F_U);
     DrawTopBottom((Vector3){0.f, -1.f, 1.f}, BLACK, c2r(color));
-    if (r.face == F_R) rlRotatef(r.angle, FACE_CENTERS[f2i(F_R)].x, FACE_CENTERS[f2i(F_R)].y, FACE_CENTERS[f2i(F_R)].z);
+    if (a->face == F_R) rlRotatef(a->angle, FACE_CENTERS[f2i(F_R)].x, FACE_CENTERS[f2i(F_R)].y, FACE_CENTERS[f2i(F_R)].z);
     color = getCell(down, F_U | F_R);
     DrawTopBottom((Vector3){1.f, -1.f, 1.f}, BLACK, c2r(color));
-    if (r.face == F_R) rlPopMatrix();
+    if (a->face == F_R) rlPopMatrix();
 
-    if (r.face == F_F)
+    if (a->face == F_F)
         rlPopMatrix();
 
-    if (r.face == F_L || r.face == F_R)
+    if (a->face == F_L || a->face == F_R)
         rlPushMatrix();
 
-    if (r.face == F_L) rlRotatef(r.angle, FACE_CENTERS[f2i(F_L)].x, FACE_CENTERS[f2i(F_L)].y, FACE_CENTERS[f2i(F_L)].z);
+    if (a->face == F_L) rlRotatef(a->angle, FACE_CENTERS[f2i(F_L)].x, FACE_CENTERS[f2i(F_L)].y, FACE_CENTERS[f2i(F_L)].z);
     color = getCell(down, F_L);
     DrawTopBottom((Vector3){-1.f, -1.f, 0.f}, BLACK, c2r(color));
-    if (r.face == F_L) rlPopMatrix();
+    if (a->face == F_L) rlPopMatrix();
     color = Yellow;
     DrawTopBottom(FACE_CENTERS[f2i(F_D)], BLACK, c2r(color));
-    if (r.face == F_R) rlRotatef(r.angle, FACE_CENTERS[f2i(F_R)].x, FACE_CENTERS[f2i(F_R)].y, FACE_CENTERS[f2i(F_R)].z);
+    if (a->face == F_R) rlRotatef(a->angle, FACE_CENTERS[f2i(F_R)].x, FACE_CENTERS[f2i(F_R)].y, FACE_CENTERS[f2i(F_R)].z);
     color = getCell(down, F_R);
     DrawTopBottom((Vector3){1.f, -1.f, 0.f}, BLACK, c2r(color));
-    if (r.face == F_R) rlPopMatrix();
+    if (a->face == F_R) rlPopMatrix();
 
-    if (r.face == F_B)
-        rlRotatef(r.angle, FACE_CENTERS[f2i(F_B)].x, FACE_CENTERS[f2i(F_B)].y, FACE_CENTERS[f2i(F_B)].z);
+    if (a->face == F_B)
+        rlRotatef(a->angle, FACE_CENTERS[f2i(F_B)].x, FACE_CENTERS[f2i(F_B)].y, FACE_CENTERS[f2i(F_B)].z);
 
-    if (r.face == F_L || r.face == F_R)
+    if (a->face == F_L || a->face == F_R)
         rlPushMatrix();
 
-    if (r.face == F_L) rlRotatef(r.angle, FACE_CENTERS[f2i(F_L)].x, FACE_CENTERS[f2i(F_L)].y, FACE_CENTERS[f2i(F_L)].z);
+    if (a->face == F_L) rlRotatef(a->angle, FACE_CENTERS[f2i(F_L)].x, FACE_CENTERS[f2i(F_L)].y, FACE_CENTERS[f2i(F_L)].z);
     color = getCell(down, F_D | F_L);
     DrawTopBottom((Vector3){-1.f, -1.f, -1.f}, BLACK, c2r(color));
-    if (r.face == F_L) rlPopMatrix();
+    if (a->face == F_L) rlPopMatrix();
     color = getCell(down, F_D);
     DrawTopBottom((Vector3){0.f, -1.f, -1.f}, BLACK, c2r(color));
-    if (r.face == F_R) rlRotatef(r.angle, FACE_CENTERS[f2i(F_R)].x, FACE_CENTERS[f2i(F_R)].y, FACE_CENTERS[f2i(F_R)].z);
+    if (a->face == F_R) rlRotatef(a->angle, FACE_CENTERS[f2i(F_R)].x, FACE_CENTERS[f2i(F_R)].y, FACE_CENTERS[f2i(F_R)].z);
     color = getCell(down, F_D | F_R);
     DrawTopBottom((Vector3){1.f, -1.f, -1.f}, BLACK, c2r(color));
-    if (r.face == F_R) rlPopMatrix();
+    if (a->face == F_R) rlPopMatrix();
 
-    if (r.face == F_D || r.face == F_B)
+    if (a->face == F_D || a->face == F_B)
         rlPopMatrix();
 }
 
-void DrawFront(const Face* front, const Rotation r)
+void DrawFront(const Face* front, const Animation* a)
 {
     EColor color = {0};
 
-    if (r.face == F_F || r.face == F_U || r.face == F_D || r.face == F_L || r.face == F_R)
+    if (a->face == F_F || a->face == F_U || a->face == F_D || a->face == F_L || a->face == F_R)
         rlPushMatrix();
 
-    if (r.face == F_F)
-        rlRotatef(r.angle, FACE_CENTERS[f2i(F_F)].x, FACE_CENTERS[f2i(F_F)].y, FACE_CENTERS[f2i(F_F)].z);
+    if (a->face == F_F)
+        rlRotatef(a->angle, FACE_CENTERS[f2i(F_F)].x, FACE_CENTERS[f2i(F_F)].y, FACE_CENTERS[f2i(F_F)].z);
 
-    if (r.face == F_U)
-        rlRotatef(r.angle, FACE_CENTERS[f2i(F_U)].x, FACE_CENTERS[f2i(F_U)].y, FACE_CENTERS[f2i(F_U)].z);
+    if (a->face == F_U)
+        rlRotatef(a->angle, FACE_CENTERS[f2i(F_U)].x, FACE_CENTERS[f2i(F_U)].y, FACE_CENTERS[f2i(F_U)].z);
 
-    if (r.face == F_L) rlRotatef(r.angle, FACE_CENTERS[f2i(F_L)].x, FACE_CENTERS[f2i(F_L)].y, FACE_CENTERS[f2i(F_L)].z);
+    if (a->face == F_L) rlRotatef(a->angle, FACE_CENTERS[f2i(F_L)].x, FACE_CENTERS[f2i(F_L)].y, FACE_CENTERS[f2i(F_L)].z);
     color = getCell(front, F_U | F_L);
     DrawFrontBack((Vector3){-1.f, 1.f, 1.f}, c2r(color), BLACK);
-    if (r.face == F_L) rlPopMatrix();
+    if (a->face == F_L) rlPopMatrix();
     color = getCell(front, F_U);
     DrawFrontBack((Vector3){0.f, 1.f, 1.f}, c2r(color), BLACK);
     DrawLeftRight((Vector3){0.f, 1.f, 1.f}, BLACK, BLACK);
-    if (r.face == F_R) rlRotatef(r.angle, FACE_CENTERS[f2i(F_R)].x, FACE_CENTERS[f2i(F_R)].y, FACE_CENTERS[f2i(F_R)].z);
+    if (a->face == F_R) rlRotatef(a->angle, FACE_CENTERS[f2i(F_R)].x, FACE_CENTERS[f2i(F_R)].y, FACE_CENTERS[f2i(F_R)].z);
     color = getCell(front, F_U | F_R);
     DrawFrontBack((Vector3){1.f, 1.f, 1.f}, c2r(color), BLACK);
-    if (r.face == F_R) rlPopMatrix();
+    if (a->face == F_R) rlPopMatrix();
 
-    if (r.face == F_U)
+    if (a->face == F_U)
         rlPopMatrix();
 
-    if (r.face == F_L || r.face == F_R)
+    if (a->face == F_L || a->face == F_R)
         rlPushMatrix();
 
-    if (r.face == F_L) rlRotatef(r.angle, FACE_CENTERS[f2i(F_L)].x, FACE_CENTERS[f2i(F_L)].y, FACE_CENTERS[f2i(F_L)].z);
+    if (a->face == F_L) rlRotatef(a->angle, FACE_CENTERS[f2i(F_L)].x, FACE_CENTERS[f2i(F_L)].y, FACE_CENTERS[f2i(F_L)].z);
     color = getCell(front, F_L);
     DrawFrontBack((Vector3){-1.f, 0.f, 1.f}, c2r(color), BLACK);
     DrawTopBottom((Vector3){-1.f, 0.f, 1.f}, BLACK, BLACK);
-    if (r.face == F_L) rlPopMatrix();
+    if (a->face == F_L) rlPopMatrix();
     color = Green;
     DrawFrontBack(FACE_CENTERS[f2i(F_F)], c2r(color), BLACK);
     DrawLeftRight(FACE_CENTERS[f2i(F_F)], BLACK, BLACK);
     DrawTopBottom(FACE_CENTERS[f2i(F_F)], BLACK, BLACK);
-    if (r.face == F_R) rlRotatef(r.angle, FACE_CENTERS[f2i(F_R)].x, FACE_CENTERS[f2i(F_R)].y, FACE_CENTERS[f2i(F_R)].z);
+    if (a->face == F_R) rlRotatef(a->angle, FACE_CENTERS[f2i(F_R)].x, FACE_CENTERS[f2i(F_R)].y, FACE_CENTERS[f2i(F_R)].z);
     color = getCell(front, F_R);
     DrawFrontBack((Vector3){1.f, 0.f, 1.f}, c2r(color), BLACK);
     DrawTopBottom((Vector3){1.f, 0.f, 1.f}, BLACK, BLACK);
-    if (r.face == F_R) rlPopMatrix();
+    if (a->face == F_R) rlPopMatrix();
 
-    if (r.face == F_D)
-        rlRotatef(r.angle, FACE_CENTERS[f2i(F_D)].x, FACE_CENTERS[f2i(F_D)].y, FACE_CENTERS[f2i(F_D)].z);
+    if (a->face == F_D)
+        rlRotatef(a->angle, FACE_CENTERS[f2i(F_D)].x, FACE_CENTERS[f2i(F_D)].y, FACE_CENTERS[f2i(F_D)].z);
 
-    if (r.face == F_L || r.face == F_R)
+    if (a->face == F_L || a->face == F_R)
         rlPushMatrix();
 
-    if (r.face == F_L) rlRotatef(r.angle, FACE_CENTERS[f2i(F_L)].x, FACE_CENTERS[f2i(F_L)].y, FACE_CENTERS[f2i(F_L)].z);
+    if (a->face == F_L) rlRotatef(a->angle, FACE_CENTERS[f2i(F_L)].x, FACE_CENTERS[f2i(F_L)].y, FACE_CENTERS[f2i(F_L)].z);
     color = getCell(front, F_D | F_L);
     DrawFrontBack((Vector3){-1.f, -1.f, 1.f}, c2r(color), BLACK);
-    if (r.face == F_L) rlPopMatrix();
+    if (a->face == F_L) rlPopMatrix();
     color = getCell(front, F_D);
     DrawFrontBack((Vector3){0.f, -1.f, 1.f}, c2r(color), BLACK);
     DrawLeftRight((Vector3){0.f, -1.f, 1.f}, BLACK, BLACK);
-    if (r.face == F_R) rlRotatef(r.angle, FACE_CENTERS[f2i(F_R)].x, FACE_CENTERS[f2i(F_R)].y, FACE_CENTERS[f2i(F_R)].z);
+    if (a->face == F_R) rlRotatef(a->angle, FACE_CENTERS[f2i(F_R)].x, FACE_CENTERS[f2i(F_R)].y, FACE_CENTERS[f2i(F_R)].z);
     color = getCell(front, F_D | F_R);
     DrawFrontBack((Vector3){1.f, -1.f, 1.f}, c2r(color), BLACK);
-    if (r.face == F_R) rlPopMatrix();
+    if (a->face == F_R) rlPopMatrix();
 
-    if (r.face == F_F || r.face == F_D)
+    if (a->face == F_F || a->face == F_D)
         rlPopMatrix();
 }
 
-void DrawBack(const Face* back, const Rotation r)
+void DrawBack(const Face* back, const Animation* a)
 {
     EColor color = {0};
 
-    if (r.face == F_B || r.face == F_U || r.face == F_D || r.face == F_L || r.face == F_R)
+    if (a->face == F_B || a->face == F_U || a->face == F_D || a->face == F_L || a->face == F_R)
         rlPushMatrix();
 
-    if (r.face == F_B)
-        rlRotatef(r.angle, FACE_CENTERS[f2i(F_B)].x, FACE_CENTERS[f2i(F_B)].y, FACE_CENTERS[f2i(F_B)].z);
+    if (a->face == F_B)
+        rlRotatef(a->angle, FACE_CENTERS[f2i(F_B)].x, FACE_CENTERS[f2i(F_B)].y, FACE_CENTERS[f2i(F_B)].z);
 
-    if (r.face == F_U)
-        rlRotatef(r.angle, FACE_CENTERS[f2i(F_U)].x, FACE_CENTERS[f2i(F_U)].y, FACE_CENTERS[f2i(F_U)].z);
+    if (a->face == F_U)
+        rlRotatef(a->angle, FACE_CENTERS[f2i(F_U)].x, FACE_CENTERS[f2i(F_U)].y, FACE_CENTERS[f2i(F_U)].z);
 
-    if (r.face == F_R) rlRotatef(r.angle, FACE_CENTERS[f2i(F_R)].x, FACE_CENTERS[f2i(F_R)].y, FACE_CENTERS[f2i(F_R)].z);
+    if (a->face == F_R) rlRotatef(a->angle, FACE_CENTERS[f2i(F_R)].x, FACE_CENTERS[f2i(F_R)].y, FACE_CENTERS[f2i(F_R)].z);
     color = getCell(back, F_U | F_L);
     DrawFrontBack((Vector3){1.f, 1.f, -1.f}, BLACK, c2r(color));
-    if (r.face == F_R) rlPopMatrix();
+    if (a->face == F_R) rlPopMatrix();
     color = getCell(back, F_U);
     DrawFrontBack((Vector3){0.f, 1.f, -1.f}, BLACK, c2r(color));
     DrawLeftRight((Vector3){0.f, 1.f, -1.f}, BLACK, BLACK);
-    if (r.face == F_L) rlRotatef(r.angle, FACE_CENTERS[f2i(F_L)].x, FACE_CENTERS[f2i(F_L)].y, FACE_CENTERS[f2i(F_L)].z);
+    if (a->face == F_L) rlRotatef(a->angle, FACE_CENTERS[f2i(F_L)].x, FACE_CENTERS[f2i(F_L)].y, FACE_CENTERS[f2i(F_L)].z);
     color = getCell(back, F_U | F_R);
     DrawFrontBack((Vector3){-1.f, 1.f, -1.f}, BLACK, c2r(color));
-    if (r.face == F_L) rlPopMatrix();
+    if (a->face == F_L) rlPopMatrix();
 
-    if (r.face == F_U)
+    if (a->face == F_U)
         rlPopMatrix();
 
-    if (r.face == F_R || r.face == F_L)
+    if (a->face == F_R || a->face == F_L)
         rlPushMatrix();
 
-    if (r.face == F_R) rlRotatef(r.angle, FACE_CENTERS[f2i(F_R)].x, FACE_CENTERS[f2i(F_R)].y, FACE_CENTERS[f2i(F_R)].z);
+    if (a->face == F_R) rlRotatef(a->angle, FACE_CENTERS[f2i(F_R)].x, FACE_CENTERS[f2i(F_R)].y, FACE_CENTERS[f2i(F_R)].z);
     color = getCell(back, F_L);
     DrawFrontBack((Vector3){1.f, 0.f, -1.f}, BLACK, c2r(color));
     DrawTopBottom((Vector3){1.f, 0.f, -1.f}, BLACK, BLACK);
-    if (r.face == F_R) rlPopMatrix();
+    if (a->face == F_R) rlPopMatrix();
     color = Blue;
     DrawFrontBack(FACE_CENTERS[f2i(F_B)], BLACK, c2r(color));
     DrawLeftRight(FACE_CENTERS[f2i(F_B)], BLACK, BLACK);
     DrawTopBottom(FACE_CENTERS[f2i(F_B)], BLACK, BLACK);
-    if (r.face == F_L) rlRotatef(r.angle, FACE_CENTERS[f2i(F_L)].x, FACE_CENTERS[f2i(F_L)].y, FACE_CENTERS[f2i(F_L)].z);
+    if (a->face == F_L) rlRotatef(a->angle, FACE_CENTERS[f2i(F_L)].x, FACE_CENTERS[f2i(F_L)].y, FACE_CENTERS[f2i(F_L)].z);
     color = getCell(back, F_R);
     DrawFrontBack((Vector3){-1.f, 0.f, -1.f}, BLACK, c2r(color));
     DrawTopBottom((Vector3){-1.f, 0.f, -1.f}, BLACK, BLACK);
-    if (r.face == F_L) rlPopMatrix();
+    if (a->face == F_L) rlPopMatrix();
 
-    if (r.face == F_D)
-        rlRotatef(r.angle, FACE_CENTERS[f2i(F_D)].x, FACE_CENTERS[f2i(F_D)].y, FACE_CENTERS[f2i(F_D)].z);
+    if (a->face == F_D)
+        rlRotatef(a->angle, FACE_CENTERS[f2i(F_D)].x, FACE_CENTERS[f2i(F_D)].y, FACE_CENTERS[f2i(F_D)].z);
 
-    if (r.face == F_R || r.face == F_L)
+    if (a->face == F_R || a->face == F_L)
         rlPushMatrix();
 
-    if (r.face == F_R) rlRotatef(r.angle, FACE_CENTERS[f2i(F_R)].x, FACE_CENTERS[f2i(F_R)].y, FACE_CENTERS[f2i(F_R)].z);
+    if (a->face == F_R) rlRotatef(a->angle, FACE_CENTERS[f2i(F_R)].x, FACE_CENTERS[f2i(F_R)].y, FACE_CENTERS[f2i(F_R)].z);
     color = getCell(back, F_D | F_L);
     DrawFrontBack((Vector3){1.f, -1.f, -1.f}, BLACK, c2r(color));
-    if (r.face == F_R) rlPopMatrix();
+    if (a->face == F_R) rlPopMatrix();
     color = getCell(back, F_D);
     DrawFrontBack((Vector3){0.f, -1.f, -1.f}, BLACK, c2r(color));
     DrawLeftRight((Vector3){0.f, -1.f, -1.f}, BLACK, BLACK);
-    if (r.face == F_L) rlRotatef(r.angle, FACE_CENTERS[f2i(F_L)].x, FACE_CENTERS[f2i(F_L)].y, FACE_CENTERS[f2i(F_L)].z);
+    if (a->face == F_L) rlRotatef(a->angle, FACE_CENTERS[f2i(F_L)].x, FACE_CENTERS[f2i(F_L)].y, FACE_CENTERS[f2i(F_L)].z);
     color = getCell(back, F_D | F_R);
     DrawFrontBack((Vector3){-1.f, -1.f, -1.f}, BLACK, c2r(color));
-    if (r.face == F_L) rlPopMatrix();
+    if (a->face == F_L) rlPopMatrix();
 
-    if (r.face == F_B || r.face == F_D)
+    if (a->face == F_B || a->face == F_D)
         rlPopMatrix();
 }
 
-void DrawLeft(const Face* left, const Rotation r)
+void DrawLeft(const Face* left, const Animation* a)
 {
     EColor color = {0};
 
-    if (r.face == F_L || r.face == F_U || r.face == F_D || r.face == F_B || r.face == F_F)
+    if (a->face == F_L || a->face == F_U || a->face == F_D || a->face == F_B || a->face == F_F)
         rlPushMatrix();
 
-    if (r.face == F_L)
-        rlRotatef(r.angle, FACE_CENTERS[f2i(F_L)].x, FACE_CENTERS[f2i(F_L)].y, FACE_CENTERS[f2i(F_L)].z);
+    if (a->face == F_L)
+        rlRotatef(a->angle, FACE_CENTERS[f2i(F_L)].x, FACE_CENTERS[f2i(F_L)].y, FACE_CENTERS[f2i(F_L)].z);
 
-    if (r.face == F_U)
-        rlRotatef(r.angle, FACE_CENTERS[f2i(F_U)].x, FACE_CENTERS[f2i(F_U)].y, FACE_CENTERS[f2i(F_U)].z);
+    if (a->face == F_U)
+        rlRotatef(a->angle, FACE_CENTERS[f2i(F_U)].x, FACE_CENTERS[f2i(F_U)].y, FACE_CENTERS[f2i(F_U)].z);
 
-    if (r.face == F_B) rlRotatef(r.angle, FACE_CENTERS[f2i(F_B)].x, FACE_CENTERS[f2i(F_B)].y, FACE_CENTERS[f2i(F_B)].z);
+    if (a->face == F_B) rlRotatef(a->angle, FACE_CENTERS[f2i(F_B)].x, FACE_CENTERS[f2i(F_B)].y, FACE_CENTERS[f2i(F_B)].z);
     color = getCell(left, F_U | F_L);
     DrawLeftRight((Vector3){-1.f, 1.f, -1.f}, c2r(color), BLACK);
-    if (r.face == F_B) rlPopMatrix();
+    if (a->face == F_B) rlPopMatrix();
     color = getCell(left, F_U);
     DrawLeftRight((Vector3){-1.f, 1.f, 0.f}, c2r(color), BLACK);
     DrawFrontBack((Vector3){-1.f, 1.f, 0.f}, BLACK, BLACK);
-    if (r.face == F_F) rlRotatef(r.angle, FACE_CENTERS[f2i(F_F)].x, FACE_CENTERS[f2i(F_F)].y, FACE_CENTERS[f2i(F_F)].z);
+    if (a->face == F_F) rlRotatef(a->angle, FACE_CENTERS[f2i(F_F)].x, FACE_CENTERS[f2i(F_F)].y, FACE_CENTERS[f2i(F_F)].z);
     color = getCell(left, F_U | F_R);
     DrawLeftRight((Vector3){-1.f, 1.f, 1.f}, c2r(color), BLACK);
-    if (r.face == F_F) rlPopMatrix();
+    if (a->face == F_F) rlPopMatrix();
 
-    if (r.face == F_U)
+    if (a->face == F_U)
         rlPopMatrix();
 
-    if (r.face == F_B || r.face == F_F)
+    if (a->face == F_B || a->face == F_F)
         rlPushMatrix();
 
-    if (r.face == F_B) rlRotatef(r.angle, FACE_CENTERS[f2i(F_B)].x, FACE_CENTERS[f2i(F_B)].y, FACE_CENTERS[f2i(F_B)].z);
+    if (a->face == F_B) rlRotatef(a->angle, FACE_CENTERS[f2i(F_B)].x, FACE_CENTERS[f2i(F_B)].y, FACE_CENTERS[f2i(F_B)].z);
     color = getCell(left, F_L);
     DrawLeftRight((Vector3){-1.f, 0.f, -1.f}, c2r(color), BLACK);
-    if (r.face == F_B) rlPopMatrix();
+    if (a->face == F_B) rlPopMatrix();
     color = Orange;
     DrawLeftRight(FACE_CENTERS[f2i(F_L)], c2r(color), BLACK);
     DrawFrontBack(FACE_CENTERS[f2i(F_L)], BLACK, BLACK);
     DrawTopBottom(FACE_CENTERS[f2i(F_L)], BLACK, BLACK);
-    if (r.face == F_F) rlRotatef(r.angle, FACE_CENTERS[f2i(F_F)].x, FACE_CENTERS[f2i(F_F)].y, FACE_CENTERS[f2i(F_F)].z);
+    if (a->face == F_F) rlRotatef(a->angle, FACE_CENTERS[f2i(F_F)].x, FACE_CENTERS[f2i(F_F)].y, FACE_CENTERS[f2i(F_F)].z);
     color = getCell(left, F_R);
     DrawLeftRight((Vector3){-1.f, 0.f, 1.f}, c2r(color), BLACK);
-    if (r.face == F_F) rlPopMatrix();
+    if (a->face == F_F) rlPopMatrix();
 
-    if (r.face == F_D)
-        rlRotatef(r.angle, FACE_CENTERS[f2i(F_D)].x, FACE_CENTERS[f2i(F_D)].y, FACE_CENTERS[f2i(F_D)].z);
+    if (a->face == F_D)
+        rlRotatef(a->angle, FACE_CENTERS[f2i(F_D)].x, FACE_CENTERS[f2i(F_D)].y, FACE_CENTERS[f2i(F_D)].z);
 
-    if (r.face == F_B || r.face == F_F)
+    if (a->face == F_B || a->face == F_F)
         rlPushMatrix();
 
-    if (r.face == F_B) rlRotatef(r.angle, FACE_CENTERS[f2i(F_B)].x, FACE_CENTERS[f2i(F_B)].y, FACE_CENTERS[f2i(F_B)].z);
+    if (a->face == F_B) rlRotatef(a->angle, FACE_CENTERS[f2i(F_B)].x, FACE_CENTERS[f2i(F_B)].y, FACE_CENTERS[f2i(F_B)].z);
     color = getCell(left, F_D | F_L);
     DrawLeftRight((Vector3){-1.f, -1.f, -1.f}, c2r(color), BLACK);
-    if (r.face == F_B) rlPopMatrix();
+    if (a->face == F_B) rlPopMatrix();
     color = getCell(left, F_D);
     DrawLeftRight((Vector3){-1.f, -1.f, 0.f}, c2r(color), BLACK);
     DrawFrontBack((Vector3){-1.f, -1.f, 0.f}, BLACK, BLACK);
-    if (r.face == F_F) rlRotatef(r.angle, FACE_CENTERS[f2i(F_F)].x, FACE_CENTERS[f2i(F_F)].y, FACE_CENTERS[f2i(F_F)].z);
+    if (a->face == F_F) rlRotatef(a->angle, FACE_CENTERS[f2i(F_F)].x, FACE_CENTERS[f2i(F_F)].y, FACE_CENTERS[f2i(F_F)].z);
     color = getCell(left, F_D | F_R);
     DrawLeftRight((Vector3){-1.f, -1.f, 1.f}, c2r(color), BLACK);
-    if (r.face == F_F) rlPopMatrix();
+    if (a->face == F_F) rlPopMatrix();
 
-    if (r.face == F_L || r.face == F_D)
+    if (a->face == F_L || a->face == F_D)
         rlPopMatrix();
 }
 
-void DrawRight(const Face* right, const Rotation r)
+void DrawRight(const Face* right, const Animation* a)
 {
     EColor color = {0};
 
-    if (r.face == F_R || r.face == F_U || r.face == F_D || r.face == F_B || r.face == F_F)
+    if (a->face == F_R || a->face == F_U || a->face == F_D || a->face == F_B || a->face == F_F)
         rlPushMatrix();
 
-    if (r.face == F_R)
-        rlRotatef(r.angle, FACE_CENTERS[f2i(F_R)].x, FACE_CENTERS[f2i(F_R)].y, FACE_CENTERS[f2i(F_R)].z);
+    if (a->face == F_R)
+        rlRotatef(a->angle, FACE_CENTERS[f2i(F_R)].x, FACE_CENTERS[f2i(F_R)].y, FACE_CENTERS[f2i(F_R)].z);
 
-    if (r.face == F_U)
-        rlRotatef(r.angle, FACE_CENTERS[f2i(F_U)].x, FACE_CENTERS[f2i(F_U)].y, FACE_CENTERS[f2i(F_U)].z);
+    if (a->face == F_U)
+        rlRotatef(a->angle, FACE_CENTERS[f2i(F_U)].x, FACE_CENTERS[f2i(F_U)].y, FACE_CENTERS[f2i(F_U)].z);
 
-    if (r.face == F_F) rlRotatef(r.angle, FACE_CENTERS[f2i(F_F)].x, FACE_CENTERS[f2i(F_F)].y, FACE_CENTERS[f2i(F_F)].z);
+    if (a->face == F_F) rlRotatef(a->angle, FACE_CENTERS[f2i(F_F)].x, FACE_CENTERS[f2i(F_F)].y, FACE_CENTERS[f2i(F_F)].z);
     color = getCell(right, F_U | F_L);
     DrawLeftRight((Vector3){1.f, 1.f, 1.f}, BLACK, c2r(color));
-    if (r.face == F_F) rlPopMatrix();
+    if (a->face == F_F) rlPopMatrix();
     color = getCell(right, F_U);
     DrawLeftRight((Vector3){1.f, 1.f, 0.f}, BLACK, c2r(color));
     DrawFrontBack((Vector3){1.f, 1.f, 0.f}, BLACK, BLACK);
-    if (r.face == F_B) rlRotatef(r.angle, FACE_CENTERS[f2i(F_B)].x, FACE_CENTERS[f2i(F_B)].y, FACE_CENTERS[f2i(F_B)].z);
+    if (a->face == F_B) rlRotatef(a->angle, FACE_CENTERS[f2i(F_B)].x, FACE_CENTERS[f2i(F_B)].y, FACE_CENTERS[f2i(F_B)].z);
     color = getCell(right, F_U | F_R);
     DrawLeftRight((Vector3){1.f, 1.f, -1.f}, BLACK, c2r(color));
-    if (r.face == F_B) rlPopMatrix();
+    if (a->face == F_B) rlPopMatrix();
 
-    if (r.face == F_U)
+    if (a->face == F_U)
         rlPopMatrix();
 
-    if (r.face == F_B || r.face == F_F)
+    if (a->face == F_B || a->face == F_F)
         rlPushMatrix();
 
-    if (r.face == F_F) rlRotatef(r.angle, FACE_CENTERS[f2i(F_F)].x, FACE_CENTERS[f2i(F_F)].y, FACE_CENTERS[f2i(F_F)].z);
+    if (a->face == F_F) rlRotatef(a->angle, FACE_CENTERS[f2i(F_F)].x, FACE_CENTERS[f2i(F_F)].y, FACE_CENTERS[f2i(F_F)].z);
     color = getCell(right, F_L);
     DrawLeftRight((Vector3){1.f, 0.f, 1.f}, BLACK, c2r(color));
-    if (r.face == F_F) rlPopMatrix();
+    if (a->face == F_F) rlPopMatrix();
     color = Red;
     DrawLeftRight(FACE_CENTERS[f2i(F_R)], BLACK, c2r(color));
     DrawFrontBack(FACE_CENTERS[f2i(F_R)], BLACK, BLACK);
     DrawTopBottom(FACE_CENTERS[f2i(F_R)], BLACK, BLACK);
-    if (r.face == F_B) rlRotatef(r.angle, FACE_CENTERS[f2i(F_B)].x, FACE_CENTERS[f2i(F_B)].y, FACE_CENTERS[f2i(F_B)].z);
+    if (a->face == F_B) rlRotatef(a->angle, FACE_CENTERS[f2i(F_B)].x, FACE_CENTERS[f2i(F_B)].y, FACE_CENTERS[f2i(F_B)].z);
     color = getCell(right, F_R);
     DrawLeftRight((Vector3){1.f, 0.f, -1.f}, BLACK, c2r(color));
-    if (r.face == F_B) rlPopMatrix();
+    if (a->face == F_B) rlPopMatrix();
 
-    if (r.face == F_D)
-        rlRotatef(r.angle, FACE_CENTERS[f2i(F_D)].x, FACE_CENTERS[f2i(F_D)].y, FACE_CENTERS[f2i(F_D)].z);
+    if (a->face == F_D)
+        rlRotatef(a->angle, FACE_CENTERS[f2i(F_D)].x, FACE_CENTERS[f2i(F_D)].y, FACE_CENTERS[f2i(F_D)].z);
 
-    if (r.face == F_B || r.face == F_F)
+    if (a->face == F_B || a->face == F_F)
         rlPushMatrix();
 
-    if (r.face == F_F) rlRotatef(r.angle, FACE_CENTERS[f2i(F_F)].x, FACE_CENTERS[f2i(F_F)].y, FACE_CENTERS[f2i(F_F)].z);
+    if (a->face == F_F) rlRotatef(a->angle, FACE_CENTERS[f2i(F_F)].x, FACE_CENTERS[f2i(F_F)].y, FACE_CENTERS[f2i(F_F)].z);
     color = getCell(right, F_D | F_L);
     DrawLeftRight((Vector3){1.f, -1.f, 1.f}, BLACK, c2r(color));
-    if (r.face == F_F) rlPopMatrix();
+    if (a->face == F_F) rlPopMatrix();
     color = getCell(right, F_D);
     DrawLeftRight((Vector3){1.f, -1.f, 0.f}, BLACK, c2r(color));
     DrawFrontBack((Vector3){1.f, -1.f, 0.f}, BLACK, BLACK);
-    if (r.face == F_B) rlRotatef(r.angle, FACE_CENTERS[f2i(F_B)].x, FACE_CENTERS[f2i(F_B)].y, FACE_CENTERS[f2i(F_B)].z);
+    if (a->face == F_B) rlRotatef(a->angle, FACE_CENTERS[f2i(F_B)].x, FACE_CENTERS[f2i(F_B)].y, FACE_CENTERS[f2i(F_B)].z);
     color = getCell(right, F_D | F_R);
     DrawLeftRight((Vector3){1.f, -1.f, -1.f}, BLACK, c2r(color));
-    if (r.face == F_B) rlPopMatrix();
+    if (a->face == F_B) rlPopMatrix();
 
-    if (r.face == F_R || r.face == F_D)
+    if (a->face == F_R || a->face == F_D)
         rlPopMatrix();
 }
 
 // Will be drawn at 0.0 0.0 0.0
-void DrawRubik(const Cube* cube)
+void DrawRubik(const Cube* cube, const Animation* a)
 {
-    DrawUp(&cube->faces[f2i(F_U)], cube->rotation);
-    DrawDown(&cube->faces[f2i(F_D)], cube->rotation);
+    DrawUp(&cube->faces[f2i(F_U)], a);
+    DrawDown(&cube->faces[f2i(F_D)], a);
 
-    DrawFront(&cube->faces[f2i(F_F)], cube->rotation);
-    DrawBack(&cube->faces[f2i(F_B)], cube->rotation);
+    DrawFront(&cube->faces[f2i(F_F)], a);
+    DrawBack(&cube->faces[f2i(F_B)], a);
 
-    DrawLeft(&cube->faces[f2i(F_L)], cube->rotation);
-    DrawRight(&cube->faces[f2i(F_R)], cube->rotation);
+    DrawLeft(&cube->faces[f2i(F_L)], a);
+    DrawRight(&cube->faces[f2i(F_R)], a);
 }
 
-void drawCurrentMovement(const Cube* cube, const Font* f)
+void drawCurrentMovement(const Animation* a, const Font* f)
 {
-    if (cube->rotation.face == 0 || cube->rotation.move == NO_MOVE)
+    if (a->face == 0 || a->move == NO_MOVE)
         return;
 
-    const char* movementText = moveToStr(cube->rotation.move);
+    const char* movementText = moveToStr(a->move);
     const int fontSize = f->baseSize;
     const float spacing = 2.f;
 
