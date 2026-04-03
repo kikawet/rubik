@@ -46,7 +46,7 @@ void nextMove(State* s)
         a->current_move = 0;
         s->solution.count = 0;
 
-        TraceLog(LOG_DEBUG, "Resetting state");
+        TraceLog(LOG_DEBUG, "All moves peformed");
         return;
     }
 

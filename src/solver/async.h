@@ -30,23 +30,25 @@ bool as_completed(const AsyncSolver* as);
 
 #ifdef ASYNC_IMPLEMENTATION
 
-typedef struct thread_params
+typedef struct as_thread_params
 {
     Cube cube;
     solve_t* solver;
-} ThreadParams;
+} ASThreadParams;
 
 struct async_solver_t
 {
     pthread_t thread;
-    ThreadParams* params;
+    ASThreadParams* params;
     Moves* solution;
 };
 
 
 void* async_wrapper(void* data)
 {
-    const ThreadParams* params = data;
+    pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+
+    const ASThreadParams* params = data;
     // Freed on as_new or as_free
     Moves* solution = calloc(1, sizeof(Moves));
     params->solver(params->cube, solution); // This somehow leaks check valgrind
@@ -57,7 +59,7 @@ inline void as_new_custom(AsyncSolver* as, const Cube cube, solve_t* solver)
 {
     as_free(as);
 
-    as->params = calloc(1, sizeof(ThreadParams));
+    as->params = calloc(1, sizeof(ASThreadParams));
     as->params->cube = cube;
     as->params->solver = solver;
 

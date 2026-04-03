@@ -65,22 +65,27 @@ void dump_moves(const Moves* moves)
 // TODO: include multiple testing modes/steps one random and another for testing known solutions?
 int main(const int argc, char** argv)
 {
-    SetRandomSeed(time(NULL));
-    // SetRandomSeed(2);
+    // SetRandomSeed(time(NULL));
+    SetRandomSeed(2);
+    // SetTraceLogLevel(LOG_TRACE);
     SetTraceLogLevel(LOG_NONE);
 
-    Cube cube = newCube();
+    Cube cube = {0};
+    resetCube(&cube);
     Moves shuffle = {0};
     Moves solution = {0};
 
-    const long rounds = argc < 2 ? 100: strtol(argv[1], NULL, 10);
+    const long rounds = argc < 2 ? 100 : strtol(argv[1], NULL, 10);
 
     for (long i = 1; i <= rounds; i++)
     {
-        const long checks = 10000;
-        printf("%ld/%ld\n", i, rounds);
+        const long checks = 100;
+        printf("\r%ld/%ld\n", i, rounds);
         for (long j = 0; j < checks; j++)
         {
+            printf("\r\t%ld/%ld", j, checks);
+            fflush(stdout);
+
             resetCube(&cube);
             generate_moves(&shuffle, i);
             applyMoves(&cube, &shuffle);
@@ -98,6 +103,8 @@ int main(const int argc, char** argv)
             solution.count = 0;
         }
     }
+    printf("\r ");
+    fflush(stdout);
 
     if (shuffle.items) free(shuffle.items);
     if (solution.items) free(solution.items);

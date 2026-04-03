@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <time.h>
 #include <raylib.h>
 
 #include "solver/solver.h"
@@ -65,9 +64,11 @@ void parse_args(const int argc, const char** argv, Moves* moves)
 int main(const int argc, const char** argv)
 {
     //SetTraceLogLevel(LOG_NONE);
+    //SetTraceLogLevel(LOG_DEBUG);
     SetTraceLogLevel(LOG_TRACE);
 
-    Cube cube = newCube();
+    Cube cube;
+    resetCube(&cube);
     Moves shuffle = {0};
     Moves solution = {0};
 
@@ -80,7 +81,7 @@ int main(const int argc, const char** argv)
         // dump_moves(&shuffle);
         abort();
     }
-    
+
     applyMoves(&cube, &solution);
 
     if (!is_solved(&cube))

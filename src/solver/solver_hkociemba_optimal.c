@@ -2,8 +2,24 @@
 // This code is a subset from the one linked; basically only the code required to solve a cube lol
 
 #include <stdio.h>
+#include <errno.h>
 
 #include "hkociemba.c"
+#define PARALLEL
+
+#ifdef PARALLEL
+#define __USE_GNU
+#include <pthread.h>
+#undef __USE_GNU
+
+#define NUM_THREADS 6
+volatile int done_childs = 0;
+
+// Macro for when you don't handle the pthread code
+#define PTHREAD_RUN(F) do { \
+    assert((F) == 0);\
+} while (0)
+#endif
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
@@ -16,7 +32,6 @@ void run_asserts(void)
 #else
     TraceLog(LOG_TRACE, "Using generated data from object files");
 #endif
-
 
     // TODO: run this only once :)
     assert(flipslicesorted_twist_depth3_start != NULL);
@@ -46,6 +61,20 @@ typedef struct SearchContext
     size_t nodecount;
     SolutionMoves sofar;
 } SearchContext;
+
+//#ifdef PARALLEL
+typedef struct hk_thread_params
+{
+    SearchContext ctx;
+    CoordCube coc;
+    int32_t togo;
+
+    pthread_barrier_t* started;
+    pthread_mutex_t* done_lock;
+    pthread_cond_t* done;
+} HKThreadParams;
+
+void* parallel_search(void* p);
 
 bool calculate_next_coords(CoordCube* ncc, const FaceTurnMove m, const CoordCube cc, const int32_t togo)
 {
@@ -198,25 +227,122 @@ bool solve(const Cube cube, Moves* queue)
     const FaceCube fc = cubeToFaceCube(&cube);
     const CubieCube cc2 = faceToCubie(&fc);
     const CoordCube coc = cubieToCoordCube(&cc2);
-    // F rotation in FaceCube cords: UUUUUULLLURRURRURRFFFFFFFFFRRRDDDDDDLLDLLDLLDBBBBBBBBB
-    // dumpFaceCube(&fc);
-    // printf("UUUUUULLLURRURRURRFFFFFFFFFRRRDDDDDDLLDLLDLLDBBBBBBBBB\n");
-
-    //debug_cordcube(&coc);
 
     // lower bound for distance to solved
     int32_t togo = MAX(coc.UD_phasex24_depth, MAX(coc.RL_phasex24_depth, coc.FB_phasex24_depth));
     size_t totnodes = 0;
-    SearchContext ctx = {0};
 
+#ifndef PARALLEL
+    TraceLog(LOG_INFO, "SOLVING SEQUENTIALLY");
+    SearchContext ctx = {0};
     while (!ctx.solfound)
     {
+        TraceLog(LOG_TRACE, "SOLVER LOOPED AFTER CHECKING %ld NODES", ctx.nodecount);
         ctx.sofar.count = 0;
         totnodes += ctx.nodecount;
         ctx.nodecount = 0;
         search(&ctx, coc, togo);
         togo++;
     }
+#else
+    TraceLog(LOG_INFO, "SOLVING IN PARALLEL");
+    HKThreadParams params[NUM_THREADS] = {0};
+    pthread_t childs[NUM_THREADS] = {0};
+    ssize_t completed_idx = -1;
+    done_childs = 0;
+
+    pthread_mutex_t done_lock = PTHREAD_MUTEX_INITIALIZER;
+    pthread_cond_t done = PTHREAD_COND_INITIALIZER;
+
+    pthread_barrier_t started;
+    pthread_barrier_init(&started, NULL, 2);
+
+    for (int i = 0; i < NUM_THREADS; ++i)
+    {
+        HKThreadParams* param = &params[i];
+
+        param->coc = coc;
+        param->togo = togo++;
+        param->started = &started;
+        param->done_lock = &done_lock;
+        param->done = &done;
+
+        PTHREAD_RUN(pthread_create(&childs[i], NULL, parallel_search, param));
+        pthread_barrier_wait(&started);
+        // assert(pthread_tryjoin_np(childs[i], NULL) == EBUSY);// Trick to ensure is running
+    }
+
+    while (completed_idx == -1)
+    {
+        PTHREAD_RUN(pthread_mutex_lock(&done_lock));
+        while (done_childs == 0)
+        {
+            TraceLog(LOG_TRACE, "\t[Main] sleep: %d", done_childs);
+            PTHREAD_RUN(pthread_cond_wait(&done, &done_lock));
+        }
+
+        // TODO: if togo = 19 finished with solfound then cancel threads with togo > 19 and merge results with togo < 19
+        TraceLog(LOG_TRACE, "Starting search...");
+        completed_idx = -1;
+        while (completed_idx == -1)
+        {
+            for (int i = 0; i < NUM_THREADS && completed_idx == -1; i++)
+            {
+                const int status = pthread_tryjoin_np(childs[i], NULL);
+                if (status == 0)
+                {
+                    completed_idx = i;
+                }
+                else if (status != EBUSY)
+                {
+                    // error
+                    assert(0 && "unreachable");
+                }
+            }
+        }
+
+        const SearchContext* completed = &params[completed_idx].ctx;
+        totnodes += completed->nodecount;
+
+        if (!completed->solfound)
+        {
+            HKThreadParams* param = &params[completed_idx];
+
+            // All the other props remain the same when reusing params
+            param->togo = togo++;
+            PTHREAD_RUN(pthread_create(&childs[completed_idx], NULL, parallel_search, param));
+            pthread_barrier_wait(&started);
+
+            completed = NULL;
+            completed_idx = -1;
+        }
+
+        done_childs--;
+        PTHREAD_RUN(pthread_cond_signal(&done));
+        PTHREAD_RUN(pthread_mutex_unlock(&done_lock));
+    }
+    pthread_barrier_destroy(&started);
+
+    TraceLog(LOG_TRACE, "Cancel the others");
+    for (int i = 0; i < NUM_THREADS; i++)
+    {
+        if (i != completed_idx)
+        {
+            PTHREAD_RUN(pthread_cancel(childs[i]));
+            PTHREAD_RUN(pthread_join(childs[i], NULL));
+
+            free(params[i].ctx.sofar.items);
+        }
+        // PTHREAD_RUN(pthread_cancel(childs[i]));
+        //
+        // const int s = pthread_join(childs[i], NULL);
+        // assert(s == 0 || s == ESRCH || s == ECANCELED);
+        // if (i == completed_idx)
+        //     assert((s == 0 || s == ESRCH));
+    }
+
+    const SearchContext ctx = params[completed_idx].ctx;;
+#endif
 
     TraceLog(LOG_TRACE, "Solution has %d moves", ctx.sofar.count);
     TraceLog(LOG_TRACE, "Searched %d nodes", totnodes);
@@ -227,8 +353,49 @@ bool solve(const Cube cube, Moves* queue)
         da_append(queue, faceTurnMoveToMove(ftm));
     }
 
-    // TODO: if this variable is global no free nor realloc should be required
     if (ctx.sofar.items) free(ctx.sofar.items);
 
     return ctx.solfound;
 }
+
+#ifdef PARALLEL
+static void unlock_mutex(void* p)
+{
+    if (p == NULL) return;
+    pthread_mutex_t* m = p;
+    // Ensure lock was taken before unlock
+    if (pthread_mutex_trylock(m))
+    {
+    }
+    pthread_mutex_unlock(m);
+}
+
+void* parallel_search(void* p)
+{
+    PTHREAD_RUN(pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL));
+
+    HKThreadParams* params = p;
+    pthread_barrier_wait(params->started);
+    TraceLog(LOG_TRACE, "Starting [%d]", params->togo);
+
+    params->ctx.sofar.count = 0;
+    params->ctx.nodecount = 0;
+
+    search(&params->ctx, params->coc, params->togo);
+
+    PTHREAD_RUN(pthread_mutex_lock(params->done_lock));
+    pthread_cleanup_push(unlock_mutex, params->done_lock)
+        while (done_childs > 0)
+        {
+            PTHREAD_RUN(pthread_cond_wait(params->done, params->done_lock));
+        }
+
+        done_childs++;
+        PTHREAD_RUN(pthread_cond_signal(params->done));
+        TraceLog(LOG_TRACE, "Ending [%d] (%d)", params->togo, done_childs);
+        PTHREAD_RUN(pthread_mutex_unlock(params->done_lock));
+    pthread_cleanup_pop(0);
+
+    pthread_exit(NULL);
+}
+#endif
