@@ -67,8 +67,8 @@ int main(const int argc, char** argv)
 {
     // SetRandomSeed(time(NULL));
     SetRandomSeed(2);
-    // SetTraceLogLevel(LOG_TRACE);
     SetTraceLogLevel(LOG_NONE);
+    // SetTraceLogLevel(LOG_TRACE);
 
     Cube cube = {0};
     resetCube(&cube);

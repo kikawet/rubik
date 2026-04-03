@@ -18,7 +18,7 @@
 #include "solver/solver.h"
 #include "../resources/MozillaTextFont.h"
 
-// TODO: Global state looked like a good idea at the start but after chaging the code looks like add friction, remove?
+// TODO: Global state looked like a good idea at the start but after changing the code looks like add friction, remove?
 typedef struct state
 {
     Cube cube;
@@ -165,17 +165,6 @@ void handleKeys(Cube* cube, Moves* queue)
         da_append(queue, ccw ? Dp : D);
 }
 
-void thistlethwaite_suffle(Cube* cube)
-{
-    const Move m[] = {UU, BB, Rp, FF, Rp, UU, LL, BB, Rp, BB, RR, UU, BB, Up, L, RR, U, L, F, DD, Rp, Fp};
-    const size_t size = sizeof(m) / sizeof(m[0]);
-
-    for (size_t i = 0; i < size; i++)
-    {
-        rotateCube(cube, m[i]);
-    }
-}
-
 bool reload_libsolver(State* s)
 {
     if (s->dlsolver != NULL) dlclose(s->dlsolver);
@@ -226,7 +215,6 @@ int main(const int argc, const char** argv)
     resetCube(&state.cube);
 
     parse_args(argc, argv, &state.cube);
-    //thistlethwaite_suffle(&cube);
 
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     SetTargetFPS(60);

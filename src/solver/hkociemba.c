@@ -649,18 +649,9 @@ CubieCube faceToCubie(const FaceCube* f)
     return cc;
 }
 
-// Rotate array arr left between l and r. r is included.
-// void rotate_left(Corner* arr, const int l, const int r)
-// {
-//     const Corner temp = arr[l];
-//     for (int i = l; i < r; ++i)
-//         arr[i] = arr[i + 1];
-//     arr[r] = temp;
-// }
-
 #define rotate_left(type, arr, l, r)        \
     do {                                    \
-        const type temp = (arr)[(l)];     \
+        const type temp = (arr)[(l)];       \
         for (int i = (l); i < (r); ++i)     \
             (arr)[i] = (arr)[i + 1];        \
         (arr)[(r)] = temp;                  \
@@ -777,37 +768,7 @@ void corner_multiply(CubieCube* ca, const CubieCube* cb)
         c_perm[c] = ca->cp[cb->cp[c]];
         const int32_t ori_a = ca->co[cb->cp[c]];
         const int32_t ori_b = cb->co[c];
-#if 1
         ori = (ori_a + ori_b) % 3;
-#else
-
-
-        if (ori_a < 3 && ori_b < 3) // two regular cubes
-        {
-            ori = ori_a + ori_b;
-            if (ori >= 3)
-                ori -= 3;
-        }
-        else if (ori_a < 3 && 3 <= ori_b) // cube cb is in a mirrored state
-        {
-            ori = ori_a + ori_b;
-            if (ori >= 6)
-                ori -= 3; // the composition also is in a mirrored state
-        }
-        else if (ori_a >= 3 && 3 > ori_b) // cube ca is in a mirrored state
-        {
-            ori = ori_a - ori_b;
-            if (ori < 3)
-                ori += 3; // the composition is a mirrored cube
-        }
-        else if (ori_a >= 3 && ori_b >= 3) // if both cubes are in mirrored states
-        {
-            ori = ori_a - ori_b;
-            if (ori < 0)
-                ori += 3; // the composition is a regular cube
-        }
-
-#endif
         c_ori[c] = ori;
     }
 
