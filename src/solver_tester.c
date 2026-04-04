@@ -96,7 +96,7 @@ int main(const int argc, char** argv)
             if (!is_solved(&cube))
             {
                 dump_moves(&shuffle);
-                abort();
+                TraceLog(LOG_FATAL, "solve failed");
             }
 
             shuffle.count = 0;

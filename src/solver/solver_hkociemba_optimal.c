@@ -11,13 +11,19 @@
 #define __USE_GNU
 #include <pthread.h>
 #undef __USE_GNU
+#define BARRIER_IMPLEMENTATION
+#include "barrier.h"
 
 #define NUM_THREADS 6
 volatile int done_childs = 0;
 
+#define clean_errno() (errno == 0 ? "None" : strerror(errno))
+#define log_error(M, ...) fprintf(stderr, "[ERROR] (%s:%d: errno: %s) " M "\n", __FILE__, __LINE__, clean_errno(), ##__VA_ARGS__)
+#define assertf(A, M, ...) if(!(A)) {log_error(M, ##__VA_ARGS__); assert(A); }
+
 // Macro for when you don't handle the pthread code
 #define PTHREAD_RUN(F) do { \
-    assert((F) == 0);\
+    assertf((F) == 0, "Assert failed with code %d", (F));\
 } while (0)
 #endif
 
@@ -65,16 +71,25 @@ typedef struct SearchContext
 //#ifdef PARALLEL
 typedef struct hk_thread_params
 {
+    // Search
     SearchContext ctx;
     CoordCube coc;
     int32_t togo;
 
-    pthread_barrier_t* started;
-    pthread_mutex_t* done_lock;
-    pthread_cond_t* done;
+    // Thread info
+    int32_t idx;
+    bool finished;
+    bool canceled;
 } HKThreadParams;
 
 void* parallel_search(void* p);
+
+void reset_ctx(SearchContext* ctx)
+{
+    ctx->solfound = false;
+    ctx->nodecount = 0;
+    ctx->sofar.count = 0;
+}
 
 bool calculate_next_coords(CoordCube* ncc, const FaceTurnMove m, const CoordCube cc, const int32_t togo)
 {
@@ -219,6 +234,12 @@ void search(SearchContext* ctx, const CoordCube cc, const int32_t togo)
     }
 }
 
+static HKThreadParams params[NUM_THREADS] = {0};
+static pthread_t childs[NUM_THREADS] = {0};
+static ThreadBarrier started_barrier[NUM_THREADS] = {0};
+static pthread_mutex_t done_lock = {0};
+static pthread_cond_t done_signal = {0};
+
 bool solve(const Cube cube, Moves* queue)
 {
     run_asserts();
@@ -246,40 +267,42 @@ bool solve(const Cube cube, Moves* queue)
     }
 #else
     TraceLog(LOG_INFO, "SOLVING IN PARALLEL");
-    HKThreadParams params[NUM_THREADS] = {0};
-    pthread_t childs[NUM_THREADS] = {0};
+
     ssize_t completed_idx = -1;
     done_childs = 0;
-
-    pthread_mutex_t done_lock = PTHREAD_MUTEX_INITIALIZER;
-    pthread_cond_t done = PTHREAD_COND_INITIALIZER;
-
-    pthread_barrier_t started;
-    pthread_barrier_init(&started, NULL, 2);
+    PTHREAD_RUN(pthread_mutex_init(&done_lock, NULL));
+    PTHREAD_RUN(pthread_cond_init(&done_signal, NULL));
 
     for (int i = 0; i < NUM_THREADS; ++i)
     {
         HKThreadParams* param = &params[i];
+        PTHREAD_RUN(thread_barrier_init(&started_barrier[i], 2));
 
+        param->idx = i;
         param->coc = coc;
         param->togo = togo++;
-        param->started = &started;
-        param->done_lock = &done_lock;
-        param->done = &done;
+        param->canceled = false;
+        param->finished = false;
+        reset_ctx(&param->ctx);
 
         PTHREAD_RUN(pthread_create(&childs[i], NULL, parallel_search, param));
-        pthread_barrier_wait(&started);
-        // assert(pthread_tryjoin_np(childs[i], NULL) == EBUSY);// Trick to ensure is running
+        // TraceLog(LOG_TRACE, "\t[Main]Awaiting : %d", params[i].idx);
+        // PTHREAD_RUN(pthread_barrier_wait(&started[i]));
+        TraceLog(LOG_TRACE, "\t[Main] Awaiting: %d", params[i].idx);
+        PTHREAD_RUN(thread_barrier_wait(&started_barrier[i]));
     }
 
+    TraceLog(LOG_TRACE, "\t[Main] Entering main loop");
     while (completed_idx == -1)
     {
         PTHREAD_RUN(pthread_mutex_lock(&done_lock));
         while (done_childs == 0)
         {
             TraceLog(LOG_TRACE, "\t[Main] sleep: %d", done_childs);
-            PTHREAD_RUN(pthread_cond_wait(&done, &done_lock));
+            PTHREAD_RUN(pthread_cond_wait(&done_signal, &done_lock));
+            TraceLog(LOG_TRACE, "\t[Main] woke up: %d", done_childs);
         }
+        PTHREAD_RUN(pthread_mutex_unlock(&done_lock));
 
         // TODO: if togo = 19 finished with solfound then cancel threads with togo > 19 and merge results with togo < 19
         TraceLog(LOG_TRACE, "Starting search...");
@@ -288,16 +311,21 @@ bool solve(const Cube cube, Moves* queue)
         {
             for (int i = 0; i < NUM_THREADS && completed_idx == -1; i++)
             {
-                const int status = pthread_tryjoin_np(childs[i], NULL);
-                if (status == 0)
+                const bool finished = params[i].finished;
+                if (finished)
                 {
                     completed_idx = i;
                 }
-                else if (status != EBUSY)
-                {
-                    // error
-                    assert(0 && "unreachable");
-                }
+                // const int status = pthread_tryjoin_np(childs[i], NULL);
+                // if (status == 0)
+                // {
+                //     completed_idx = i;
+                // }
+                // else if (status != EBUSY)
+                // {
+                //     // error
+                //     assert(0 && "unreachable");
+                // }
             }
         }
 
@@ -310,36 +338,82 @@ bool solve(const Cube cube, Moves* queue)
 
             // All the other props remain the same when reusing params
             param->togo = togo++;
-            PTHREAD_RUN(pthread_create(&childs[completed_idx], NULL, parallel_search, param));
-            pthread_barrier_wait(&started);
+            param->finished = false;
+            reset_ctx(&param->ctx);
+            // PTHREAD_RUN(pthread_create(&childs[completed_idx], NULL, parallel_search, param));
+
+            // PTHREAD_RUN(pthread_mutex_unlock(&done_lock));
+            TraceLog(LOG_TRACE, "\t[Main] Awaiting: %d ----------------", completed_idx);
+            TraceLog(LOG_TRACE, "\t[Main] Awaiting: %d ----------------", params[completed_idx].idx);
+            const int r_wait = thread_barrier_wait(&started_barrier[completed_idx]);
+            if (r_wait != 0 && r_wait != PTHREAD_BARRIER_SERIAL_THREAD)
+            {
+                TraceLog(LOG_FATAL, "\t[Main] Error waiting for barrier %d", completed_idx);
+            }
+            TraceLog(LOG_TRACE, "\t[Main] Restarted: %d", params[completed_idx].idx);
+            // PTHREAD_RUN(pthread_mutex_lock(&done_lock));
 
             completed = NULL;
             completed_idx = -1;
         }
 
+        PTHREAD_RUN(pthread_mutex_lock(&done_lock));
         done_childs--;
-        PTHREAD_RUN(pthread_cond_signal(&done));
+        // PTHREAD_RUN(pthread_cond_signal(&done));
         PTHREAD_RUN(pthread_mutex_unlock(&done_lock));
     }
-    pthread_barrier_destroy(&started);
 
-    TraceLog(LOG_TRACE, "Cancel the others");
+    // for loop
+    // pthread_barrier_destroy(&started);
+
+    TraceLog(LOG_TRACE, "\t[Main] Cancel the others");
     for (int i = 0; i < NUM_THREADS; i++)
     {
-        if (i != completed_idx)
+        // if (i != completed_idx)
+        // {
+        TraceLog(LOG_TRACE, "\t[Main] Cancelling: %d", params[i].idx);
+        // Cancel computation if is in search
+        PTHREAD_RUN(pthread_cancel(childs[i]));
+        // Advance from barrier because cancel won't do it
+        // TraceLog(LOG_TRACE, "\t[Main] Cancel await : %d", params[i].idx);
+        // const int r_wait = pthread_barrier_wait(&started_barrier[i]);
+        // if (r_wait != 0 && r_wait != PTHREAD_BARRIER_SERIAL_THREAD)
+        // {
+        //     TraceLog(LOG_FATAL, "\t[Main] Error waiting for barrier %d", r_wait);
+        // }
+        // Wait for exit
+        TraceLog(LOG_TRACE, "\t[Main] Joining: %d", params[i].idx);
+        void* retval;
+        PTHREAD_RUN(pthread_join(childs[i], &retval));
+        if (PTHREAD_CANCELED == retval)
         {
-            PTHREAD_RUN(pthread_cancel(childs[i]));
-            PTHREAD_RUN(pthread_join(childs[i], NULL));
-
-            free(params[i].ctx.sofar.items);
+            // TraceLog(LOG_FATAL, "\t[Main] Error joining thread %d", i);
+            TraceLog(LOG_TRACE, "\t[Main] Canceled: %d", params[i].idx);
         }
-        // PTHREAD_RUN(pthread_cancel(childs[i]));
-        //
+
+        params[i].canceled = true;
+        TraceLog(LOG_TRACE, "\t[Main] Destroy barrier: %d", params[i].idx);
+        PTHREAD_RUN(thread_barrier_destroy(&started_barrier[i]));
+
+        // free(params[i].ctx.sofar.items);
+        // }
+
+        // TraceLog(LOG_TRACE, "\t[Main] Cleaning barrier: %d", params[i].idx);
+        // const int r_clean = pthread_barrier_destroy(&started_barrier[i]);
+        // if (r_clean != 0)
+        // {
+        //     TraceLog(LOG_FATAL, "\t[Main] Error waiting for barrier %d", r_clean);
+        // }
+        // TraceLog(LOG_TRACE, "\t[Main] Cleaned barrier: %d", params[i].idx);
+
         // const int s = pthread_join(childs[i], NULL);
         // assert(s == 0 || s == ESRCH || s == ECANCELED);
         // if (i == completed_idx)
         //     assert((s == 0 || s == ESRCH));
     }
+
+    PTHREAD_RUN(pthread_mutex_destroy(&done_lock));
+    PTHREAD_RUN(pthread_cond_destroy(&done_signal));
 
     const SearchContext ctx = params[completed_idx].ctx;;
 #endif
@@ -353,7 +427,7 @@ bool solve(const Cube cube, Moves* queue)
         da_append(queue, faceTurnMoveToMove(ftm));
     }
 
-    if (ctx.sofar.items) free(ctx.sofar.items);
+    // if (ctx.sofar.items) free(ctx.sofar.items);
 
     return ctx.solfound;
 }
@@ -368,34 +442,59 @@ static void unlock_mutex(void* p)
     {
     }
     pthread_mutex_unlock(m);
+    TraceLog(LOG_TRACE, "\t Cleanup unlocking mutex");
 }
 
 void* parallel_search(void* p)
 {
-    PTHREAD_RUN(pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL));
+    PTHREAD_RUN(pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL));
+    // PTHREAD_RUN(pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL));
+    PTHREAD_RUN(pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL));
 
-    HKThreadParams* params = p;
-    pthread_barrier_wait(params->started);
-    TraceLog(LOG_TRACE, "Starting [%d]", params->togo);
+    const HKThreadParams* param = p;
+    HKThreadParams* t_params = &params[param->idx];
 
-    params->ctx.sofar.count = 0;
-    params->ctx.nodecount = 0;
+    ThreadBarrier* started = &started_barrier[param->idx];
 
-    search(&params->ctx, params->coc, params->togo);
+    // TraceLog(LOG_TRACE, "Awaiting start id:[%d]", t_params->idx);
+    // PTHREAD_RUN(pthread_barrier_wait(&shared_barrier));
 
-    PTHREAD_RUN(pthread_mutex_lock(params->done_lock));
-    pthread_cleanup_push(unlock_mutex, params->done_lock)
-        while (done_childs > 0)
+    while (!t_params->ctx.solfound)
+    {
+        TraceLog(LOG_TRACE, "[%d] Awaiting start", t_params->idx);
+        // pthread_cleanup_push(unlock_barrier, started)
+        pthread_testcancel();
+        PTHREAD_RUN(thread_barrier_wait(started));
+        if (t_params->canceled)
         {
-            PTHREAD_RUN(pthread_cond_wait(params->done, params->done_lock));
+            TraceLog(LOG_TRACE, "[%d] Canceled depth: %d", t_params->idx, t_params->togo);
+            break;
         }
+        TraceLog(LOG_TRACE, "[%d] Starting depth: %d", t_params->idx, t_params->togo);
+        // pthread_cleanup_pop(0);
 
-        done_childs++;
-        PTHREAD_RUN(pthread_cond_signal(params->done));
-        TraceLog(LOG_TRACE, "Ending [%d] (%d)", params->togo, done_childs);
-        PTHREAD_RUN(pthread_mutex_unlock(params->done_lock));
-    pthread_cleanup_pop(0);
+        t_params->ctx.sofar.count = 0;
+        t_params->ctx.nodecount = 0;
 
+        search(&t_params->ctx, t_params->coc, t_params->togo);
+
+        TraceLog(LOG_TRACE, "[%d] Work done", t_params->idx);
+        PTHREAD_RUN(pthread_mutex_lock(&done_lock));
+        pthread_cleanup_push(unlock_mutex, &done_lock)
+            // while (done_childs > 0)
+            // {
+            //     PTHREAD_RUN(pthread_cond_wait(params->done, params->done_lock));
+            // }
+
+            t_params->finished = true;
+            done_childs++;
+            PTHREAD_RUN(pthread_cond_signal(&done_signal));
+            TraceLog(LOG_TRACE, "[%d] Ending depth %d", t_params->idx, t_params->togo);
+            PTHREAD_RUN(pthread_mutex_unlock(&done_lock));
+        pthread_cleanup_pop(0);
+    }
+
+    TraceLog(LOG_DEBUG, "[%d] Finished depth %d", t_params->idx, t_params->togo);
     pthread_exit(NULL);
 }
 #endif

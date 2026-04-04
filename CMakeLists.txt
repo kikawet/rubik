@@ -26,9 +26,11 @@ target_link_libraries(solver_perf raylib cube solver)
 ### Brute force many solutions to check if solver works :P
 add_executable(solver_tester src/solver_tester.c)
 target_link_libraries(solver_tester raylib cube solver)
-set_target_properties(solver_tester PROPERTIES CMAKE_C_COMPILER clang) # Pretty sure this doesn't work but can't test it :v
-target_compile_options(solver_tester PRIVATE -fsanitize=address -fsanitize=undefined)
-target_link_options(solver_tester PRIVATE -fsanitize=address -fsanitize=undefined)
+
+# ok so after implementing everything in parallel nothing is safe lol double free and all what you may want thanks to the custom barrier implementation so be aware when enabling sanitizers
+#set_target_properties(solver_tester PROPERTIES CMAKE_C_COMPILER clang)
+#target_compile_options(solver_tester PRIVATE -fsanitize=undefined -fsanitize=thread)
+#target_link_options(solver_tester PRIVATE -fsanitize=undefined -fsanitize=thread)
 
 
 ################    RAYLIB    ################
