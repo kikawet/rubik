@@ -5,7 +5,8 @@
 #include <errno.h>
 
 #include "hkociemba.c"
-#define PARALLEL
+// PARALLEL is disabled by default because the goal is to prioritize optimal solutions
+// #define PARALLEL
 
 #ifdef PARALLEL
 #define __USE_GNU
