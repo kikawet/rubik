@@ -27,7 +27,7 @@ target_link_libraries(solver_perf raylib cube solver)
 add_executable(solver_tester src/solver_tester.c)
 target_link_libraries(solver_tester raylib cube solver)
 
-# ok so after implementing everything in parallel nothing is safe lol double free and all what you may want thanks to the custom barrier implementation so be aware when enabling sanitizers
+# ok so after implementing everything in parallel -fsanitize=thread just gives false positives confirmed using PTHREAD_MUTEX_ERRORCHECK
 #set_target_properties(solver_tester PROPERTIES CMAKE_C_COMPILER clang)
 #target_compile_options(solver_tester PRIVATE -fsanitize=undefined -fsanitize=thread)
 #target_link_options(solver_tester PRIVATE -fsanitize=undefined -fsanitize=thread)

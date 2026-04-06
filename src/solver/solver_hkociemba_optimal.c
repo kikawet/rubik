@@ -11,6 +11,7 @@
 #define __USE_GNU
 #include <pthread.h>
 #undef __USE_GNU
+
 #define BARRIER_IMPLEMENTATION
 #include "barrier.h"
 
@@ -18,13 +19,17 @@
 volatile int done_childs = 0;
 
 #define clean_errno() (errno == 0 ? "None" : strerror(errno))
-#define log_error(M, ...) fprintf(stderr, "[ERROR] (%s:%d: errno: %s) " M "\n", __FILE__, __LINE__, clean_errno(), ##__VA_ARGS__)
+#define log_error(M, ...) fprintf(stderr, "[ERROR] (%s:%d: errno: %s) " M "\n", __filename, __line, clean_errno(), ##__VA_ARGS__)
 #define assertf(A, M, ...) if(!(A)) {log_error(M, ##__VA_ARGS__); assert(A); }
 
 // Macro for when you don't handle the pthread code
-#define PTHREAD_RUN(F) do { \
-    assertf((F) == 0, "Assert failed with code %d", (F));\
-} while (0)
+static int pthread_run_inner(const int result, const char* __filename, const int __line)
+{
+    assertf(result == 0, "Assert failed with code %d", result);
+    return result;
+}
+
+#define PTHREAD_RUN(F) pthread_run_inner((F), __FILE__, __LINE__)
 #endif
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
@@ -55,7 +60,6 @@ typedef struct hk_thread_params
     // Thread info
     int32_t idx;
     bool finished;
-    bool canceled;
 } HKThreadParams;
 
 static HKThreadParams params[NUM_THREADS] = {0};
@@ -64,7 +68,9 @@ static ThreadBarrier started_barrier[NUM_THREADS] = {0};
 static pthread_mutex_t done_lock = {0};
 static pthread_cond_t done_signal = {0};
 #else
-void pthread_testcancel(void) {}
+void pthread_testcancel(void)
+{
+}
 #endif
 
 // TODO: move this to a common place
@@ -275,7 +281,7 @@ bool solve(const Cube cube, Moves* queue)
 
     ssize_t completed_idx = -1;
     done_childs = 0;
-    PTHREAD_RUN(pthread_mutex_init(&done_lock, NULL));
+    PTHREAD_RUN(pthread_mutex_init(&done_lock, NULL)); // TODO: use PTHREAD_MUTEX_ERRORCHECK
     PTHREAD_RUN(pthread_cond_init(&done_signal, NULL));
 
     for (int i = 0; i < NUM_THREADS; ++i)
@@ -286,7 +292,6 @@ bool solve(const Cube cube, Moves* queue)
         param->idx = i;
         param->coc = coc;
         param->togo = togo++;
-        param->canceled = false;
         param->finished = false;
         reset_ctx(&param->ctx);
 
@@ -368,7 +373,6 @@ bool solve(const Cube cube, Moves* queue)
         }
 
         // Destroy barriers
-        params[i].canceled = true;
         TraceLog(LOG_TRACE, "\t[Main] Destroy barrier: %d", params[i].idx);
         PTHREAD_RUN(thread_barrier_destroy(&started_barrier[i]));
     }
@@ -394,14 +398,21 @@ bool solve(const Cube cube, Moves* queue)
 #ifdef PARALLEL
 static void unlock_mutex(void* p)
 {
-    if (p == NULL) return;
     pthread_mutex_t* m = p;
     // Ensure lock was taken before unlock
-    if (pthread_mutex_trylock(m))
+    if (pthread_mutex_trylock(m) == EBUSY)
     {
+        TraceLog(LOG_TRACE, "\t Cleanup mutex already locked");
     }
-    pthread_mutex_unlock(m);
+    PTHREAD_RUN(pthread_mutex_unlock(m));
     TraceLog(LOG_TRACE, "\t Cleanup unlocking mutex");
+}
+
+static void unlock_barrier(void* p)
+{
+    ThreadBarrier* b = p;
+    PTHREAD_RUN(thread_barrier_cleanup(b));
+    TraceLog(LOG_TRACE, "\t Cleanup unlocking barrier %p", &b->mutex);
 }
 
 void* parallel_search(void* p)
@@ -417,14 +428,11 @@ void* parallel_search(void* p)
 
     while (!t_params->ctx.solfound)
     {
-        TraceLog(LOG_TRACE, "[%d] Awaiting start", t_params->idx);
-        PTHREAD_RUN(thread_barrier_wait(started));
-        pthread_testcancel(); // haha funny
-        if (t_params->canceled)
-        {
-            TraceLog(LOG_TRACE, "[%d] Canceled depth: %d", t_params->idx, t_params->togo);
-            break;
-        }
+        TraceLog(LOG_TRACE, "[%d] Awaiting start %p", t_params->idx, &started->mutex);
+        pthread_cleanup_push(unlock_barrier, started)
+            PTHREAD_RUN(thread_barrier_wait(started));
+        pthread_cleanup_pop(0);
+        pthread_testcancel();
         TraceLog(LOG_TRACE, "[%d] Starting depth: %d", t_params->idx, t_params->togo);
 
         t_params->ctx.sofar.count = 0;
@@ -436,12 +444,11 @@ void* parallel_search(void* p)
         TraceLog(LOG_TRACE, "[%d] Work done", t_params->idx);
         PTHREAD_RUN(pthread_mutex_lock(&done_lock));
         pthread_cleanup_push(unlock_mutex, &done_lock)
-
-        t_params->finished = true;
-        done_childs++;
-        PTHREAD_RUN(pthread_cond_signal(&done_signal));
-        TraceLog(LOG_TRACE, "[%d] Ending depth %d", t_params->idx, t_params->togo);
-        PTHREAD_RUN(pthread_mutex_unlock(&done_lock));
+            t_params->finished = true;
+            done_childs++;
+            PTHREAD_RUN(pthread_cond_signal(&done_signal));
+            TraceLog(LOG_TRACE, "[%d] Ending depth %d", t_params->idx, t_params->togo);
+            PTHREAD_RUN(pthread_mutex_unlock(&done_lock));
         pthread_cleanup_pop(0);
     }
 
